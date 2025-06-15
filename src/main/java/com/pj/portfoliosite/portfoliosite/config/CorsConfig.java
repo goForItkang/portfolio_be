@@ -15,6 +15,8 @@ import java.util.Collections;
 
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
+
+    // 수정 필요
     @Value("${cors.config.allowed-origin}")
     private String allowedOrigin;
 
