@@ -20,7 +20,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth->
                         auth.requestMatchers("/api","/login").permitAll()
                                 .anyRequest().authenticated()
+                )
+                .formLogin(form ->form
+                        .loginProcessingUrl("/login")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/success", true)
+                        .failureUrl("/login?error=true")
+                        .permitAll()
                 );
+
         return http.build();
     }
     @Bean

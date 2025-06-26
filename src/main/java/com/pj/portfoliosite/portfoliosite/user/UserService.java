@@ -1,11 +1,11 @@
-package com.pj.portfoliosite.portfoliosite.service;
+package com.pj.portfoliosite.portfoliosite.user;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.LoginRequestDto;
 import com.pj.portfoliosite.portfoliosite.global.dto.LoginResponseDto;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthService {
+public class UserService {
 
     public LoginResponseDto login(LoginRequestDto request) {
 

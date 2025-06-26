@@ -1,19 +1,17 @@
-package com.pj.portfoliosite.portfoliosite.controller;
+package com.pj.portfoliosite.portfoliosite.user;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.global.dto.LoginRequestDto;
-import com.pj.portfoliosite.portfoliosite.global.dto.LoginResponseDto;
-import com.pj.portfoliosite.portfoliosite.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/user")
 @RequiredArgsConstructor
-public class AuthController {
+public class UserController {
 
-    private final AuthService authService;
+    private final UserService userService;
 
     @PostMapping("/login")
     public HttpEntity<DataResponse<String>> login(@RequestBody LoginRequestDto requestDto) {
