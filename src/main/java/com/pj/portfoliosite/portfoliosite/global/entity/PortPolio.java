@@ -31,4 +31,5 @@ public class PortPolio {
     @JoinColumn(name = "user_id")
     private User user;
 
+
 }
