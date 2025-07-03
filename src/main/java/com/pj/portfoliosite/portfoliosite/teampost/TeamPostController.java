@@ -20,6 +20,7 @@ public class TeamPostController {
         return new HttpEntity<>(dataResponse);
     }
     //팀원 구하기 글쓰기
+    //작성자 받아와서 수정해야함 **
     @PostMapping("/api/team/write")
     public HttpEntity<DataResponse<String>> teamPostWrite(@RequestBody ReqPostWriteDTO reqPostWriteDTO){
         System.out.println(reqPostWriteDTO);
