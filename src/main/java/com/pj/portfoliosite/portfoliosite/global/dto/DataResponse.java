@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class DataResponse<T> {
     private int status;
+    private String message;
     private T data;
 
     /*

@@ -15,20 +15,16 @@ public class SecurityConfig {
     private final CustomAccessDeneHandler accessDeneHandler;
     @Bean
     public SecurityFilterChain  filterChain(HttpSecurity http) throws Exception {
-        http.cors(Customizer.withDefaults())
-                .csrf(csrf->csrf.disable())
-                .authorizeHttpRequests(auth->
-                        auth.requestMatchers("/api","/login").permitAll()
-                                .anyRequest().authenticated()
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/user/login", "/api/**").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .formLogin(form ->form
-                        .loginProcessingUrl("/login")
-                        .usernameParameter("email")
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/success", true)
-                        .failureUrl("/login?error=true")
-                        .permitAll()
-                );
+                .formLogin(form -> form.disable())
+                .httpBasic(httpBasic -> httpBasic.disable());
+
 
         return http.build();
     }
