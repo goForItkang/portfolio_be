@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -22,4 +24,11 @@ public class UserController {
         LoginResponseDto responseDto = userService.login(requestDto);
         return new DataResponse<>(200, "Login processed", responseDto);
     }
+
+    @GetMapping("/email/{id}")
+    public DataResponse<String> getDecryptedEmail(@PathVariable Long id) {
+        String decryptedEmail = userService.getDecryptedEmail(id);
+        return new DataResponse<>(200, "복호화된 이메일", decryptedEmail);
+    }
+
 }
