@@ -1,6 +1,7 @@
 package com.pj.portfoliosite.portfoliosite.teampost;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.ReqPostWriteDTO;
+import com.pj.portfoliosite.portfoliosite.global.dto.ResTeamPostDto;
 import com.pj.portfoliosite.portfoliosite.global.entity.RecruitRole;
 import com.pj.portfoliosite.portfoliosite.global.entity.TeamPost;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +40,9 @@ public class TeamPostService {
 
 
         teamPostRepository.teamPostWrite(teamPost);
+    }
+    // 팀워구하기 첫번째 값
+    public List<ResTeamPostDto> getTeamPostIndex() {
+        return null;
     }
 }
