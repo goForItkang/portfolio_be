@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TestController {
-    //ㅔㅌ스트 수정
+    //ㅔㅌ스트 수정dd
     @GetMapping("/")
     public HttpEntity<String> index(){
         String response = "Hello World";
