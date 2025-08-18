@@ -29,7 +29,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           source: "build/libs/*.jar"
-          target: ${{ secrets.APP_PATH }}
+          target: ${{ secrets.APP_PATH }}/app.jar   # 파일명 고정
 
       - name: 🔄 서버 실행
         uses: appleboy/ssh-action@master
@@ -40,4 +40,4 @@ jobs:
           script: |
             cd ${{ secrets.APP_PATH }}
             fuser -k 8080/tcp || true
-            nohup java -jar *.jar > app.log 2>&1 &
+            nohup java -jar app.jar > app.log 2>&1 &
