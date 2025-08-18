@@ -39,6 +39,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ${{ secrets.APP_PATH }}
-            mv build/libs/*.jar app.jar
+            mv *.jar app.jar
             fuser -k 8080/tcp || true
             nohup java -jar app.jar > app.log 2>&1 &
