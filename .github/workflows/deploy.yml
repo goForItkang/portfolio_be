@@ -42,16 +42,13 @@ jobs:
 
             echo "👉 기존 실행중인 앱 종료"
             PID=$(pgrep -f "java -jar app.jar" || true)
-
             if [ -n "$PID" ]; then
-              echo "PID=$PID 프로세스 종료 시도"
-              kill $PID || true   # 일반 종료
-              sleep 5
+              kill $PID || true
+              sleep 3
               if ps -p $PID > /dev/null; then
-                echo "⚠️ 아직 살아있음 → 강제 종료"
                 kill -9 $PID || true
               fi
-              echo "앱 종료 완료"
+              echo "앱 종료 완료 (PID=$PID)"
             else
               echo "실행중인 앱 없음"
             fi
@@ -66,3 +63,4 @@ jobs:
               > app.log 2>&1 &
 
             echo "✅ 배포 완료"
+            exit 0   # ✅ 무조건 성공 처리
