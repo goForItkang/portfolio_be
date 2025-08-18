@@ -43,13 +43,15 @@ jobs:
             echo "👉 기존 실행중인 앱 종료"
             PID=$(pgrep -f "java -jar app.jar" || true)
             if [ -n "$PID" ]; then
-              kill -9 $PID || true   # <- 여기서 실패 무시
+              kill -9 $PID || true
               echo "앱 종료 완료 (PID=$PID)"
+            else
+              echo "실행중인 앱 없음"
             fi
 
             echo "👉 최신 jar로 교체"
             JAR_FILE=$(ls -t *.jar | head -n 1)
-            mv "$JAR_FILE" app.jar
+            mv -f "$JAR_FILE" app.jar
 
             echo "👉 새 앱 실행"
             nohup java -jar app.jar \
