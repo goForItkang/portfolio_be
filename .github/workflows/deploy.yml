@@ -39,5 +39,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ${{ secrets.APP_PATH }}
+            mv build/libs/*.jar app.jar
             fuser -k 8080/tcp || true
-            nohup java -jar build/libs/portfoliosite-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+            nohup java -jar app.jar --spring.config.location=${{ secrets.APP_PATH }}/application.properties > app.log 2>&1 &
