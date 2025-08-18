@@ -1,0 +1,43 @@
+name: PortfolioSite-CD   # 워크플로 이름
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  backend-deploy:        # job 이름
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📂 코드 가져오기
+        uses: actions/checkout@v3
+
+      - name: ☕ JDK 세팅
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: 🏗️ 빌드
+        run: ./gradlew clean build -x test
+
+      - name: 🚀 서버에 업로드
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "build/libs/*.jar"
+          target: ${{ secrets.APP_PATH }}
+
+      - name: 🔄 서버 실행
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ${{ secrets.APP_PATH }}
+            fuser -k 8080/tcp || true
+            nohup java -jar *.jar > app.log 2>&1 &
