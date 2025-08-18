@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  backend-deploy:        # job 이름
+  backend-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -39,6 +39,21 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ${{ secrets.APP_PATH }}
-            mv build/libs/*.jar app.jar
-            fuser -k 8080/tcp || true
-            nohup java -jar app.jar --spring.config.location=${{ secrets.APP_PATH }}/application.properties > app.log 2>&1 &
+
+            echo "👉 기존 실행중인 앱 종료"
+            PID=$(pgrep -f "java -jar app.jar" || true)
+            if [ -n "$PID" ]; then
+              kill -9 $PID
+              echo "앱 종료 완료 (PID=$PID)"
+            fi
+
+            echo "👉 최신 jar로 교체"
+            JAR_FILE=$(ls -t *.jar | head -n 1)
+            mv "$JAR_FILE" app.jar
+
+            echo "👉 새 앱 실행"
+            nohup java -jar app.jar \
+              --spring.config.location=${{ secrets.APP_PATH }}/application.properties \
+              > app.log 2>&1 &
+
+            echo "✅ 배포 완료"
