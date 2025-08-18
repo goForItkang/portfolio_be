@@ -12,4 +12,9 @@ public class TestController {
         String response = "Hello World";
         return new HttpEntity<>(response);
     }
+    @GetMapping("/test")
+    public HttpEntity<String> test(){
+        String response = "Hello World!!";
+        return new HttpEntity<>(response);
+    }
 }
