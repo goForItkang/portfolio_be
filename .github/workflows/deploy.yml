@@ -40,27 +40,20 @@ jobs:
           script: |
             cd ${{ secrets.APP_PATH }}
 
-            echo "👉 기존 실행중인 앱 종료"
-            PID=$(pgrep -f "java -jar app.jar" || true)
+            echo "👉 기존 실행중인 8080 포트 앱 종료"
+            PID=$(lsof -ti:8080 || true)
             if [ -n "$PID" ]; then
-              kill $PID || true
-              sleep 3
-              if ps -p $PID > /dev/null; then
-                kill -9 $PID || true
-              fi
-              echo "앱 종료 완료 (PID=$PID)"
+              kill -9 $PID || true
+              echo "8080 앱 종료 완료 (PID=$PID)"
             else
-              echo "실행중인 앱 없음"
+              echo "8080 실행중인 앱 없음"
             fi
 
-            echo "👉 최신 jar로 교체"
+            echo "👉 최신 jar 실행"
             JAR_FILE=$(ls -t *.jar | head -n 1)
-            mv -f "$JAR_FILE" app.jar
-
-            echo "👉 새 앱 실행"
-            nohup java -jar app.jar \
+            nohup java -jar "$JAR_FILE" \
               --spring.config.location=${{ secrets.APP_PATH }}/application.properties \
+              --server.port=8080 \
               > app.log 2>&1 &
-
-            echo "✅ 배포 완료"
+      
       
