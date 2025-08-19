@@ -1,4 +1,4 @@
-name: PortfolioSite-CD   # 워크플로 이름
+name: PortfolioSite-CD
 
 on:
   push:
@@ -22,11 +22,11 @@ jobs:
       - name: 🏗️ 빌드
         run: ./gradlew clean build -x test
 
-      - name: 📦 JAR 이름 고정 (plain.jar 제외)
+      - name: 📦 JAR 파일 이름 고정 (plain.jar 제외)
         run: |
           JAR_FILE=$(ls build/libs/*-SNAPSHOT.jar | grep -v 'plain.jar' | head -n 1)
-          mv "$JAR_FILE" build/libs/app.jar
-          echo "✅ 빌드 산출물: build/libs/app.jar"
+          cp "$JAR_FILE" app.jar
+          echo "✅ 빌드 산출물: app.jar"
 
       - name: 🚀 서버에 업로드
         uses: appleboy/scp-action@master
@@ -34,8 +34,8 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "build/libs/app.jar"
-          target: ${{ secrets.APP_PATH }}
+          source: "app.jar"
+          target: "${{ secrets.APP_PATH }}/"
 
       - name: 🔄 서버 실행
         uses: appleboy/ssh-action@master
@@ -46,7 +46,6 @@ jobs:
           script: |
             cd ${{ secrets.APP_PATH }}
 
-            # 기존 프로세스 종료
             PID=$(lsof -ti:8080 || true)
             if [ -n "$PID" ]; then
               kill -9 $PID || true
@@ -55,8 +54,8 @@ jobs:
               echo "⚠️ 8080 실행중인 앱 없음"
             fi
 
-            # 새 JAR 실행
             echo "👉 최신 app.jar 실행"
             nohup java -jar app.jar \
               --spring.config.location=${{ secrets.APP_PATH }}/application.properties \
+              --server.port=8080 \
               > app.log 2>&1 &
