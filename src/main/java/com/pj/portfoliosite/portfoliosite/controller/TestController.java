@@ -18,4 +18,9 @@ public class TestController {
         String response = "Hello World!!";
         return new HttpEntity<>(response);
     }
+    @GetMapping("/test2")
+    public HttpEntity<String> test2(){
+        String msg = "project_CICD_test";
+        return new HttpEntity<>(msg);
+    }
 }
