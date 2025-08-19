@@ -59,5 +59,4 @@ jobs:
             echo "👉 최신 app.jar 실행"
             nohup java -jar app.jar \
               --spring.config.location=${{ secrets.APP_PATH }}/application.properties \
-              --server.port=8080 \
               > app.log 2>&1 &
