@@ -23,13 +23,15 @@ jobs:
         run: ./gradlew clean build -x test
 
       - name: 🚀 서버에 업로드 (항상 portcloud.jar 로)
-        run: |
-          echo "📦 서버에 JAR 업로드 시작..."
-          scp -o StrictHostKeyChecking=no \
-              -i ~/.ssh/id_rsa \
-              build/libs/*SNAPSHOT.jar \
-              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.APP_PATH }}/portcloud.jar
-          echo "✅ 업로드 완료 (파일명: portcloud.jar)"
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "build/libs/*SNAPSHOT.jar"
+          target: ${{ secrets.APP_PATH }}
+          strip_components: 2
+          overwrite: true
 
       - name: 🔄 서버 실행
         uses: appleboy/ssh-action@master
@@ -39,8 +41,11 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ${{ secrets.APP_PATH }}
+            
+            # 항상 동일한 이름으로 jar 맞추기
+            LATEST_JAR=$(ls -t *.jar | head -n 1)
+            mv -f "$LATEST_JAR" portcloud.jar
 
-            # 실행중인 앱 종료 (8080 포트)
             PID=$(lsof -ti:8080 || true)
             if [ -n "$PID" ]; then
               kill -9 $PID || true
