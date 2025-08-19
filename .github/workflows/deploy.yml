@@ -41,21 +41,22 @@ jobs:
             cd ${{ secrets.APP_PATH }}
 
             echo "👉 기존 실행중인 앱 종료"
+            set +e   # 에러 무시 시작
             pids=$(pgrep -f "java -jar app.jar" || true)
             if [ -n "$pids" ]; then
               echo "종료할 PID: $pids"
-              kill $pids || true
+              kill $pids
               sleep 3
-              # 혹시 안죽었으면 강제 종료
               for pid in $pids; do
                 if ps -p $pid > /dev/null; then
-                  kill -9 $pid || true
+                  kill -9 $pid
                 fi
               done
               echo "앱 종료 완료"
             else
               echo "실행중인 앱 없음"
             fi
+            set -e   # 다시 에러 체크 켜기
 
             echo "👉 최신 jar로 교체"
             JAR_FILE=$(ls -t *.jar | head -n 1)
