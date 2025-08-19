@@ -13,7 +13,7 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults())
                 .csrf(csrf->csrf.disable())
                 .authorizeHttpRequests(auth->
-                        auth.requestMatchers("/","/test").permitAll()
+                        auth.requestMatchers("/","/test","/test2").permitAll()
                                 .anyRequest().authenticated()
                 );
         return http.build();
