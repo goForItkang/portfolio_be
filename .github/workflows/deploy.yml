@@ -41,22 +41,17 @@ jobs:
             cd ${{ secrets.APP_PATH }}
 
             echo "👉 기존 실행중인 앱 종료"
-            set +e   # 에러 무시 시작
-            pids=$(pgrep -f "java -jar app.jar" || true)
-            if [ -n "$pids" ]; then
-              echo "종료할 PID: $pids"
-              kill $pids
+            PID=$(pgrep -f "java -jar app.jar" || true)
+            if [ -n "$PID" ]; then
+              kill $PID || true
               sleep 3
-              for pid in $pids; do
-                if ps -p $pid > /dev/null; then
-                  kill -9 $pid
-                fi
-              done
-              echo "앱 종료 완료"
+              if ps -p $PID > /dev/null; then
+                kill -9 $PID || true
+              fi
+              echo "앱 종료 완료 (PID=$PID)"
             else
               echo "실행중인 앱 없음"
             fi
-            set -e   # 다시 에러 체크 켜기
 
             echo "👉 최신 jar로 교체"
             JAR_FILE=$(ls -t *.jar | head -n 1)
@@ -68,3 +63,4 @@ jobs:
               > app.log 2>&1 &
 
             echo "✅ 배포 완료"
+      
