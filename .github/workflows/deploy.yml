@@ -22,14 +22,15 @@ jobs:
       - name: 🏗️ 빌드
         run: ./gradlew clean build -x test
 
-      - name: 🚀 서버에 업로드 (항상 portcloud.jar 로)
+      - name: 🚀 서버에 업로드
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "build/libs/*.jar"
-          target: "${{ secrets.APP_PATH }}/portcloud.jar"
+          # ✅ 여기서 파일명을 직접 지정해도 되고 패턴으로 지정 가능
+          source: "build/libs/*SNAPSHOT.jar"
+          target: ${{ secrets.APP_PATH }}/
 
       - name: 🔄 서버 실행
         uses: appleboy/ssh-action@master
@@ -39,6 +40,11 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ${{ secrets.APP_PATH }}
+
+            # 최신 jar 파일명을 portcloud.jar 로 통일
+            LATEST_JAR=$(ls -t build/libs/*SNAPSHOT.jar | head -n 1 | xargs -n 1 basename)
+            mv "$LATEST_JAR" portcloud.jar
+
             # 실행중인 앱 종료 (8080 포트)
             PID=$(lsof -ti:8080 || true)
             if [ -n "$PID" ]; then
