@@ -19,7 +19,7 @@ public class User {
     private Long id;
     private String email;
     private String password;
-    private LocalDateTime birthday;
+    private LocalDateTime birthday; // 생년월일
     private String job;
     private String interest; //만약 관심이 PM이면,
     private String interest2;
@@ -39,4 +39,6 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<PortPolio> portPolios = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Project> projects = new ArrayList<>();
 }
