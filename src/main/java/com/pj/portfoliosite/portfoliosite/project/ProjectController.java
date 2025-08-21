@@ -5,6 +5,8 @@ import com.pj.portfoliosite.portfoliosite.global.dto.ReqProject;
 import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectRecommendDto;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,6 +51,14 @@ public class ProjectController {
             dataResponse
         );
     }
+    @GetMapping("/projects")
+    public ResponseEntity<DataResponse> getProjects(
+
+    ){
+        DataResponse dataResponse = new DataResponse();
+        return null;
+    }
+
 
 
 }
