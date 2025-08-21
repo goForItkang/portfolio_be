@@ -25,7 +25,7 @@ public class Project {
     private String DemonstrationVideo;
     @Column(nullable = false, columnDefinition = "timestamp default current_timestamp")
     private LocalDateTime createdAt;
-
+    private boolean distribution; // 배포 현황
     @ManyToOne(fetch = FetchType.LAZY)   // 프로젝트는 한 명의 User에게 속함
     @JoinColumn(name = "user_id")        // FK 컬럼명
     private User user;
@@ -38,6 +38,7 @@ public class Project {
         this.description = reqProject.getDescription();
         this.startDate = reqProject.getStartDate();
         this.endDate = reqProject.getEndDate();
+        this.distribution = reqProject.isDistribution();
         this.role = reqProject.getRole();
     }
     //썸네일 이미지 삽입
