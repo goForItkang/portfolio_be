@@ -3,8 +3,10 @@ package com.pj.portfoliosite.portfoliosite.global.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -13,8 +15,10 @@ import java.util.Date;
 public class ReqProject {
     private String title;
     private String description;
-    private Date startDate;
-    private Date endDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate;   // 날짜만 필요
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate;     // 날짜만 필요
     private String role;
     private String skill;
     private String projectURL; // 프로젝트 URL

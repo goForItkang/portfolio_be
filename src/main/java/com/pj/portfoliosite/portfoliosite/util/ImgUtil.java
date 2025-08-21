@@ -1,4 +1,4 @@
-package com.pj.portfoliosite.portfoliosite.global;
+package com.pj.portfoliosite.portfoliosite.util;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class ImgUtil {
@@ -21,11 +22,11 @@ public class ImgUtil {
             String fileName = file.getOriginalFilename(); // 파일에 실제 이름
             String exit = fileName.substring(fileName.lastIndexOf(".")); // 확장자 출
             String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
-            String reName = timestamp +"_"+exit;
-
+            String uuId = UUID.randomUUID().toString();
+            String reName = timestamp +uuId+"_"+exit;
             File saveDir = new File(uploadDir,reName); // 파일 위치와 저장
             file.transferTo(saveDir);
-
+            //이름을 알고 위치 ??
             return reName;
         }else{
             return null; // 실패 하거나 file이 없다.

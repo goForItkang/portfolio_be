@@ -5,12 +5,14 @@ import com.pj.portfoliosite.portfoliosite.global.dto.ReqProject;
 import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectRecommendDto;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -33,12 +35,13 @@ public class ProjectController {
         );
     }
     // 프로젝트 등록
-    @PostMapping("/project")
+    @PostMapping(value = "/project",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
             summary = "프로젝트 등록",
             description = "header에 token 값 꼭 넣어 주세요"
     )
-    public ResponseEntity<DataResponse> projectUpload(ReqProject reqProject){
+    public ResponseEntity<DataResponse> projectUpload(ReqProject reqProject) throws IOException {
+        System.out.println("reqProject = " + reqProject);
         DataResponse dataResponse = new DataResponse();// 성공 무조건 처리
         projectService.projectUpload(reqProject);
         return ResponseEntity.ok(

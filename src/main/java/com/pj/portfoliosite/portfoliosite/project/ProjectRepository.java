@@ -19,4 +19,15 @@ public class ProjectRepository {
     public List<Project> findTopProjectsByLikesInPeriod(LocalDate today, LocalDate weekAgo) {
         return null;
     }
+
+    public void insertProject(Project project) {
+        // 프러젝트 삽입
+        try {
+            entityManager.persist(project);
+        }catch (Exception e) {
+            //Exception 처리
+            e.printStackTrace();
+        }
+    }
+
 }
