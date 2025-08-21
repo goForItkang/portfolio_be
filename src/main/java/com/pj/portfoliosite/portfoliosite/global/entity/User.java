@@ -21,6 +21,7 @@ public class User {
     private Long id;
     private String email;
     private String password;
+    private String name;
     private LocalDateTime birthday; // 생년월일
     private String job;
     private String interest; //만약 관심이 PM이면,

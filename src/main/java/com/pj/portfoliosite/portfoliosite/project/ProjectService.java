@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,17 @@ public class ProjectService {
         LocalDate weekAgo = today.minusWeeks(1);
 
         List<Project> projects = projectRepository.findTopProjectsByLikesInPeriod(today,weekAgo);
-        return null;
+        List<ResProjectRecommendDto> result = new ArrayList<>();
+        for(Project project : projects) {
+            ResProjectRecommendDto resProjectRecommendDto = new ResProjectRecommendDto();
+            resProjectRecommendDto.setId(project.getId());
+            resProjectRecommendDto.setTitle(project.getTitle());
+            resProjectRecommendDto.setDescription(project.getDescription());
+            resProjectRecommendDto.setWriteName(project.getUser().getName());
+            resProjectRecommendDto.setThumbnailURL(project.getThumbnailURL());
+            result.add(resProjectRecommendDto);
+        }
+        return result;
     }
 
     public void projectUpload(ReqProject reqProject) throws IOException {

@@ -30,6 +30,7 @@ public class ProjectController {
     public ResponseEntity<DataResponse> recommend() {
         DataResponse dataResponse = new DataResponse();
         List<ResProjectRecommendDto> projectServiceRecommend =projectService.getRecommend();
+        dataResponse.setData(projectServiceRecommend);
         return ResponseEntity.ok(
             dataResponse
         );

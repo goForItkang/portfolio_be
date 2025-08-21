@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,6 +31,8 @@ public class Project {
     @ManyToOne(fetch = FetchType.LAZY)   // 프로젝트는 한 명의 User에게 속함
     @JoinColumn(name = "user_id")        // FK 컬럼명
     private User user;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectLike> likes = new ArrayList<>();
 
     public void setUser(User user) {
         this.user = user;
