@@ -2,7 +2,6 @@ package com.pj.portfoliosite.portfoliosite.global.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,7 +16,6 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Builder
 public class TeamPost {
     @Id
     @GeneratedValue
@@ -30,7 +28,6 @@ public class TeamPost {
     private String content;
     // 모집하는 파트
     @OneToMany(mappedBy = "teamPost", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private List<RecruitRole> recruitRoles = new ArrayList<>();
 
     // 수정필요

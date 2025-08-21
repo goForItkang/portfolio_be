@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Entity
 public class User {
     @Id
@@ -29,6 +31,9 @@ public class User {
     private String introduce; // 자기소개
     private String profile; // 이미지 url
     private String createAt;
+
+    private String refreshToken;
+    private LocalDateTime refreshTokenExpiry;
 
     @OneToMany(mappedBy = "user")
     private List<TeamPost> teamPosts = new ArrayList<>();
