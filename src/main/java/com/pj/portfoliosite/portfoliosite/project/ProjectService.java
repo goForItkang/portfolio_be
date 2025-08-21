@@ -1,7 +1,9 @@
 package com.pj.portfoliosite.portfoliosite.project;
 
+import com.pj.portfoliosite.portfoliosite.global.dto.ReqProject;
 import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectRecommendDto;
 import com.pj.portfoliosite.portfoliosite.global.entity.Project;
+import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,5 +26,10 @@ public class ProjectService {
 
         List<Project> projects = projectRepository.findTopProjectsByLikesInPeriod(today,weekAgo);
         return null;
+    }
+
+    public void projectUpload(ReqProject reqProject) {
+        // 사용자 정보
+
     }
 }
