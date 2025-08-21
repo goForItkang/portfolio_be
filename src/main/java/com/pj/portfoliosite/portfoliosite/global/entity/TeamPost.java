@@ -30,8 +30,8 @@ public class TeamPost {
     @ElementCollection
     @CollectionTable(name = "recruit_part_count", joinColumns = @JoinColumn(name = "recruit_id"))
     @MapKeyColumn(name = "part")
+    @MapKeyEnumerated(EnumType.STRING)
     @Column(name = "count")
-    @Enumerated(EnumType.STRING)
     private Map<TeamPostPart, Integer> partCounts = new HashMap<>();
 
     // 수정필요

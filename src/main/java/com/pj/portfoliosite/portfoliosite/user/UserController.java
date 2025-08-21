@@ -5,6 +5,7 @@ import com.pj.portfoliosite.portfoliosite.global.dto.LoginRequestDto;
 import com.pj.portfoliosite.portfoliosite.global.dto.LoginResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -26,7 +27,8 @@ public class UserController {
     }
 
     @GetMapping("/email/{id}")
-    public DataResponse<String> getDecryptedEmail(@PathVariable Long id) {
+    public DataResponse<String> getDecryptedEmail(
+            @PathVariable Long id) {
         String decryptedEmail = userService.getDecryptedEmail(id);
         return new DataResponse<>(200, "복호화된 이메일", decryptedEmail);
     }
