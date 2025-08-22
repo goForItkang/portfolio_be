@@ -25,4 +25,19 @@ public class ProjectCommentController {
             dataResponse
         );
     }
+    @DeleteMapping("/project/{projectId}/comments/{commentId}")
+    public ResponseEntity<DataResponse> deleteComment(
+            @PathVariable Long projectId,
+            @PathVariable Long commentId
+    ){
+        boolean result = projectCommentService.deleteComment(projectId,commentId);
+        DataResponse dataResponse = new DataResponse();
+        if(result){
+            dataResponse.setMessage("정상 적으로 삭제됨");
+            return ResponseEntity.ok(dataResponse);
+        }
+        dataResponse.setMessage("댓글을 찾아 볼수 없습니다");
+        return ResponseEntity.ok(dataResponse);
+    }
+
 }

@@ -44,4 +44,16 @@ public class ProjectCommentService {
         projectCommentRepository.insertComment(projectComment);
 
     }
+
+    public boolean deleteComment(Long projectId, Long commentId) {
+        //ProjectComment 가져오기
+        ProjectComment projectComment = projectCommentRepository.selectByProjectIdAndId(projectId,commentId);
+        if(projectComment!=null) {
+            projectCommentRepository.deleteComment(projectComment);
+            return true; // 정상적으로 성공 하면 true 반환
+        }else{
+            return false; // 실패하면 false 반환
+        }
+
+    }
 }

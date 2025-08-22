@@ -29,4 +29,24 @@ public class ProjectCommentRepository {
     public void insertComment(ProjectComment projectComment) {
         entityManager.persist(projectComment);
     }
+    //projectId 와 CommentId로 찾음
+    public ProjectComment selectByProjectIdAndId(Long projectId, Long commentId) {
+        return
+                entityManager.createQuery(
+                    """
+                            select pc from ProjectComment pc where pc.id =: id
+                            and  pc.project.id =: projectId                    
+                        """
+                ,ProjectComment.class).setParameter("id",commentId)
+                        .setParameter("projectId",projectId)
+                        .setParameter("id", commentId)
+                        .setParameter("projectId", projectId)
+                        .getResultStream()
+                        .findFirst()
+                        .orElse(null);
+    }
+
+    public void deleteComment(ProjectComment projectComment) {
+        entityManager.remove(projectComment);
+    }
 }
