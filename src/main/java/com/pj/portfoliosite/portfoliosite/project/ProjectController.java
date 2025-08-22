@@ -43,6 +43,7 @@ public class ProjectController {
             dataResponse
         );
     }
+    // 수정 쭉해야함  return 값 변환 부터 확인까지 쭉~~~
     @GetMapping("/projects")
     @Operation(
             summary = "최신순으로 프로젝트 리스트 출력",
