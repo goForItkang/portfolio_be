@@ -57,4 +57,7 @@ public class ProjectComment {
     public void setParent(ProjectComment parent) {
         this.parent = parent;
     }
+    public void updateComment(String comment) {
+        this.comment = comment;
+    }
 }

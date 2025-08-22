@@ -49,4 +49,5 @@ public class ProjectCommentRepository {
     public void deleteComment(ProjectComment projectComment) {
         entityManager.remove(projectComment);
     }
+
 }

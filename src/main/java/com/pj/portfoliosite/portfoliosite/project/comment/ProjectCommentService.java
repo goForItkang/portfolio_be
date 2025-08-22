@@ -8,6 +8,7 @@ import com.pj.portfoliosite.portfoliosite.project.ProjectRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -55,5 +56,15 @@ public class ProjectCommentService {
             return false; // 실패하면 false 반환
         }
 
+    }
+    @Transactional
+    public boolean updateComment(Long projectId, Long commentId, String comment) {
+        ProjectComment projectComment = projectCommentRepository.selectByProjectIdAndId(projectId,commentId);
+        if(projectComment!=null) {
+            projectComment.updateComment(comment);
+            return true;
+        }else{
+            return false; // 댓귿을 찾지 못해서 실패
+        }
     }
 }

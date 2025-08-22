@@ -4,6 +4,7 @@ import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.global.dto.ReqCommentDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,10 +34,25 @@ public class ProjectCommentController {
         boolean result = projectCommentService.deleteComment(projectId,commentId);
         DataResponse dataResponse = new DataResponse();
         if(result){
-            dataResponse.setMessage("정상 적으로 삭제됨");
+            dataResponse.setMessage("정상적으로 삭제됨");
             return ResponseEntity.ok(dataResponse);
         }
         dataResponse.setMessage("댓글을 찾아 볼수 없습니다");
+        return ResponseEntity.ok(dataResponse);
+    }
+    @PatchMapping("/project/{projectId}/comments/{commentId}")
+    public ResponseEntity<DataResponse> updateComment(
+            @PathVariable Long projectId,
+            @PathVariable Long commentId,
+            @RequestParam String comment
+    ){
+        boolean result = projectCommentService.updateComment(projectId,commentId,comment);
+        DataResponse dataResponse = new DataResponse();
+        if(result) {
+            dataResponse.setMessage("정상적으로 수정됨");
+            return ResponseEntity.ok(dataResponse);
+        }
+        dataResponse.setMessage("댓글찾지 못하거나 수정 실패");
         return ResponseEntity.ok(dataResponse);
     }
 
