@@ -58,13 +58,13 @@ public class ProjectController {
         List<ResProjectDto> projecDtos =projectService.getProjects(page,size);
         return null;
     }
+    //프로젝트 상세 내용
     @GetMapping("/project/{id}")
     public ResponseEntity<DataResponse> getProject(
             @PathVariable Long id
     ){
         DataResponse dataResponse = new DataResponse();
         ResProjectDetailDTO projectDetailDTO = projectService.projectGetById(id);
-
         return null;
     }
 

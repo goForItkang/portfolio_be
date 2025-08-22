@@ -71,4 +71,8 @@ public class ProjectRepository {
                 "select count(p) from Project p"
         ,Long.class).getSingleResult();
     }
+
+    public Project getReference(Long projectId) {
+        return entityManager.getReference(Project.class, projectId);
+    }
 }

@@ -5,7 +5,9 @@ import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectDto;
 import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectDetailDTO;
 import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectRecommendDto;
 import com.pj.portfoliosite.portfoliosite.global.entity.Project;
+import com.pj.portfoliosite.portfoliosite.global.entity.ProjectComment;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
+import com.pj.portfoliosite.portfoliosite.project.comment.ProjectCommentRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserService;
 import com.pj.portfoliosite.portfoliosite.util.ImgUtil;
@@ -26,6 +28,8 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final ImgUtil imageUtil;
     private final ImgUtil imgUtil;
+    private final ProjectCommentRepository projectCommentRepository;
+
 
     //추천 프로젝트 로직 오늘 부터 일주일 동안 가장 많은 좋아요 갯수
     public List<ResProjectRecommendDto> getRecommend() {
@@ -66,13 +70,13 @@ public class ProjectService {
             projectRepository.insertProject(project);
         }
     }
-
+    // 프로젝트 상세 페이지 가져오기
     public ResProjectDetailDTO projectGetById(Long id) {
-        // 프로젝트 가져오기
         Project project = projectRepository.findById(id);
         // 사용자 ID 가져오기
         String testLoginId = "portfolio@naver.com";
         Optional<User> user = userRepository.findByEmail(testLoginId);
+
         // 사용자가 null 일경우
         // 이메일로 수정함 ????
         if(user.isPresent()) {
@@ -81,6 +85,9 @@ public class ProjectService {
         else{
 
         } // 사용자 정보를 찾아서 logic bookmark like
+        //댓글 가져오기
+
+        List<ProjectComment> projectComments = projectCommentRepository.findByProjectId(id);
         return null;
     }
 

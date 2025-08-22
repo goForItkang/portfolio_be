@@ -36,7 +36,8 @@ public class Project {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectBookMark> bookMarks = new ArrayList<>();
-
+    @OneToMany(mappedBy = "project" , cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectComment> comments = new ArrayList<>();
     public void setUser(User user) {
         this.user = user;
     }
@@ -61,5 +62,8 @@ public class Project {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
+    }
+    public void setComments(List<ProjectComment> comments) {
+        this.comments = comments;
     }
 }

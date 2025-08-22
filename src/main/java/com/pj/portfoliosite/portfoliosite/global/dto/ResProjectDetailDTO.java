@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,11 +18,12 @@ public class ResProjectDetailDTO {
     private LocalDate startDate; //프로젝트 시작 기간
     private LocalDate endDate; // 프로젝트 끝난 기간
     private String role; // 담당 역활
-//    private List<Skil> // skill
+//  private List<Skil> // skill
     private String skill; //skill 처리를 어떻게 애할지안정함
     private String demonstrationVideoUrl;
 
     // 댓글
-
+    // 댓글 리스트에 사용profile 및 댓글 정보 본인 여부를 확인함
+    List<ResCommentsDTO> resCommentsDTOList;
 
 }
