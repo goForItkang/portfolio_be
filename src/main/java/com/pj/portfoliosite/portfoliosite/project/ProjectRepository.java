@@ -3,14 +3,12 @@ package com.pj.portfoliosite.portfoliosite.project;
 import com.pj.portfoliosite.portfoliosite.global.entity.Project;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.List;
 
 @Transactional
@@ -53,4 +51,24 @@ public class ProjectRepository {
         }
     }
 
+    public Project findById(Long id) {
+        return entityManager.find(Project.class, id);
+    }
+
+
+    public List<Project> selectByCreateAtDesc(int page, int size) {
+        return entityManager.createQuery(
+                        "select p from Project p order by p.createdAt desc",
+                        Project.class
+                )
+                .setFirstResult(page * size)   // OFFSET (몇 번째부터 가져올지)
+                .setMaxResults(size)           // LIMIT (몇 개 가져올지)
+                .getResultList();
+    }
+
+    public Long selectAllCount() {
+        return entityManager.createQuery(
+                "select count(p) from Project p"
+        ,Long.class).getSingleResult();
+    }
 }

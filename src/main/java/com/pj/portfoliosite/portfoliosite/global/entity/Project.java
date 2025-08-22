@@ -34,6 +34,9 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectLike> likes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectBookMark> bookMarks = new ArrayList<>();
+
     public void setUser(User user) {
         this.user = user;
     }

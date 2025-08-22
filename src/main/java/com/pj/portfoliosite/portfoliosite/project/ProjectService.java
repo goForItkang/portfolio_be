@@ -1,20 +1,20 @@
 package com.pj.portfoliosite.portfoliosite.project;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.ReqProject;
+import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectDto;
+import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectDetailDTO;
 import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectRecommendDto;
 import com.pj.portfoliosite.portfoliosite.global.entity.Project;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserService;
 import com.pj.portfoliosite.portfoliosite.util.ImgUtil;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,5 +65,30 @@ public class ProjectService {
             project.setDemonstrationVideo(demonstrationURL);
             projectRepository.insertProject(project);
         }
+    }
+
+    public ResProjectDetailDTO projectGetById(Long id) {
+        // 프로젝트 가져오기
+        Project project = projectRepository.findById(id);
+        // 사용자 ID 가져오기
+        String testLoginId = "portfolio@naver.com";
+        Optional<User> user = userRepository.findByEmail(testLoginId);
+        // 사용자가 null 일경우
+        // 이메일로 수정함 ????
+        if(user.isPresent()) {
+
+        } // 사용자가 없을 경우 bookmark 및 like 는 false 로 변경해서 보낼예정임
+        else{
+
+        } // 사용자 정보를 찾아서 logic bookmark like
+        return null;
+    }
+
+
+
+    public List<ResProjectDto> getProjects(int page, int size) {
+        List<Project> projects = projectRepository.selectByCreateAtDesc(page,size); //project
+        Long count =  projectRepository.selectAllCount();
+        return null;
     }
 }

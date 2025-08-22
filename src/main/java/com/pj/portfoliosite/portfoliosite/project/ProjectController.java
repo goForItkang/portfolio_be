@@ -1,21 +1,13 @@
 package com.pj.portfoliosite.portfoliosite.project;
 
-import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
-import com.pj.portfoliosite.portfoliosite.global.dto.ReqProject;
-import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectRecommendDto;
+import com.pj.portfoliosite.portfoliosite.global.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -52,10 +44,27 @@ public class ProjectController {
         );
     }
     @GetMapping("/projects")
+    @Operation(
+            summary = "최신순으로 프로젝트 리스트 출력",
+            description = "page 처리로 출력 함"
+    )
     public ResponseEntity<DataResponse> getProjects(
-
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
     ){
         DataResponse dataResponse = new DataResponse();
+        projectService.getProjects(page,size);
+
+        List<ResProjectDto> projecDtos =projectService.getProjects(page,size);
+        return null;
+    }
+    @GetMapping("/project/{id}")
+    public ResponseEntity<DataResponse> getProject(
+            @PathVariable Long id
+    ){
+        DataResponse dataResponse = new DataResponse();
+        ResProjectDetailDTO projectDetailDTO = projectService.projectGetById(id);
+
         return null;
     }
 

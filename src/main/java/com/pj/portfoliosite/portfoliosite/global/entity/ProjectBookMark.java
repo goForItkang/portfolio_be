@@ -1,17 +1,19 @@
 package com.pj.portfoliosite.portfoliosite.global.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 
-@Entity
+@Data
 @Getter
+@Entity
 @Table(
-        name = "project_like",
+        name = "project_book_mark",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"user_id", "project_id"})
         }
 )
-public class ProjectLike {
+public class ProjectBookMark {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,5 +25,4 @@ public class ProjectLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
-
 }
