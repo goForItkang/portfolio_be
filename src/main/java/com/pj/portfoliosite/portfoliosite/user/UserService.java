@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
+import java.time.format.DateTimeFormatter;
+
 
 import java.time.LocalDateTime;
 
@@ -49,6 +52,24 @@ public class UserService {
     public  String getDecryptedEmail(Long userId){
         User user = userRepository.findById(userId).orElseThrow();
         return aesUtil.decode(user.getEmail());
+    }
+
+    public DataResponse<String> register(LoginRequestDto request) {
+        String email = request.getEmail();
+        String password = request.getPassword();
+
+        if (userRepository.findByEmail(email).isPresent()) {
+            return new DataResponse<>(400, "이미 존재하는 이메일입니다", null);
+        }
+
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setCreateAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+
+        userRepository.save(user);
+
+        return new DataResponse<>(200, "회원가입 성공", "사용자가 생성되었습니다");
     }
 
 }
