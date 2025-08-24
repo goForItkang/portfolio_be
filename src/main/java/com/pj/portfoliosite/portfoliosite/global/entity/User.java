@@ -50,4 +50,8 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<ProjectComment> projectComments = new ArrayList<>();
+
+    public void addProject(Project project) {
+        projects.add(project);
+    }
 }

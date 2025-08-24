@@ -58,11 +58,15 @@ public class ProjectRepository {
 
     public List<Project> selectByCreateAtDesc(int page, int size) {
         return entityManager.createQuery(
-                        "select p from Project p order by p.createdAt desc",
+                        "select p " +
+                                "from Project p " +
+                                "left join fetch p.user u " +        // 작성자 같이 로딩(N+1 방지)
+                                "order by p.createdAt desc, p.id desc",
                         Project.class
                 )
-                .setFirstResult(page * size)   // OFFSET (몇 번째부터 가져올지)
-                .setMaxResults(size)           // LIMIT (몇 개 가져올지)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .setHint("org.hibernate.readOnly", true)
                 .getResultList();
     }
 
@@ -73,6 +77,6 @@ public class ProjectRepository {
     }
 
     public Project getReference(Long projectId) {
-        return entityManager.getReference(Project.class, projectId);
+        return entityManager.find(Project.class, projectId);
     }
 }

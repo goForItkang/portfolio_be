@@ -43,7 +43,7 @@ public class ProjectController {
             dataResponse
         );
     }
-    // 수정 쭉해야함  return 값 변환 부터 확인까지 쭉~~~
+    // 최신순 프로젝트 목록 (페이지네이션)
     @GetMapping("/projects")
     @Operation(
             summary = "최신순으로 프로젝트 리스트 출력",
@@ -53,14 +53,20 @@ public class ProjectController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size
     ){
+        //데이터 출력 방식
         DataResponse dataResponse = new DataResponse();
-        projectService.getProjects(page,size);
 
-        List<ResProjectDto> projecDtos =projectService.getProjects(page,size);
-        return null;
+        projectService.getProjects(page,size);
+        PageDTO<ResProjectDto> projectDtoPageDTO =projectService.getProjects(page,size);
+        dataResponse.setData(projectDtoPageDTO);
+        return ResponseEntity.ok(dataResponse);
     }
-    //프로젝트 상세 내용
+    //프로젝트 상세페이지 내용 res
     @GetMapping("/project/{id}")
+    @Operation(
+            summary = "프로젝트 상세페이지",
+            description = "아직 미구현 곧 구현 할꺼에용~"
+    )
     public ResponseEntity<DataResponse> getProject(
             @PathVariable Long id
     ){

@@ -1,9 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.project;
 
-import com.pj.portfoliosite.portfoliosite.global.dto.ReqProject;
-import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectDto;
-import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectDetailDTO;
-import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectRecommendDto;
+import com.pj.portfoliosite.portfoliosite.global.dto.*;
 import com.pj.portfoliosite.portfoliosite.global.entity.Project;
 import com.pj.portfoliosite.portfoliosite.global.entity.ProjectComment;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
@@ -13,6 +10,7 @@ import com.pj.portfoliosite.portfoliosite.user.UserService;
 import com.pj.portfoliosite.portfoliosite.util.ImgUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -52,7 +50,7 @@ public class ProjectService {
         }
         return result;
     }
-
+    @Transactional
     public void projectUpload(ReqProject reqProject) throws IOException {
         //TEST 단계에서 값을 가져옴
         // 실제 배포단계면  securitContectHolder 에 값 가져옴
@@ -68,6 +66,7 @@ public class ProjectService {
             project.setThumbnailURL(imgUrl);
             project.setDemonstrationVideo(demonstrationURL);
             projectRepository.insertProject(project);
+            user.get().addProject(project);
         }
     }
     // 프로젝트 상세 페이지 가져오기
@@ -92,10 +91,53 @@ public class ProjectService {
     }
 
 
+    // project page 랑 현재 상황 가져옴
+    @Transactional(readOnly = true)
+    public PageDTO<ResProjectDto> getProjects(int page, int size) {
+        // 1) 가드
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 50);
 
-    public List<ResProjectDto> getProjects(int page, int size) {
-        List<Project> projects = projectRepository.selectByCreateAtDesc(page,size); //project
-        Long count =  projectRepository.selectAllCount();
-        return null;
+        // 2) 목록 + 전체 개수
+        List<Project> rows = projectRepository.selectByCreateAtDesc(safePage, safeSize);
+        long total = projectRepository.selectAllCount();
+
+        // 3) 엔티티 -> DTO
+        List<ResProjectDto> content = rows.stream()
+                .map(this::toResProjectDto)
+                .toList();
+
+        // 4) 페이지 메타 계산
+        int totalPages = (int) Math.ceil(total / (double) safeSize);
+        boolean first = safePage == 0;
+        boolean last = (totalPages == 0) || (safePage >= totalPages - 1);
+        boolean hasNext = safePage < totalPages - 1;
+        boolean hasPrevious = safePage > 0;
+        int count = content.size();
+
+        // 5) PageDTO 생성 후 반환
+        return new PageDTO<>(
+                content,
+                safePage,
+                safeSize,
+                total,
+                totalPages,
+                first,
+                last,
+                hasNext,
+                hasPrevious,
+                count
+        );
+    }
+    // 프로젝트에 표현할 index표기
+    private ResProjectDto toResProjectDto(Project p) {
+        // 엔티티 필드명에 맞게 매핑하세요.
+        return new ResProjectDto(
+                p.getId(),
+                p.getTitle(),
+                p.getDescription(),
+                p.getUser() != null ? p.getUser().getName() : null,
+                p.getThumbnailURL()
+        );
     }
 }

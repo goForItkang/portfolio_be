@@ -13,4 +13,5 @@ public class ResProjectDto {
     private String description; // 설명
     private String writeName; // 작성자
     private String thumbnailURL; //썸네일 URL
+
 }
