@@ -33,4 +33,9 @@ public class UserController {
         return new DataResponse<>(200, "복호화된 이메일", decryptedEmail);
     }
 
+    @PostMapping("/register")
+    public DataResponse<String> register(@RequestBody LoginRequestDto requestDto) {
+        return userService.register(requestDto);
+    }
+
 }
