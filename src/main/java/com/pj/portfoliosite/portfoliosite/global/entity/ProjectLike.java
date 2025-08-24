@@ -24,4 +24,7 @@ public class ProjectLike {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
+    public void addUser(User user){
+        this.user = user;
+    }
 }
