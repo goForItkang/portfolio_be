@@ -77,50 +77,118 @@ public class ProjectService {
         }
     }
     // 프로젝트 상세 페이지 가져오기
+//    public ResProjectDetailDTO projectGetById(Long id) {
+//        Project project = projectRepository.findById(id);
+//        // 사용자 ID 가져오기
+//        String testLoginId = "portfolio@naver.com";
+//        Optional<User> user = userRepository.findByEmail(testLoginId);
+//        ResProjectDetailDTO resProjectDetailDTO = new ResProjectDetailDTO(); // 객체 생성
+//        // logic
+//        //1. 좋아요 갯수
+//         Long likeCount = projectLikeRepository.countById(id);
+//         resProjectDetailDTO.setLikeCount(likeCount);
+//         Long bookMarkCount = projectBookMarkRepository.countById(id);
+//         resProjectDetailDTO.setBookMarkCount(bookMarkCount);
+//        //2. 북 마크 갯수 갯수
+//        // 로그인한 사용자는 무조건 북마크 및 좋아요가 false 일경우 이고, 로그인 한 사람은 체크 여부 확인해야함
+//        if(user.isPresent()) {
+//            boolean likeCheck = projectLikeRepository.existLike(id,user.get().getId());
+//            boolean bookMarkCheck = projectBookMarkRepository.existBookMark(id,user.get().getId());
+//            resProjectDetailDTO.setLikeCheck(likeCheck); // like
+//            resProjectDetailDTO.setBookMarkCheck(bookMarkCheck); // bookMark
+//        } // 사용자가 없을 경우 bookmark 및 like 는 false 로 변경해서 보낼예정임
+//        else{
+//            resProjectDetailDTO.setLikeCheck(false);
+//            resProjectDetailDTO.setBookMarkCheck(false);
+//        } // 사용자 정보를 찾아서 logic bookmark like
+//        //댓글 가져오기
+//        // 나머지 로직에선 북마크 및 좋아요 등 구현
+//        resProjectDetailDTO.setId(project.getId());
+//        resProjectDetailDTO.setTitle(project.getTitle());
+//        resProjectDetailDTO.setDescription(project.getDescription());
+//        resProjectDetailDTO.setStartDate(project.getStartDate());
+//        resProjectDetailDTO.setEndDate(project.getEndDate());
+//        resProjectDetailDTO.setRole(project.getRole());
+//        resProjectDetailDTO.setDemonstrationVideoUrl(project.getDemonstrationVideo());
+//        //projectComment 댓글 파트
+//        List<ProjectComment> projectComments = projectCommentRepository.findByProjectId(id);
+//        List<ResCommentListDTO> resCommentListDTOList = new ArrayList<>();
+//        for(ProjectComment projectComment : projectComments) {
+//            ResCommentListDTO resCommentListDTO = new ResCommentListDTO();
+//            resCommentListDTO.setId(projectComment.getId());
+//            resCommentListDTO.setComment(projectComment.getComment());
+//            resCommentListDTO.setUserId(projectComment.getUser().getId());
+//            resCommentListDTO.setUserProfileURL(projectComment.getUser().getProfile());
+//            resCommentListDTO.setUserWriteName(projectComment.getUser().getName());
+//            resCommentListDTOList.setComment();
+//
+//            resCommentListDTOList.add(resCommentListDTO);
+//        }
+//        resProjectDetailDTO.setResCommentsDTOList(resCommentListDTOList);
+//        return resProjectDetailDTO;
+//    }
+//    // comment List 변환
+
+    @Transactional(readOnly = true)
     public ResProjectDetailDTO projectGetById(Long id) {
         Project project = projectRepository.findById(id);
-        // 사용자 ID 가져오기
         String testLoginId = "portfolio@naver.com";
         Optional<User> user = userRepository.findByEmail(testLoginId);
-        ResProjectDetailDTO resProjectDetailDTO = new ResProjectDetailDTO(); // 객체 생성
-        // logic
-        //1. 좋아요 갯수
-         Long likeCount = projectLikeRepository.countById(id);
-         resProjectDetailDTO.setLikeCount(likeCount);
-         Long bookMarkCount = projectBookMarkRepository.countById(id);
-         resProjectDetailDTO.setBookMarkCount(bookMarkCount);
-        //2. 북 마크 갯수 갯수
-        // 로그인한 사용자는 무조건 북마크 및 좋아요가 false 일경우 이고, 로그인 한 사람은 체크 여부 확인해야함
-        if(user.isPresent()) {
-            boolean likeCheck = projectLikeRepository.existLike(id,user.get().getId());
-            boolean bookMarkCheck = projectBookMarkRepository.existBookMark(id,user.get().getId());
-            resProjectDetailDTO.setLikeCheck(likeCheck); // like
-            resProjectDetailDTO.setBookMarkCheck(bookMarkCheck); // bookMark
-        } // 사용자가 없을 경우 bookmark 및 like 는 false 로 변경해서 보낼예정임
-        else{
-            resProjectDetailDTO.setLikeCheck(false);
-            resProjectDetailDTO.setBookMarkCheck(false);
-        } // 사용자 정보를 찾아서 logic bookmark like
-        //댓글 가져오기
-        // 나머지 로직에선 북마크 및 좋아요 등 구현
-        resProjectDetailDTO.setId(project.getId());
-        resProjectDetailDTO.setTitle(project.getTitle());
-        resProjectDetailDTO.setDescription(project.getDescription());
-        resProjectDetailDTO.setStartDate(project.getStartDate());
-        resProjectDetailDTO.setEndDate(project.getEndDate());
-        resProjectDetailDTO.setRole(project.getRole());
-        resProjectDetailDTO.setDemonstrationVideoUrl(project.getDemonstrationVideo());
-        List<ProjectComment> projectComments = projectCommentRepository.findByProjectId(id);
-        List<ResCommentListDTO> resCommentListDTOList = new ArrayList<>();
-        for(ProjectComment projectComment : projectComments) {
-            ResCommentListDTO resCommentListDTO = new ResCommentListDTO();
-            resCommentListDTO.setId(projectComment.getId());
-            resCommentListDTO.setComment(projectComment.getComment());
-            resCommentListDTOList.add(resCommentListDTO);
+
+        ResProjectDetailDTO dto = new ResProjectDetailDTO();
+
+        // 1. 좋아요/북마크 갯수
+        dto.setLikeCount(projectLikeRepository.countById(id));
+        dto.setBookMarkCount(projectBookMarkRepository.countById(id));
+
+        // 2. 로그인 사용자 좋아요/북마크 여부
+        if (user.isPresent()) {
+            Long userId = user.get().getId();
+            dto.setLikeCheck(projectLikeRepository.existLike(id, userId));
+            dto.setBookMarkCheck(projectBookMarkRepository.existBookMark(id, userId));
+        } else {
+            dto.setLikeCheck(false);
+            dto.setBookMarkCheck(false);
         }
-        return resProjectDetailDTO;
+
+        // 3. 프로젝트 기본 정보
+        dto.setId(project.getId());
+        dto.setTitle(project.getTitle());
+        dto.setDescription(project.getDescription());
+        dto.setStartDate(project.getStartDate());
+        dto.setEndDate(project.getEndDate());
+        dto.setRole(project.getRole());
+        dto.setDemonstrationVideoUrl(project.getDemonstrationVideo());
+
+        // 4. 댓글 리스트 변환
+        List<ProjectComment> comments = projectCommentRepository.findByProjectId(id);
+        List<ResCommentListDTO> commentDTOs = new ArrayList<>();
+        for (ProjectComment comment : comments) {
+            commentDTOs.add(toDTO(comment));
+        }
+        dto.setResCommentsDTOList(commentDTOs);
+
+        return dto;
     }
-    // comment List 변환
+
+    // ✅ 댓글 → DTO 변환 메서드
+    private ResCommentListDTO toDTO(ProjectComment comment) {
+        ResCommentListDTO dto = new ResCommentListDTO();
+        dto.setId(comment.getId());
+        dto.setComment(comment.getComment());
+        dto.setUserId(comment.getUser().getId());
+        dto.setUserProfileURL(comment.getUser().getProfile());
+        dto.setUserWriteName(comment.getUser().getName());
+
+        // 대댓글 변환 (재귀)
+        List<ResCommentListDTO> replies = new ArrayList<>();
+        for (ProjectComment reply : comment.getReplies()) {
+            replies.add(toDTO(reply));
+        }
+        dto.setReplies(replies);
+
+        return dto;
+    }
 
 
 
