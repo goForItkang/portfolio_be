@@ -19,9 +19,6 @@ public class ProjectLikeRepository {
         entityManager.persist(projectLike);
     }
 
-    public void deleteLike(User user) {
-        entityManager.remove(entityManager.merge(user));
-    }
 
     //좋아요 가져옴
     public Long countById(Long id) {
@@ -45,5 +42,16 @@ public class ProjectLikeRepository {
                 .setParameter("userId",userId)
                 .getSingleResult();
          return count > 0;
+    }
+    // 좋아요 취소한 경우
+    public void deleteLike(Long userId, Long projectId) {
+        entityManager.createQuery(
+                        "DELETE FROM ProjectLike l " +
+                                "WHERE l.user.id = :userId " +
+                                "AND l.project.id = :projectId"
+                )
+                .setParameter("userId", userId)
+                .setParameter("projectId", projectId)
+                .executeUpdate();
     }
 }

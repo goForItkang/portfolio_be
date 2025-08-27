@@ -27,4 +27,7 @@ public class ProjectLike {
     public void addUser(User user){
         this.user = user;
     }
+    public void addProject(Project project){
+        this.project = project;
+    }
 }

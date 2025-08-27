@@ -69,4 +69,7 @@ public class Project {
     public void addBookMark(ProjectBookMark bookMark) {
         this.bookMarks.add(bookMark);
     }
+    public void addLike(ProjectLike like) {
+        this.likes.add(like);
+    }
 }
