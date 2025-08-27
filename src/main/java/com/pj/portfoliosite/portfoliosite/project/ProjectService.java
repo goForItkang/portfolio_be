@@ -171,7 +171,7 @@ public class ProjectService {
         return dto;
     }
 
-    // ✅ 댓글 → DTO 변환 메서드
+    //  댓글 -> DTO 변환 메서드
     private ResCommentListDTO toDTO(ProjectComment comment) {
         ResCommentListDTO dto = new ResCommentListDTO();
         dto.setId(comment.getId());
