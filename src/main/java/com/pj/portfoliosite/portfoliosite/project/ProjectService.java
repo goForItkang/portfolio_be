@@ -103,6 +103,13 @@ public class ProjectService {
         } // 사용자 정보를 찾아서 logic bookmark like
         //댓글 가져오기
         // 나머지 로직에선 북마크 및 좋아요 등 구현
+        resProjectDetailDTO.setId(project.getId());
+        resProjectDetailDTO.setTitle(project.getTitle());
+        resProjectDetailDTO.setDescription(project.getDescription());
+        resProjectDetailDTO.setStartDate(project.getStartDate());
+        resProjectDetailDTO.setEndDate(project.getEndDate());
+        resProjectDetailDTO.setRole(project.getRole());
+        resProjectDetailDTO.setDemonstrationVideoUrl(project.getDemonstrationVideo());
         List<ProjectComment> projectComments = projectCommentRepository.findByProjectId(id);
         List<ResCommentListDTO> resCommentListDTOList = new ArrayList<>();
         for(ProjectComment projectComment : projectComments) {
