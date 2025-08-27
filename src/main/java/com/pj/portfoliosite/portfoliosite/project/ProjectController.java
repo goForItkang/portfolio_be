@@ -61,7 +61,7 @@ public class ProjectController {
         dataResponse.setData(projectDtoPageDTO);
         return ResponseEntity.ok(dataResponse);
     }
-    //프로젝트 상세페이지 내용 res
+    //프로젝트 상세페이지 내용
     @GetMapping("/project/{id}")
     @Operation(
             summary = "프로젝트 상세페이지",
@@ -72,7 +72,10 @@ public class ProjectController {
     ){
         DataResponse dataResponse = new DataResponse();
         ResProjectDetailDTO projectDetailDTO = projectService.projectGetById(id);
-        return null;
+        dataResponse.setData(projectDetailDTO);
+        return ResponseEntity.ok(
+                dataResponse
+        );
     }
 
 

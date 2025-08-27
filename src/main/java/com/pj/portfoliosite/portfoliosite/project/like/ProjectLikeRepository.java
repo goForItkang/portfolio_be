@@ -22,4 +22,28 @@ public class ProjectLikeRepository {
     public void deleteLike(User user) {
         entityManager.remove(entityManager.merge(user));
     }
+
+    //좋아요 가져옴
+    public Long countById(Long id) {
+        return entityManager.createQuery(
+
+                        """
+                select count(pl) from ProjectLike pl where pl.project.id  =: id 
+        """,Long.class
+                )
+                .setParameter("id",id)
+                .getSingleResult();
+    }
+
+    public boolean existLike(Long projectId, Long userId) {
+        Long count = entityManager.createQuery(
+                """
+        select count(pl) from ProjectLike pl where pl.project.id  =: projectId
+        and pl.user.id  =: userId
+""",Long.class
+        ).setParameter("projectId",projectId)
+                .setParameter("userId",userId)
+                .getSingleResult();
+         return count > 0;
+    }
 }
