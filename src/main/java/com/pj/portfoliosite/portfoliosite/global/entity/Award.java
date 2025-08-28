@@ -24,4 +24,7 @@ public class Award {
     public void addReqAwardDTO(ReqAwardDTO reqAwardDTO) {
         this.awardDescription = reqAwardDTO.getAwardDescription();
     }
+    public void setPortfolio(PortFolio portfolio) {
+        this.portfolio = portfolio;
+    }
 }

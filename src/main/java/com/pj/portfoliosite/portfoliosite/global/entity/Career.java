@@ -26,6 +26,8 @@ public class Career {
         this.companyPosition = reqCareerDTO.getCompanyPosition();
         this.date = reqCareerDTO.getDate();
         this.dutyDescription = reqCareerDTO.getDutyDescription();
-        this.portfolio = new PortFolio();
+    }
+    public void setPortfolio(PortFolio portfolio) {
+        this.portfolio = portfolio;
     }
 }

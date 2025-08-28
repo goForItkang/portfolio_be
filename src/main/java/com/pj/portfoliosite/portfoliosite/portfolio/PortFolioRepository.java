@@ -3,9 +3,11 @@ package com.pj.portfoliosite.portfoliosite.portfolio;
 import com.pj.portfoliosite.portfoliosite.global.entity.PortFolio;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Transactional
 public class PortFolioRepository {
     @PersistenceContext
     private EntityManager entityManager;

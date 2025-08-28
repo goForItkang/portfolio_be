@@ -25,4 +25,7 @@ public class Education {
         this.school = reqEducationDTO.getSchool();
         this.schoolStatus = reqEducationDTO.getSchoolStatus();
     }
+    public void setPortfolio(PortFolio portfolio) {
+        this.portfolio = portfolio;
+    }
 }

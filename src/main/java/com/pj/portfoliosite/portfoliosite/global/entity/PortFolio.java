@@ -33,43 +33,54 @@ public class PortFolio {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "portfolio")
+    @OneToMany(mappedBy = "portfolio",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Career> careers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "portfolio")
+    @OneToMany(mappedBy = "portfolio",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Award> awards = new ArrayList<>();
 
-    @OneToMany(mappedBy = "portfolio")
+    @OneToMany(mappedBy = "portfolio",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Certificate> certificates = new ArrayList<>();
 
-    @OneToMany(mappedBy = "portfolio")
+    @OneToMany(mappedBy = "portfolio",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Education> educations = new ArrayList<>();
 
 
-    public PortFolio save(ReqPortfolioDTO req){
+    public void save(ReqPortfolioDTO req){
         title = req.getTitle();
         email = req.getEmail();
         industry = req.getIndustry();
         jobPosition = req.getJobPosition();
         skill = req.getSkill();
         introductions = req.getIntroductions();
+        saveStatus = req.isSaveStatus(); // 임시 저장인지 아닌지 확인
         createAt = LocalDateTime.now();
-        saveStatus = true;
-        return this;
     }
     public void addUser(User user){
         this.user = user;
     }
-    public void addCareer(Career career){
-        this.careers.add(career);
+    public void addCareer(List<Career> careerList){
+        for (Career c : careerList) {
+            c.setPortfolio(this);
+            this.careers.add(c);
+        }
     }
-    public void addAward(Award award){
-        this.awards.add(award);
+    public void addAward(List<Award> awardList){
+        for (Award a : awardList) {
+            a.setPortfolio(this);
+            this.awards.add(a);
+        }
     }
-    public void addCertificate(Certificate certificate){
-        this.certificates.add(certificate);
+    public void addCertificate(List<Certificate> certificateList){
+        for (Certificate cert : certificateList) {
+            cert.setPortfolio(this);
+            this.certificates.add(cert);
+        }
     }
-    public void addEducation(Education education){
-        this.educations.add(education);
+    public void addEducation(List<Education> educationList){
+        for (Education edu : educationList) {
+            edu.setPortfolio(this);
+            this.educations.add(edu);
+        }
     }
 }

@@ -29,4 +29,8 @@ public class Certificate {
         this.certificateDate = reqCertificateDTO.getCertificateDate();
         this.number = reqCertificateDTO.getNumber();
     }
+    public void setPortfolio(PortFolio portfolio) {
+        this.portfolio = portfolio;
+    }
+
 }
