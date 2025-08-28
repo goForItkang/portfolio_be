@@ -1,5 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.global.entity;
 
+import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqEducationDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,4 +20,9 @@ public class Education {
     @ManyToOne
     @JoinColumn(name = "portfolio_id")
     private PortFolio portfolio;
+
+    public void ReqEducationDTO(ReqEducationDTO reqEducationDTO) {
+        this.school = reqEducationDTO.getSchool();
+        this.schoolStatus = reqEducationDTO.getSchoolStatus();
+    }
 }

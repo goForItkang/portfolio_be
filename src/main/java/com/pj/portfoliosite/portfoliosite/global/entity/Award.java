@@ -1,5 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.global.entity;
 
+import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqAwardDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,4 +20,8 @@ public class Award {
     @ManyToOne
     @JoinColumn(name = "portfolio_id")
     private PortFolio portfolio;
+
+    public void addReqAwardDTO(ReqAwardDTO reqAwardDTO) {
+        this.awardDescription = reqAwardDTO.getAwardDescription();
+    }
 }

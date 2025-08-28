@@ -1,5 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.global.entity;
 
+import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqCareerDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -19,4 +20,12 @@ public class Career {
     @JoinColumn(name = "portfolio_id")
     private PortFolio portfolio;
 
+    public void ReqCareerDTO(ReqCareerDTO reqCareerDTO) {
+        this.companyName = reqCareerDTO.getCompanyName();
+        this.duty = reqCareerDTO.getDuty();
+        this.companyPosition = reqCareerDTO.getCompanyPosition();
+        this.date = reqCareerDTO.getDate();
+        this.dutyDescription = reqCareerDTO.getDutyDescription();
+        this.portfolio = new PortFolio();
+    }
 }

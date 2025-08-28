@@ -1,5 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.global.entity;
 
+import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqCertificateDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,4 +23,10 @@ public class Certificate {
     @ManyToOne
     @JoinColumn(name = "portfolio_id")
     private PortFolio portfolio;
+
+    public void reqCertificateDTO(ReqCertificateDTO reqCertificateDTO) {
+        this.certificateName = reqCertificateDTO.getCertificateName();
+        this.certificateDate = reqCertificateDTO.getCertificateDate();
+        this.number = reqCertificateDTO.getNumber();
+    }
 }

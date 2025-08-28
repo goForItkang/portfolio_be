@@ -1,5 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.global.entity;
 
+import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqPortfolioDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,4 +45,31 @@ public class PortFolio {
     @OneToMany(mappedBy = "portfolio")
     private List<Education> educations = new ArrayList<>();
 
+
+    public PortFolio save(ReqPortfolioDTO req){
+        title = req.getTitle();
+        email = req.getEmail();
+        industry = req.getIndustry();
+        jobPosition = req.getJobPosition();
+        skill = req.getSkill();
+        introductions = req.getIntroductions();
+        createAt = LocalDateTime.now();
+        saveStatus = true;
+        return this;
+    }
+    public void addUser(User user){
+        this.user = user;
+    }
+    public void addCareer(Career career){
+        this.careers.add(career);
+    }
+    public void addAward(Award award){
+        this.awards.add(award);
+    }
+    public void addCertificate(Certificate certificate){
+        this.certificates.add(certificate);
+    }
+    public void addEducation(Education education){
+        this.educations.add(education);
+    }
 }
