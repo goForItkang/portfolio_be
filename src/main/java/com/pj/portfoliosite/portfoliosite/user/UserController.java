@@ -38,4 +38,14 @@ public class UserController {
         return userService.register(requestDto);
     }
 
+    @PostMapping("/send-verification")
+    public DataResponse<String> sendVerificationEmail(@RequestBody Map<String, String> request) {
+        return userService.sendVerificationEmail(request.get("email"));
+    }
+
+    @PostMapping("/verify-email")
+    public DataResponse<String> verifyEmail(@RequestBody Map<String, String> request) {
+        return userService.verifyEmail(request.get("email"), request.get("verificationCode"));
+    }
+
 }
