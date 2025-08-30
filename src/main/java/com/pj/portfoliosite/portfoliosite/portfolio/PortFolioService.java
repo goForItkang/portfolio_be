@@ -78,4 +78,96 @@ public class PortFolioService {
         return certificateList;
     }
 
+    public ResPortFolioDTO getPortFolio(Long id) {
+        // 전체 가져오기
+//        PortFolio portFolio = pfRepository.selectWithAllById(id);
+       PortFolio portFolio = pfRepository.selectById(id);
+        // entity to dto
+        ResPortFolioDTO resPortFolioDTO = new ResPortFolioDTO(); // dto
+        //변경
+        resPortFolioDTO.setId(portFolio.getId());
+        resPortFolioDTO.setEmail(portFolio.getUser().getEmail());
+        resPortFolioDTO.setTitle(portFolio.getTitle());
+        resPortFolioDTO.setIndustry(portFolio.getIndustry());
+        resPortFolioDTO.setSkill(portFolio.getSkill());
+        resPortFolioDTO.setIntroductions(portFolio.getIntroductions());
+        resPortFolioDTO.setCreateAt(portFolio.getCreateAt());
+        // dto 관련 list 변경
+        List<Award> awards = pfRepository.awardSelectByPortfolioId(id);
+        resPortFolioDTO.setAwards(awardListToResAwardDTOList(awards));
+        List<Career> careers = pfRepository.careerSelectByPortfolioId(id);
+        resPortFolioDTO.setCareers(careerListToResCareerDTOList(careers));
+        List<Education> educations = pfRepository.educationSelectByPortfolioId(id);
+        resPortFolioDTO.setEducations(educationListToResEducationDTOList(educations));
+        List<Certificate> certificates = pfRepository.certificateSelectByPortfolioId(id);
+        resPortFolioDTO.setCertificates(certificateListToResCertificateDTOList(certificates));
+
+        return resPortFolioDTO;
+    }
+    // entity to dto
+    private List<ResAwardDTO> awardListToResAwardDTOList(List<Award> awards) {
+        if(awards == null){
+            return null;
+        }else{
+            List<ResAwardDTO> resAwardDTOS = new ArrayList<>();
+            for (Award award : awards) {
+                ResAwardDTO resAwardDTO = new ResAwardDTO();
+                resAwardDTO.setId(award.getId());
+                resAwardDTO.setAwardDescription(award.getAwardDescription());
+                resAwardDTOS.add(resAwardDTO);
+            }
+            return resAwardDTOS;
+        }
+    }
+    private List<ResCareerDTO> careerListToResCareerDTOList(List<Career> careers) {
+        if(careers == null){
+            return null;
+        }else{
+            List<ResCareerDTO> resCareerDTOS = new ArrayList<>();
+            for (Career career : careers) {
+                ResCareerDTO resCareerDTO = new ResCareerDTO();
+                resCareerDTO.setId(career.getId());
+                resCareerDTO.setCompanyName(career.getCompanyName());
+                resCareerDTO.setCompanyPosition(career.getCompanyPosition());
+                resCareerDTO.setDate(career.getDate());
+                resCareerDTO.setDuty(career.getDuty());
+                resCareerDTO.setDutyDescription(career.getDutyDescription());
+                resCareerDTOS.add(resCareerDTO);
+            }
+            return resCareerDTOS;
+        }
+    }
+    // education to dto
+    private List<ResEducationDTO> educationListToResEducationDTOList(List<Education> educations) {
+        if(educations == null){
+            return null;
+        }else{
+            List<ResEducationDTO> resEducationDTOS = new ArrayList<>();
+            for (Education education : educations) {
+                ResEducationDTO resEducationDTO = new ResEducationDTO();
+                resEducationDTO.setId(education.getId());
+                resEducationDTO.setSchool(education.getSchool());
+                resEducationDTO.setSchoolStatus(education.getSchoolStatus());
+                resEducationDTOS.add(resEducationDTO);
+            }
+            return resEducationDTOS;
+        }
+
+    }
+    private List<ResCertificateDTO> certificateListToResCertificateDTOList(List<Certificate> certificates) {
+        if(certificates == null){
+            return null;
+        }else{
+            List<ResCertificateDTO> resCertificateDTOS = new ArrayList<>();
+            for (Certificate certificate : certificates) {
+                ResCertificateDTO resCertificateDTO = new ResCertificateDTO();
+                resCertificateDTO.setId(certificate.getId());
+                resCertificateDTO.setCertificateName(certificate.getCertificateName());
+                resCertificateDTO.setCertificateDate(certificate.getCertificateDate());
+                resCertificateDTO.setNumber(certificate.getNumber());
+                resCertificateDTOS.add(resCertificateDTO);
+            }
+            return resCertificateDTOS;
+        }
+    }
 }

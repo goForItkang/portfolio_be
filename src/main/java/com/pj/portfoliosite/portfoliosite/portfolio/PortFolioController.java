@@ -5,10 +5,7 @@ import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqPortfolioDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +22,19 @@ public class PortFolioController {
         portfolioService.save(reqPortfolioDTO);
         DataResponse dataResponse = new DataResponse();
         System.out.println("데이터 전을 받았습니당~");
+        return ResponseEntity.ok(dataResponse);
+    }
+    @GetMapping("/portfolio/{id}")
+    @Operation(
+            summary = "포트폴리오 가져오기",
+            description = "id 기준으로 포트 폴리오가져오기"
+    )
+    public ResponseEntity<DataResponse> portfolioGetById(
+        @PathVariable Long id
+    ){
+        DataResponse dataResponse = new DataResponse();
+        dataResponse.setData(portfolioService.getPortFolio(id));
+
         return ResponseEntity.ok(dataResponse);
     }
 
