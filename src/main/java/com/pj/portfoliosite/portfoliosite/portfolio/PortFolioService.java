@@ -1,7 +1,9 @@
 package com.pj.portfoliosite.portfoliosite.portfolio;
 
 import com.pj.portfoliosite.portfoliosite.global.entity.*;
+import com.pj.portfoliosite.portfoliosite.portfolio.bookmark.PortfolioBookMarkRepository;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.*;
+import com.pj.portfoliosite.portfoliosite.portfolio.like.PortFolioLikeRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import java.util.Optional;
 public class PortFolioService {
     private final PortFolioRepository pfRepository;
     private final UserRepository userRepository;
+    private final PortFolioLikeRepository pfLikeRepository;
+    private final PortfolioBookMarkRepository pfBookMarkRepository;
     // 저장 로직
     public void save(ReqPortfolioDTO reqPortfolioDTO) {
         //user part
@@ -169,5 +173,28 @@ public class PortFolioService {
             }
             return resCertificateDTOS;
         }
+    }
+
+    public ResPortfolioDetailDTO getPortFolioDetails(Long id) {
+        String testLogin = "portfolio@naver.com";
+        Optional<User> user = userRepository.findByEmail(testLogin);
+        ResPortfolioDetailDTO resPortfolioDetailDTO = new ResPortfolioDetailDTO();
+        if(user.isPresent()){
+            //get user
+            boolean result = pfBookMarkRepository.existBookMark(user.get().getId(),id);
+            resPortfolioDetailDTO.setBookMarkCheck(result);
+            boolean result2 = pfLikeRepository.existLike(user.get().getId(),id);
+            resPortfolioDetailDTO.setLikeCheck(result2);
+        }else{
+            // not user
+            resPortfolioDetailDTO.setLikeCheck(false);
+            resPortfolioDetailDTO.setBookMarkCheck(false);
+        }
+        // Like 및 bookmark 갯수
+        Long likeCount = pfLikeRepository.countByPortfolioId(id);
+        resPortfolioDetailDTO.setLikeCount(likeCount);
+        Long bookCount = pfBookMarkRepository.countByPortfolioId(id);
+        resPortfolioDetailDTO.setBookMarkCount(bookCount);
+        return resPortfolioDetailDTO;
     }
 }

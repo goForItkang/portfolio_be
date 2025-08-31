@@ -2,6 +2,7 @@ package com.pj.portfoliosite.portfoliosite.portfolio;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqPortfolioDTO;
+import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortfolioDetailDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,19 @@ public class PortFolioController {
         DataResponse dataResponse = new DataResponse();
         dataResponse.setData(portfolioService.getPortFolio(id));
 
+        return ResponseEntity.ok(dataResponse);
+    }
+    @GetMapping("/portfolio/{id}/details")
+    @Operation(
+            summary = "포트폴리오 세부정보(좋아요 및 북마크, 댓글 정보)",
+            description = "id로 세부 정보"
+    )
+   public ResponseEntity<DataResponse> portfolioGetDetailsById(
+           @PathVariable Long id
+    ){
+        ResPortfolioDetailDTO portfolioDetailDTO = portfolioService.getPortFolioDetails(id);
+        DataResponse dataResponse = new DataResponse();
+        dataResponse.setData(portfolioDetailDTO);
         return ResponseEntity.ok(dataResponse);
     }
 

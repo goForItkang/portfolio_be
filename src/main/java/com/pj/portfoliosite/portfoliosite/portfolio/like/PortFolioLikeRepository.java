@@ -21,4 +21,25 @@ public class PortFolioLikeRepository {
                 .executeUpdate();
     }
 
+    public boolean existLike(Long userId, Long portfolioId) {
+        Long count = entityManager.createQuery(
+                """
+    select count(pl) from PortFolioLike pl where pl.portfolio.id  =: portfolioId
+        and pl.user.id  =: userId
+    """,Long.class
+        ).setParameter("userId",userId)
+                .setParameter("portfolioId",portfolioId)
+                .getSingleResult();
+        return count > 0;
+    }
+
+    public Long countByPortfolioId(Long id) {
+        return entityManager.createQuery(
+                """
+    select count(pl) from PortFolioLike pl 
+    where pl.portfolio.id =:id
+""",Long.class
+        ).setParameter("id",id)
+                .getSingleResult();
+    }
 }
