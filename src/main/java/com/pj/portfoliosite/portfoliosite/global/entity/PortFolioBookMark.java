@@ -22,6 +22,13 @@ public class PortFolioBookMark {
     private User user;
     @ManyToOne
     @JoinColumn(name = "portfolio_id", nullable = false)
+
     private PortFolio portfolio;
+    public void addUser(User user) {
+        this.user = user;
+    }
+    public void addPortfolio(PortFolio portfolio) {
+        this.portfolio = portfolio;
+    }
 
 }

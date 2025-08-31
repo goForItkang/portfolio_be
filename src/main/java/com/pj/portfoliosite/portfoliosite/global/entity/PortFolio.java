@@ -88,4 +88,10 @@ public class PortFolio {
             this.educations.add(edu);
         }
     }
+    public void addPortFolioLike(PortFolioLike portFolioLike){
+        this.portFolioLikes.add(portFolioLike);
+    }
+    public void addPortFolioBookMark(PortFolioBookMark portFolioBookMark){
+        this.portFolioBookMarks.add(portFolioBookMark);
+    }
 }
