@@ -51,6 +51,9 @@ public class PortFolio {
     @OneToMany(mappedBy = "portfolio",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<PortFolioBookMark> portFolioBookMarks= new ArrayList<>();
 
+    @OneToMany(mappedBy = "portfolio",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<PortfolioComment> portfolioComments= new ArrayList<>();
+
     public void save(ReqPortfolioDTO req){
         title = req.getTitle();
         email = req.getEmail();

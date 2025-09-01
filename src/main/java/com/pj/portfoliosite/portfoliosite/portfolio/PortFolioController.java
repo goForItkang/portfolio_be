@@ -40,7 +40,7 @@ public class PortFolioController {
     }
     @GetMapping("/portfolio/{id}/details")
     @Operation(
-            summary = "포트폴리오 세부정보(좋아요 및 북마크, 댓글 정보)",
+            summary = "포트폴리오 세부정보(좋아요 및 북마크 상태)",
             description = "id로 세부 정보"
     )
    public ResponseEntity<DataResponse> portfolioGetDetailsById(
