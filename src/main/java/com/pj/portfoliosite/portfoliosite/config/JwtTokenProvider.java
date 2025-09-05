@@ -1,18 +1,52 @@
 package com.pj.portfoliosite.portfoliosite.config;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import jakarta.annotation.PostConstruct;
+
 import java.security.Key;
 import java.util.Date;
 
+@Component
 public class JwtTokenProvider {
 
-    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60;
-    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7;
+    @Value("${jwt.secret-key:eW91ci1zdXBlci1zZWNyZXQta2V5LWF0LWxlYXN0LTMyLWNoYXJhY3RlcnMtbG9uZw==}")
+    private String secretKey;
 
-    public static String createToken(String email) {
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 1시간
+    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7; // 7일
+
+    private Key signingKey;
+
+    @PostConstruct
+    public void init() {
+        if (secretKey == null || secretKey.trim().isEmpty()) {
+            throw new IllegalArgumentException("JWT secret key는 필수입니다.");
+        }
+
+        try {
+            byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+            this.signingKey = Keys.hmacShaKeyFor(keyBytes);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("올바르지 않은 JWT secret key 형식입니다.", e);
+        }
+    }
+
+    private Key getSigningKey() {
+        if (signingKey == null) {
+            throw new IllegalStateException("JWT signing key가 초기화되지 않았습니다.");
+        }
+        return signingKey;
+    }
+
+    public String createToken(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("이메일은 null이거나 빈 값일 수 없습니다.");
+        }
+
         Date now = new Date();
         Date expiry = new Date(now.getTime() + EXPIRATION_TIME);
 
@@ -20,11 +54,15 @@ public class JwtTokenProvider {
                 .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
-                .signWith(SECRET_KEY)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public static String createRefreshToken(String email){
+    public String createRefreshToken(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("이메일은 null이거나 빈 값일 수 없습니다.");
+        }
+
         Date now = new Date();
         Date expiry = new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION_TIME);
 
@@ -32,7 +70,40 @@ public class JwtTokenProvider {
                 .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
-                .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public boolean validateToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return false;
+        }
+
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String getEmailFromToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getSubject();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

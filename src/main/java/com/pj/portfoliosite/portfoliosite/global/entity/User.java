@@ -33,6 +33,9 @@ public class User {
     private String profile; // 이미지 url
     private String createAt;
 
+    private String provider = "LOCAL";
+    private String providerId;
+
     private String refreshToken;
     private LocalDateTime refreshTokenExpiry;
 

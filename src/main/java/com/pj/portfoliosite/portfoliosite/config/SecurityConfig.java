@@ -1,37 +1,72 @@
 package com.pj.portfoliosite.portfoliosite.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pj.portfoliosite.portfoliosite.global.handler.CustomAccessDeneHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final CustomAccessDeneHandler accessDeneHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Bean
-    public SecurityFilterChain  filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults())
-                .csrf(csrf->csrf.disable())
-                .authorizeHttpRequests(auth->
-                        auth.requestMatchers("/api-docs","/swagger-ui.html","/","/test","/test2","/api/**","/**").permitAll()
-                                .anyRequest().authenticated()
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/",
+                                "/test",
+                                "/test2",
+                                "/api/user/login",
+                                "/api/user/register",
+                                "/api/user/send-verification",
+                                "/api/user/verify-email",
+                                "/api/user/oauth/*/url",
+                                "/api/user/oauth/*/callback"
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
-                .formLogin(form ->form
-                        .loginProcessingUrl("/login")
-                        .usernameParameter("email")
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/success", true)
-                        .failureUrl("/login?error=true")
-                        .permitAll()
-                );
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(accessDeneHandler)
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+
+                            Map<String, Object> errorResponse = new HashMap<>();
+                            errorResponse.put("status", 401);
+                            errorResponse.put("error", "UNAUTHORIZED");
+                            errorResponse.put("message", "인증이 필요합니다.");
+                            errorResponse.put("path", request.getRequestURI());
+
+                            ObjectMapper objectMapper = new ObjectMapper();
+                            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+                        })
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();

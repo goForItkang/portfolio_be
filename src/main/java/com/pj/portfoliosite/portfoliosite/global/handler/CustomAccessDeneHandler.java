@@ -1,9 +1,36 @@
 package com.pj.portfoliosite.portfoliosite.global.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.HandlerExceptionResolver;
-// security config 파일 수정 해야함
-@Component
-public class CustomAccessDeneHandler{
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+@Component
+public class CustomAccessDeneHandler implements AccessDeniedHandler {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public void handle(HttpServletRequest request,
+                       HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
+
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json;charset=UTF-8");
+
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("status", 403);
+        errorResponse.put("error", "FORBIDDEN");
+        errorResponse.put("message", "접근 권한이 없습니다.");
+        errorResponse.put("path", request.getRequestURI());
+
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+    }
 }

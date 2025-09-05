@@ -3,11 +3,17 @@ package com.pj.portfoliosite.portfoliosite.user;
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.global.dto.LoginRequestDto;
 import com.pj.portfoliosite.portfoliosite.global.dto.LoginResponseDto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.pj.portfoliosite.portfoliosite.global.entity.User;
+import com.pj.portfoliosite.portfoliosite.global.exception.CustomException;
+import com.pj.portfoliosite.portfoliosite.global.errocode.UserErrorCode;
+import com.pj.portfoliosite.portfoliosite.util.OAuthUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.Map;
 
 @RestController
@@ -15,6 +21,8 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    @Autowired
+    private OAuthUtil oAuthUtil;
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -27,8 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/email/{id}")
-    public DataResponse<String> getDecryptedEmail(
-            @PathVariable Long id) {
+    public DataResponse<String> getDecryptedEmail(@PathVariable Long id) {
         String decryptedEmail = userService.getDecryptedEmail(id);
         return new DataResponse<>(200, "복호화된 이메일", decryptedEmail);
     }
@@ -48,4 +55,50 @@ public class UserController {
         return userService.verifyEmail(request.get("email"), request.get("verificationCode"));
     }
 
+    @GetMapping("/oauth/{provider}/url")
+    public DataResponse<String> getOAuthUrl(@PathVariable String provider) {
+        String authUrl;
+        switch (provider.toLowerCase()) {
+            case "github":
+                authUrl = oAuthUtil.getGitHubAuthUrl();
+                break;
+            case "google":
+                authUrl = oAuthUtil.getGoogleAuthUrl();
+                break;
+            default:
+                throw new CustomException(UserErrorCode.INVALID_PROVIDER);
+        }
+        return new DataResponse<>(200, "OAuth URL 생성 성공", authUrl);
+    }
+
+    @GetMapping("/oauth/{provider}/callback")
+    public ResponseEntity<String> handleOAuthCallback(
+            @PathVariable String provider,
+            @RequestParam String code) {
+
+        DataResponse<LoginResponseDto> result = userService.processOAuthLogin(provider, code);
+
+        String redirectUrl = "http://localhost:3000/auth/success" +
+                "?token=" + result.getData().getToken() +
+                "&provider=" + provider;
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(redirectUrl))
+                .build();
+    }
+
+    @GetMapping("/me")
+    public DataResponse<User> getCurrentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+        }
+
+        String email = authentication.getName();
+        User user = userService.getUserByEmail(email);
+
+        user.setPassword(null);
+        user.setRefreshToken(null);
+
+        return new DataResponse<>(200, "사용자 정보 조회 성공", user);
+    }
 }
