@@ -66,4 +66,10 @@ public class Project {
     public void setComments(List<ProjectComment> comments) {
         this.comments = comments;
     }
+    public void addBookMark(ProjectBookMark bookMark) {
+        this.bookMarks.add(bookMark);
+    }
+    public void addLike(ProjectLike like) {
+        this.likes.add(like);
+    }
 }

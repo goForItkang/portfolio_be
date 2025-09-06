@@ -1,0 +1,34 @@
+package com.pj.portfoliosite.portfoliosite.global.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Getter;
+
+
+@Getter
+@Entity
+@Table(
+        name = "portfolio_like",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "portfolio_id"})
+        }
+)
+public class PortFolioLike {
+    @Id
+    @GeneratedValue
+    private Long id;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+    @ManyToOne
+    @JoinColumn(name = "portfolio_id", nullable = false)
+    private PortFolio portfolio;
+
+    public void addUser(User user){
+        this.user = user;
+    }
+    public void addPortfolio(PortFolio portfolio){
+        this.portfolio = portfolio;
+    }
+
+}

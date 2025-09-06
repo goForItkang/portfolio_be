@@ -79,4 +79,5 @@ public class ProjectRepository {
     public Project getReference(Long projectId) {
         return entityManager.find(Project.class, projectId);
     }
+
 }

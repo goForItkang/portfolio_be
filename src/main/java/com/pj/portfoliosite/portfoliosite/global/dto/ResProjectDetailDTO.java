@@ -21,9 +21,12 @@ public class ResProjectDetailDTO {
 //  private List<Skil> // skill
     private String skill; //skill 처리를 어떻게 애할지안정함
     private String demonstrationVideoUrl;
-
     // 댓글
+    private boolean likeCheck;// 본인이 좋아요 누른 경우
+    private boolean bookMarkCheck;// 본인이 북마크 누른경우
     // 댓글 리스트에 사용profile 및 댓글 정보 본인 여부를 확인함
-    List<ResCommentsDTO> resCommentsDTOList;
+    private Long likeCount; // 좋아요 갯수
+    private Long bookMarkCount;// 북 마크 갯수
+    List<ResCommentListDTO> resCommentsDTOList;
 
 }

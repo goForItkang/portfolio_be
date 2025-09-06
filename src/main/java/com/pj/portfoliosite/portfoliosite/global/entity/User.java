@@ -46,13 +46,16 @@ public class User {
     private List<Blog> blogs = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<PortPolio> portPolios = new ArrayList<>();
+    private List<PortFolio> portPolios = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<Project> projects = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<ProjectComment> projectComments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<PortfolioComment> portfolioComments = new ArrayList<>();
 
     public void addProject(Project project) {
         projects.add(project);

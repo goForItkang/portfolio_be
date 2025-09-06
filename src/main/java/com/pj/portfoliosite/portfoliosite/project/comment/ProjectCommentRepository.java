@@ -14,8 +14,16 @@ public class ProjectCommentRepository {
     @PersistenceContext
     private EntityManager entityManager;
     // 프로젝트 Id로 comment 가져옴
-    public List<ProjectComment> findByProjectId(Long id) {
-        return null;
+    public List<ProjectComment> findByProjectId(Long projectId) {
+        return entityManager.createQuery(
+                        "SELECT pc FROM ProjectComment pc " +
+                                "JOIN FETCH pc.user u " +            // 작성자 즉시 로딩 (원하면)
+                                "LEFT JOIN FETCH pc.replies r " +    // 대댓글 즉시 로딩 (원하면)
+                                "WHERE pc.project.id = :projectId " +
+                                "AND pc.parent IS NULL " +           // 부모 댓글만 가져오기 (필요한 경우)
+                                "ORDER BY pc.createdAt DESC", ProjectComment.class)
+                .setParameter("projectId", projectId)
+                .getResultList();
     }
 
     // 성능 튜닝
