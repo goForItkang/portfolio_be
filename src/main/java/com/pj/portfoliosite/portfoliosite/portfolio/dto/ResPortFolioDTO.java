@@ -23,6 +23,7 @@ public class ResPortFolioDTO {
     private boolean saveStatus;    // 임시 저장 여부
 
     // 연관관계 엔티티들 DTO 리스트
+    private List<String> projectDescriptions;
     private List<ResCareerDTO> careers;
     private List<ResAwardDTO> awards;
     private List<ResCertificateDTO> certificates;
