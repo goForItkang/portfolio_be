@@ -65,4 +65,10 @@ public class PortFolioRepository {
     }
 
 
+    public List<ProjectDescription> projectDescriptionSelectByPortfolioId(Long id) {
+        return entityManager.createQuery(
+                "select pd from ProjectDescription pd where pd.portfolio.id =:pid",ProjectDescription.class
+        ).setParameter("pid",id)
+                .getResultList();
+    }
 }

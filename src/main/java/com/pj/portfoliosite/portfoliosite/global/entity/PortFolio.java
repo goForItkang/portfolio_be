@@ -54,6 +54,9 @@ public class PortFolio {
     @OneToMany(mappedBy = "portfolio",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<PortfolioComment> portfolioComments= new ArrayList<>();
 
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<ProjectDescription> projectDescriptions = new ArrayList<>();
+
     public void save(ReqPortfolioDTO req){
         title = req.getTitle();
         email = req.getEmail();
@@ -97,4 +100,11 @@ public class PortFolio {
     public void addPortFolioBookMark(PortFolioBookMark portFolioBookMark){
         this.portFolioBookMarks.add(portFolioBookMark);
     }
+    public void addProjectDescription(List<ProjectDescription> projectDescriptions){
+        for(ProjectDescription pd : projectDescriptions){
+            pd.addPortfolio(this);
+            this.projectDescriptions.add(pd);
+        }
+    }
+
 }

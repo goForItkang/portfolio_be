@@ -19,6 +19,7 @@ public class ReqPortfolioDTO {
     private boolean saveStatus;    // 임시 저장 여부
 
     // 연관관계 엔티티들 DTO 리스트
+    private List<ReqProjectDescription> projectDescriptions;
     private List<ReqCareerDTO> careers;
     private List<ReqAwardDTO> awards;
     private List<ReqCertificateDTO> certificates;

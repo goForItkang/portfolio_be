@@ -37,9 +37,22 @@ public class PortFolioService {
         portfolio.addEducation(toEducationList(reqPortfolioDTO.getEducations()));
         // certificate list
         portfolio.addCertificate(toCertificateList(reqPortfolioDTO.getCertificates()));
+        // project description list
+        portfolio.addProjectDescription(toProjectDescription(reqPortfolioDTO.getProjectDescriptions()));
         portfolio.save(reqPortfolioDTO);
         pfRepository.insert(portfolio);
     }
+    // 프로젝트 설명란
+     private List<ProjectDescription> toProjectDescription(List<ReqProjectDescription> reqProjectDescriptionList) {
+        List<ProjectDescription> projectDescriptionList = new ArrayList<>();
+         for (ReqProjectDescription reqProjectDescription : reqProjectDescriptionList) {
+             ProjectDescription projectDescription = new ProjectDescription();
+             projectDescription.setDescription(reqProjectDescription.getDescription());
+             projectDescriptionList.add(projectDescription);
+         }
+         return projectDescriptionList;
+     }
+
     // award list 형 변환
     private List<Award> toAwardList(List<ReqAwardDTO> reqAwardDTOList) {
         List<Award> awardList = new ArrayList<>();
@@ -96,6 +109,7 @@ public class PortFolioService {
         resPortFolioDTO.setSkill(portFolio.getSkill());
         resPortFolioDTO.setIntroductions(portFolio.getIntroductions());
         resPortFolioDTO.setCreateAt(portFolio.getCreateAt());
+
         // dto 관련 list 변경
         List<Award> awards = pfRepository.awardSelectByPortfolioId(id);
         resPortFolioDTO.setAwards(awardListToResAwardDTOList(awards));
@@ -105,10 +119,23 @@ public class PortFolioService {
         resPortFolioDTO.setEducations(educationListToResEducationDTOList(educations));
         List<Certificate> certificates = pfRepository.certificateSelectByPortfolioId(id);
         resPortFolioDTO.setCertificates(certificateListToResCertificateDTOList(certificates));
-
+        List<ProjectDescription> projectDescriptions = pfRepository.projectDescriptionSelectByPortfolioId(id);
+        resPortFolioDTO.setProjectDescriptions(projectDescriptionListToProjectDTOList(projectDescriptions));
         return resPortFolioDTO;
     }
     // entity to dto
+    private List<ResProjectDescription> projectDescriptionListToProjectDTOList(List<ProjectDescription> projectDescriptions) {
+        List<ResProjectDescription> resProjectDescriptionList = new ArrayList<>();
+        for (ProjectDescription projectDescription : projectDescriptions) {
+            ResProjectDescription resProjectDescription = new ResProjectDescription();
+            resProjectDescription.setId(projectDescription.getId());
+            resProjectDescription.setDescription(projectDescription.getDescription());
+            resProjectDescriptionList.add(resProjectDescription);
+        }
+        return resProjectDescriptionList;
+    }
+
+
     private List<ResAwardDTO> awardListToResAwardDTOList(List<Award> awards) {
         if(awards == null){
             return null;
@@ -121,6 +148,19 @@ public class PortFolioService {
                 resAwardDTOS.add(resAwardDTO);
             }
             return resAwardDTOS;
+        }
+    }
+    private List<ResProjectDescription> projectDescriptionListToResProjectDescriptionList(List<ProjectDescription> projectDescriptions) {
+        if(projectDescriptions == null){
+            return null;
+        }else{
+            List<ResProjectDescription> resProjectDescriptionS = new ArrayList<>();
+            for (ProjectDescription projectDescription : projectDescriptions) {
+                ResProjectDescription resProjectDescription = new ResProjectDescription();
+                resProjectDescription.setDescription(projectDescription.getDescription());
+                resProjectDescriptionS.add(resProjectDescription);
+            }
+            return resProjectDescriptionS;
         }
     }
     private List<ResCareerDTO> careerListToResCareerDTOList(List<Career> careers) {
