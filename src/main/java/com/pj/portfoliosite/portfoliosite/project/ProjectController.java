@@ -25,6 +25,7 @@ public class ProjectController {
         DataResponse dataResponse = new DataResponse();
         List<ResProjectRecommendDto> projectServiceRecommend =projectService.getRecommend();
         dataResponse.setData(projectServiceRecommend);
+
         return ResponseEntity.ok(
             dataResponse
         );
