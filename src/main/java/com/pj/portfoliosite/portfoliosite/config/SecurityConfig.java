@@ -42,7 +42,8 @@ public class SecurityConfig {
                                 "/api/user/send-verification",
                                 "/api/user/verify-email",
                                 "/api/user/oauth/*/url",
-                                "/api/user/oauth/*/callback"
+                                "/api/user/oauth/*/callback",
+                                "/api/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
