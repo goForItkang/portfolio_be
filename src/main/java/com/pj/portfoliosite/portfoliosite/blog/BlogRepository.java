@@ -22,4 +22,5 @@ public class BlogRepository {
     public void delete(Blog blog) {
         em.remove(blog);
     }
+
 }

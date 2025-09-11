@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -30,6 +32,12 @@ public class Blog {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BlogBookmark> bookMarks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BlogLike> blogLikes = new ArrayList<>();
+
     public void addUser(User user) {
         this.user = user;
     }
@@ -42,6 +50,12 @@ public class Blog {
             thumbnailURL = null;
         }
         createdAt = LocalDateTime.now();
+    }
+    public void addBookmark(BlogBookmark bookmark){
+        bookMarks.add(bookmark);
+    }
+    public void addLike(BlogLike like){
+        blogLikes.add(like);
     }
 
 }
