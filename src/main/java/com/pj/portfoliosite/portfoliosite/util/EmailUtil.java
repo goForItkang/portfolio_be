@@ -50,7 +50,6 @@ public class EmailUtil {
         return String.valueOf(code);
     }
 
-    // 이메일 인증 코드 발송
     public boolean sendVerificationEmail(String email) {
         try {
             verificationMap.remove(email);
@@ -60,13 +59,29 @@ public class EmailUtil {
 
             verificationMap.put(email, new VerificationInfo(verificationCode, expirationTime));
 
-            sendEmailMessage(email, verificationCode);
+            sendEmailMessage(email, verificationCode, "회원가입"); // 3번째 파라미터 추가
 
             log.info("인증 이메일 발송 성공: {} (코드: {})", email, verificationCode);
             return true;
 
         } catch (Exception e) {
             log.error("인증 이메일 발송 실패: {}", email, e);
+            return false;
+        }
+    }
+
+
+    // 비밀번호 재설정용 이메일 발송
+    public boolean sendPasswordResetEmail(String email) {
+        try {
+            verificationMap.remove(email);
+            String verificationCode = generateVerificationCode();
+            LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(expirationMinutes);
+            verificationMap.put(email, new VerificationInfo(verificationCode, expirationTime));
+
+            sendEmailMessage(email, verificationCode, "비밀번호재설정");
+            return true;
+        } catch (Exception e) {
             return false;
         }
     }
@@ -138,17 +153,23 @@ public class EmailUtil {
 
 
     // 실제 이메일 발송 처리
-    private void sendEmailMessage(String email, String code) {
+    private void sendEmailMessage(String email, String code, String purpose) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
         message.setTo(email);
-        message.setSubject("[Port Cloud] 이메일 인증 코드");
-        message.setText(createEmailContent(code));
+
+        if ("회원가입".equals(purpose)) {
+            message.setSubject("[Port Cloud] 이메일 인증 코드");
+            message.setText(createSignupEmailContent(code));
+        } else if ("비밀번호재설정".equals(purpose)) {
+            message.setSubject("[Port Cloud] 비밀번호 재설정 인증 코드");
+            message.setText(createPasswordResetEmailContent(code));
+        }
 
         mailSender.send(message);
     }
 
-     private String createEmailContent(String code) {
+     private String createSignupEmailContent(String code) {
         return "안녕하세요!\n\n" +
                 "Port Cloud 회원가입을 위한 이메일 인증 코드입니다.\n\n" +
                 "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
@@ -159,4 +180,16 @@ public class EmailUtil {
                 "감사합니다.\n" +
                 "Port Cloud";
      }
+
+    private String createPasswordResetEmailContent(String code) {
+        return "안녕하세요!\n\n" +
+                "Port Cloud 비밀번호 재설정을 위한 인증 코드입니다.\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "   인증 코드: " + code + "\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                "• 이 코드는 " + expirationMinutes + "분간 유효합니다.\n" +
+                "• 코드를 타인과 공유하지 마세요.\n" +
+                "감사합니다.\n" +
+                "Port Cloud";
+    }
 }

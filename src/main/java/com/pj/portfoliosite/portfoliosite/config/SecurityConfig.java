@@ -41,6 +41,8 @@ public class SecurityConfig {
                                 "/api/user/register",
                                 "/api/user/send-verification",
                                 "/api/user/verify-email",
+                                "/api/user/password-reset-request",
+                                "/api/user/password-reset",
                                 "/api/user/oauth/*/url",
                                 "/api/user/oauth/*/callback",
                                 "/api/**"

@@ -28,6 +28,7 @@ public class User {
     private String interest2;
     private String tech_stack;
     private String gitLink;
+    private String nickname;
     @Lob
     private String introduce; // 자기소개
     private String profile; // 이미지 url
