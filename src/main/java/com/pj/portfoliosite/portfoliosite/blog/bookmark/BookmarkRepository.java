@@ -22,4 +22,11 @@ public class BookmarkRepository {
                 .setParameter("userId",userId)
                 .executeUpdate();
     }
+
+    public boolean selectBlogIdAndUserId(Long id, Long id1) {
+        Long result = em.createQuery(
+                "SELECT COUNT(b) FROM BlogBookmark b WHERE b.blog.id = :id AND b.user.id = :id1", Long.class
+        ).setParameter("id", id).setParameter("id1", id1).getSingleResult();
+        return result > 0;
+    }
 }

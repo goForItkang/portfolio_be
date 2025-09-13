@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 // 포트 폴리오 및 commentList
@@ -20,5 +21,6 @@ public class ResCommentListDTO {
     private String userProfileURL;
     private String userWriteName;
     private boolean isOwner;
+    private LocalDateTime createdAt;
     private List<ResCommentListDTO> replies; // 대댓글 리스트
 }

@@ -2,9 +2,12 @@ package com.pj.portfoliosite.portfoliosite.blog;
 
 import com.pj.portfoliosite.portfoliosite.blog.dto.ReqBlogDTO;
 import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogDTO;
+import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogInfo;
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,6 +60,17 @@ public class BlogController {
         dataResponse.setMessage("정상적으로 수정 되었습니다.");
         blogService.update(id,reqBlogDTO);
 
+        return ResponseEntity.ok(dataResponse);
+    }
+    @GetMapping("/blogs/{id}/info")
+    @Operation(
+            summary = "북마크 및 좋아요 count and owner check"
+    )
+    public ResponseEntity<DataResponse> getBlogInfo(
+            @PathVariable Long id
+    ){
+        ResBlogInfo resBlogInfo =  blogService.getInfo(id);
+        DataResponse dataResponse = new DataResponse();
         return ResponseEntity.ok(dataResponse);
     }
 

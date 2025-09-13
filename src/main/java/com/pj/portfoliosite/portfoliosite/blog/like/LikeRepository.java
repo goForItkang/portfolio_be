@@ -23,4 +23,11 @@ public class LikeRepository {
                 .setParameter("UserId",UserId)
                 .executeUpdate();
     }
+
+    public boolean selectByBlogIdAndUserID(Long blogId, Long userId) {
+        em.createQuery(
+                "SELECT COUNT(l) FROM BlogLike l WHERE l.blog.id = :id AND l.user.id = :id1", Long.class
+        ).setParameter("id", blogId).setParameter("id1", userId).getSingleResult();
+        return true;
+    }
 }
