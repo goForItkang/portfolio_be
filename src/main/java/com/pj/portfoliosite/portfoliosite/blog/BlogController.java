@@ -71,6 +71,8 @@ public class BlogController {
     ){
         ResBlogInfo resBlogInfo =  blogService.getInfo(id);
         DataResponse dataResponse = new DataResponse();
+        dataResponse.setStatus(200);
+        dataResponse.setData(resBlogInfo);
         return ResponseEntity.ok(dataResponse);
     }
 
