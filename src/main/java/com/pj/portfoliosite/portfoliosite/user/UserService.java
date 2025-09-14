@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -250,5 +251,32 @@ public class UserService {
         emailUtil.removeVerifiedEmail(email);
 
         return new DataResponse<>(200, "비밀번호가 성공적으로 변경되었습니다.", null);
+    }
+
+    // 회원탈퇴
+    @Transactional
+    public DataResponse<String> deleteUser(String email, String password) {
+        // 사용자 존재 여부 확인
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (!userOpt.isPresent()) {
+            return new DataResponse<>(404, "사용자를 찾을 수 없습니다.", null);
+        }
+
+        User user = userOpt.get();
+
+        // 비밀번호 확인
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return new DataResponse<>(400, "비밀번호가 일치하지 않습니다.", null);
+        }
+
+        try {
+            // 사용자 삭제
+            userRepository.delete(user);
+
+            return new DataResponse<>(200, "회원탈퇴가 완료되었습니다.", null);
+
+        } catch (Exception e) {
+            return new DataResponse<>(500, "회원탈퇴 처리 중 오류가 발생했습니다.", null);
+        }
     }
 }
