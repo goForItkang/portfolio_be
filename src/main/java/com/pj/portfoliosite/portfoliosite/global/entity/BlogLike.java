@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 @Entity
 @Table(
-        name = "project_book_mark",
+        name = "blog_like",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"user_id", "blog_id"})
         }

@@ -51,12 +51,20 @@ public class Blog {
         }
         createdAt = LocalDateTime.now();
     }
+    public void update(ReqBlogDTO req){
+        title = req.getTitle();
+        content = req.getContent();
+        access = req.getBlogStatus();
+        category = req.getCategory();
+    }
     public void addBookmark(BlogBookmark bookmark){
         bookMarks.add(bookmark);
     }
     public void addLike(BlogLike like){
         blogLikes.add(like);
     }
-
+    public void setImgURL(String imgURL){
+        thumbnailURL = imgURL;
+    }
 
 }

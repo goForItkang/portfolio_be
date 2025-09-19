@@ -24,7 +24,7 @@ public class CommentService {
     // 저장 메서드
     public void save(Long blogId, ReqBlogCommentDTO req) {
         Blog blog = blogRepository.selectById(blogId);
-        String loginEmail = "portcloud@naver.com";
+        String loginEmail = "portfolio@naver.com";
         Optional<User> user =  userRepository.findByEmail(loginEmail);
         if(req.getParentCommentId() == null ){
             // 부모가 없는 댓글 일 경우 즉 대댓글이 없는 경우

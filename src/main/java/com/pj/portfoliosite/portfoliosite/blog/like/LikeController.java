@@ -13,7 +13,7 @@ import javax.xml.crypto.Data;
 public class LikeController {
      private final LikeService likeService;
 
-
+//     테스트 완료
     @PostMapping("/blogs/{id}/likes")
     public ResponseEntity<DataResponse> blogLike(
             @PathVariable Long id
@@ -25,7 +25,7 @@ public class LikeController {
         likeService.save(id);
         return ResponseEntity.ok(dataResponse);
     }
-
+//    테스트 완료
     @DeleteMapping("/blogs/{id}/likes")
     public ResponseEntity<DataResponse> blogLikeDelete(
             @PathVariable Long id

@@ -18,7 +18,7 @@ public class BookmarkService {
     private final BlogRepository blogRepository;
     public void save(Long id) {
         Blog blog = blogRepository.selectById(id);
-        String userEmail = "";
+        String userEmail = "portfolio@naver.com";
         Optional<User> user = userRepository.findByEmail(userEmail);
         if(user.isPresent() ){
             BlogBookmark blogBookmark = new BlogBookmark();
@@ -32,12 +32,12 @@ public class BookmarkService {
     }
 
     public void delete(Long id) {
-        String userEmail = "";
+        String userEmail = "portfolio@naver.com";
         Optional<User> user = userRepository.findByEmail(userEmail);
         if(user.isPresent()){
             bookmarkRepository.delete(id,user.get().getId());
         }else{
-            // 사용자 없는경우
+
         }
     }
 

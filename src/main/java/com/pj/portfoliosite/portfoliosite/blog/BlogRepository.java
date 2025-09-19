@@ -5,9 +5,11 @@ import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogInfo;
 import com.pj.portfoliosite.portfoliosite.global.entity.Blog;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Transactional
 public class BlogRepository {
     @PersistenceContext
     private EntityManager em;
@@ -60,15 +62,15 @@ public class BlogRepository {
         ResBlogInfo resBlogInfo = new ResBlogInfo();
         resBlogInfo.setBookMarkCount((Long)row[0]);
         resBlogInfo.setLikeCount((Long)row[1]);
-        if(row[2] == null){
-           resBlogInfo.setBookMarkCheck(false);
-        }else{
+        if(((Long)row[2])>0){
             resBlogInfo.setBookMarkCheck(true);
-        }
-        if(row[3] == null){
-            resBlogInfo.setLikeCheck(false);
         }else{
+            resBlogInfo.setBookMarkCheck(false);
+        }
+        if(((Long)row[3])>0){
             resBlogInfo.setLikeCheck(true);
+        }else{
+            resBlogInfo.setLikeCheck(false);
         }
         return resBlogInfo;
     }

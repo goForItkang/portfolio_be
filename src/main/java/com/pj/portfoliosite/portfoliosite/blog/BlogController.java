@@ -5,24 +5,26 @@ import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogDTO;
 import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogInfo;
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class BlogController {
     private final BlogService blogService;
-    @PostMapping("/blogs")
+//    테스트 완료
+    @PostMapping(value = "/blogs",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
-            summary = "프로젝트 등록"
+            summary = "블로그 저장"
     )
     public ResponseEntity<DataResponse> blogUpload(
-            @RequestBody ReqBlogDTO reqBlogDTO
-    ){
+            ReqBlogDTO reqBlogDTO
+    ) throws IOException {
 
         blogService.save(reqBlogDTO);
         DataResponse dataResponse = new DataResponse();
@@ -30,6 +32,7 @@ public class BlogController {
         dataResponse.setStatus(200);
         return ResponseEntity.ok(dataResponse);
     }
+//  테스트 완료
     @DeleteMapping("/blogs/{id}")
     public ResponseEntity<DataResponse> deleteBlog(
             @PathVariable Long id
@@ -40,6 +43,7 @@ public class BlogController {
         dataResponse.setStatus(200);
         return ResponseEntity.ok(dataResponse);
     }
+//  테스트 완료
     @GetMapping("/blogs/{id}")
     public ResponseEntity<DataResponse> getBlogs(
             @PathVariable Long id
@@ -51,17 +55,19 @@ public class BlogController {
         return ResponseEntity.ok(dataResponse);
 
     }
-    @PatchMapping("/blogs/{id}")
+//    테스트완료
+    @PatchMapping(value = "/blogs/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DataResponse> updateBlog(
             @PathVariable Long id,
-            @RequestBody ReqBlogDTO reqBlogDTO
-    ){
+            ReqBlogDTO reqBlogDTO
+    ) throws IOException {
+
+        blogService.update(id,reqBlogDTO);
         DataResponse dataResponse = new DataResponse();
         dataResponse.setMessage("정상적으로 수정 되었습니다.");
-        blogService.update(id,reqBlogDTO);
-
         return ResponseEntity.ok(dataResponse);
     }
+//    테스트 완료
     @GetMapping("/blogs/{id}/info")
     @Operation(
             summary = "북마크 및 좋아요 count and owner check"

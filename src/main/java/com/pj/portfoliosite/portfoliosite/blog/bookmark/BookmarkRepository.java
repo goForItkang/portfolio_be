@@ -3,9 +3,11 @@ package com.pj.portfoliosite.portfoliosite.blog.bookmark;
 import com.pj.portfoliosite.portfoliosite.global.entity.BlogBookmark;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Transactional
 public class BookmarkRepository {
     @PersistenceContext
     private EntityManager em;

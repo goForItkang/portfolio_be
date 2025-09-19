@@ -17,15 +17,14 @@ public class LikeService {
     private final BlogRepository blogRepository;
     private final UserRepository userRepository;
     public void save(Long id) {
-        String userEmail = "";
+        String userEmail = "portfolio@naver.com";
         Optional<User> user = userRepository.findByEmail(userEmail);
         // try catch 로 Exception 터트려야함
         if(user.isPresent()){
             Blog blog = blogRepository.selectById(id);
             BlogLike blogLike = new BlogLike();
             blogLike.addBlog(blog);
-            blog.addUser(user.get());
-
+            blogLike.addUser(user.get());
             likeRepository.save(blogLike);
         }else{
             // user 가 없는경우
@@ -33,7 +32,7 @@ public class LikeService {
     }
 
     public void delete(Long id) {
-        String userEmail = "";
+        String userEmail = "portfolio@naver.com";
         Optional<User> user = userRepository.findByEmail(userEmail);
         // try catch 로 Exception 터트려야함
         if(user.isPresent()){

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class BookmarkController {
     private final BookmarkService bookmarkService;
+//    테스트 완료
     @PostMapping("/blogs/{id}/bookmarks")
     public ResponseEntity<DataResponse> blogBookmark(
             @PathVariable Long id
@@ -21,7 +22,7 @@ public class BookmarkController {
         bookmarkService.save(id);
         return ResponseEntity.ok(dataResponse);
     }
-
+//    테스트 완료
     @DeleteMapping("/blogs/{id}/bookmarks")
     public ResponseEntity<DataResponse> blogBookmarkDelete(
             @PathVariable Long id

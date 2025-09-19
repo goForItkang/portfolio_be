@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api")
 public class CommentController {
     private final CommentService commentService;
-    @GetMapping("/blogs/{id}/comment")
+    @GetMapping("/blogs/{id}/comments")
    public ResponseEntity<DataResponse> getComment(
            @PathVariable Long id
    ){
@@ -24,7 +24,8 @@ public class CommentController {
         dataResponse.setData(resBlogCommentList);
         return ResponseEntity.ok(dataResponse);
    }
-   @PostMapping("/blogs/{id}/comment")
+//   테스트 중
+   @PostMapping("/blogs/{id}/comments")
     public ResponseEntity<DataResponse> saveComment(
             @PathVariable Long id,
             @RequestBody ReqBlogCommentDTO req

@@ -10,10 +10,12 @@ import com.pj.portfoliosite.portfoliosite.blog.like.LikeRepository;
 import com.pj.portfoliosite.portfoliosite.global.entity.Blog;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
+import com.pj.portfoliosite.portfoliosite.util.ImgUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Service
@@ -24,10 +26,19 @@ public class BlogService {
     private final LikeRepository likeRepository;
     private final BlogRepository blogRepository;
     private final UserRepository userRepository;
-    public void save(ReqBlogDTO reqBlogDTO) {
-        String userEmail = "portclod.com";
+    private final ImgUtil imgUtil;
+    public void save(ReqBlogDTO reqBlogDTO) throws IOException {
+
+        String userEmail = "portfolio@naver.com";
         Optional<User> user =userRepository.findByEmail(userEmail);
         Blog blog = new Blog();
+        // 이미지 등록
+        if(reqBlogDTO.getThumbnail() != null){
+            String imgUrl = imgUtil.imgUpload(reqBlogDTO.getThumbnail());
+            blog.setImgURL(imgUrl);
+        }else{
+            blog.setImgURL(null);
+        }
         blog.blogSave(reqBlogDTO);
         blog.addUser(user.get());
         blogRepository.save(blog);
@@ -42,15 +53,48 @@ public class BlogService {
         }
         blogRepository.delete(blog);
     }
-
+    // 블로그 가벼오기 (id)
     public ResBlogDTO getId(Long id) {
-
-        return null;
-    }
-    @Transactional
-    public void update(Long id, ReqBlogDTO reqBlogDTO) {
         Blog blog = blogRepository.selectById(id);
-        blog.blogSave(reqBlogDTO);
+        ResBlogDTO resBlogDTO = new ResBlogDTO();
+
+        String userEmail = "portfolio@naver.com";
+        Optional<User> user =userRepository.findByEmail(userEmail);
+        if(user.isPresent()){
+            // 로그인 한 사용자 일 경우
+            if(user.get().getId() == blog.getUser().getId()){
+                resBlogDTO.setOwner(true);
+            }else{
+                resBlogDTO.setOwner(false);
+            }
+        }else{
+            resBlogDTO.setOwner(false);
+        }
+
+        resBlogDTO.setId(blog.getId());
+        resBlogDTO.setTitle(blog.getTitle());
+        resBlogDTO.setContent(blog.getContent());
+        resBlogDTO.setCategory(blog.getCategory());
+        resBlogDTO.setThumbnailUrl(blog.getThumbnailURL());
+        resBlogDTO.setBlogStatus(blog.getAccess()); // 접근 파일
+        resBlogDTO.setCreatedAt(blog.getCreatedAt());
+        resBlogDTO.setWriteName(blog.getUser().getName());
+        resBlogDTO.setUserId(blog.getUser().getId());
+        resBlogDTO.setUserProfileURL(blog.getUser().getProfile());
+
+        return resBlogDTO;
+    }
+    //수정
+    @Transactional
+    public void update(Long id, ReqBlogDTO reqBlogDTO) throws IOException {
+        Blog blog = blogRepository.selectById(id);
+        if(reqBlogDTO.getThumbnail() != null){
+            String imgUrl = imgUtil.imgUpload(reqBlogDTO.getThumbnail());
+            blog.setImgURL(imgUrl);
+            blog.update(reqBlogDTO);
+        }else{
+            blog.update(reqBlogDTO);
+        }
     }
 
     public ResBlogInfo getInfo(Long id) {
@@ -67,7 +111,7 @@ public class BlogService {
             resBlogInfo.setBookMarkCheck(false);
             resBlogInfo.setLikeCheck(false);
         }
-
+        return resBlogInfo;
     }
 
 }
