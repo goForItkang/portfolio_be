@@ -1,8 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.blog;
 
 import com.pj.portfoliosite.portfoliosite.blog.bookmark.BookmarkRepository;
-import com.pj.portfoliosite.portfoliosite.blog.bookmark.BookmarkService;
-import com.pj.portfoliosite.portfoliosite.blog.comment.CommentService;
 import com.pj.portfoliosite.portfoliosite.blog.dto.ReqBlogDTO;
 import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogDTO;
 import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogInfo;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -123,12 +122,25 @@ public class BlogService {
             LocalDate today = LocalDate.now();
             LocalDate weekAgo = today.minusWeeks(1);
             List<Blog> blogs = blogRepository.selectByLikeDesc(today,weekAgo);
-            return null;
+            return blogListToResBlogDTOList(blogs);
         }catch (Exception e){
             return null;
         }
     }
     private List<ResBlogDTO> blogListToResBlogDTOList(List<Blog> blogs) {
-        return null;
+        List<ResBlogDTO> resBlogDTOS = new ArrayList<>();
+        for (Blog blog : blogs) {
+            ResBlogDTO resBlogDTO = new ResBlogDTO();
+            resBlogDTO.setId(blog.getId());
+            resBlogDTO.setTitle(blog.getTitle());
+            resBlogDTO.setWriteName(blog.getUser().getName());
+            resBlogDTO.setUserProfileURL(blog.getUser().getProfile());
+            resBlogDTO.setCreatedAt(blog.getCreatedAt());
+            resBlogDTO.setCategory(blog.getCategory());
+            resBlogDTO.setThumbnailUrl(blog.getThumbnailURL());
+            resBlogDTO.setBlogStatus(blog.getAccess()); // 변경 해야함 access에 따라
+            resBlogDTOS.add(resBlogDTO);
+        }
+        return resBlogDTOS;
     }
 }
