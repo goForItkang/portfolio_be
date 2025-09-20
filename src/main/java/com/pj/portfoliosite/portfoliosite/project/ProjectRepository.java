@@ -37,7 +37,7 @@ public class ProjectRepository {
 
                 .setParameter("startDate", start)
                 .setParameter("endDate", end)
-                .setMaxResults(12)   // LIMIT 12 대체
+                .setMaxResults(4)   // LIMIT 12 대체
                 .getResultList();
     }
 

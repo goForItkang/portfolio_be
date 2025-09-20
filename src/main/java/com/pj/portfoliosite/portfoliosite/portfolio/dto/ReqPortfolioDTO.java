@@ -14,7 +14,7 @@ public class ReqPortfolioDTO {
     private String email;
     private String industry;       // 분야
     private String jobPosition;    // 직무
-//    private String skill;          // 스킬
+//  private List skill;          // 스킬
     private String introductions;  // 본인 소개
     private boolean saveStatus;    // 임시 저장 여부
 
