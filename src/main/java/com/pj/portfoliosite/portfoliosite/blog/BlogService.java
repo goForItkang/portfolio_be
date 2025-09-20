@@ -42,6 +42,7 @@ public class BlogService {
         }
         blog.blogSave(reqBlogDTO);
         blog.addUser(user.get());
+        user.get().addBlog(blog);
         blogRepository.save(blog);
     }
 
@@ -125,6 +126,7 @@ public class BlogService {
             List<Blog> blogs = blogRepository.selectByLikeDesc(today,weekAgo);
             return blogListToResBlogDTOList(blogs);
         }catch (Exception e){
+            e.printStackTrace();
             return null;
         }
     }
@@ -134,7 +136,9 @@ public class BlogService {
             ResBlogDTO resBlogDTO = new ResBlogDTO();
             resBlogDTO.setId(blog.getId());
             resBlogDTO.setTitle(blog.getTitle());
+            resBlogDTO.setContent(blog.getContent());
             resBlogDTO.setWriteName(blog.getUser().getName());
+            resBlogDTO.setUserId(blog.getUser().getId());
             resBlogDTO.setUserProfileURL(blog.getUser().getProfile());
             resBlogDTO.setCreatedAt(blog.getCreatedAt());
             resBlogDTO.setCategory(blog.getCategory());

@@ -78,21 +78,19 @@ public class BlogRepository {
     }
 
     public List<Blog> selectByLikeDesc(LocalDate today, LocalDate weekAgo) {
-        return em.createQuery("""
-    select b
-    from Blog b
-    order by (
-        select count(bl)
-        from BlogLike bl
-        where bl.blog.id = b.id
-          and b.createdAt >= :startTs
-          and b.createdAt <  :endTs
-    ) desc
-        """, Blog.class)
-                .setParameter("startTs", weekAgo.atStartOfDay())
-                .setParameter("endTs", today.plusDays(1).atStartOfDay())
-                .setMaxResults(12)
+        return em.createQuery(
+                """
+        select b from Blog b
+        left join b.blogLikes bl
+        where b.createdAt between :startDate and :andDate
+        group by b 
+        order by count(bl) desc
+        
+""",Blog.class
+        ).setParameter("startDate", weekAgo.atStartOfDay())
+                .setParameter("andDate", today.atTime(23,59,59))
                 .getResultList();
     }
+
 
 }

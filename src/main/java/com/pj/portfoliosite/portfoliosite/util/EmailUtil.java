@@ -31,11 +31,11 @@ public class EmailUtil {
         final String code;
         final LocalDateTime expirationTime;
         boolean verified;
-
-        VerificationInfo(String code, LocalDateTime expirationTime) {
+        // 수정 했습니다.
+        VerificationInfo(String code, LocalDateTime expirationTime, boolean verified) {
             this.code = code;
             this.expirationTime = expirationTime;
-            this.verified = false;
+            this.verified = verified;
         }
 
         boolean isExpired() {

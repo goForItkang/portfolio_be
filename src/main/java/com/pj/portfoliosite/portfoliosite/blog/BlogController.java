@@ -26,6 +26,7 @@ public class BlogController {
     public ResponseEntity<DataResponse> recommend() {
         DataResponse dataResponse = new DataResponse();
         List<ResBlogDTO> blogDTOS = blogService.getRecommend();
+        dataResponse.setData(blogDTOS);
         return ResponseEntity.ok(dataResponse);
     }
 

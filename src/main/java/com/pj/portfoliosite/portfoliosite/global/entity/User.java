@@ -58,6 +58,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<PortfolioComment> portfolioComments = new ArrayList<>();
 
+    public void addBlog(Blog blog) {
+        blogs.add(blog);
+    }
     public void addProject(Project project) {
         projects.add(project);
     }
