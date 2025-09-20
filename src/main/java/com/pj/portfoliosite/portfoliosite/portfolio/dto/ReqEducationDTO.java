@@ -12,6 +12,5 @@ import java.util.Date;
 public class ReqEducationDTO {
     private String school;
     private String schoolStatus;
-    private Date startDate;
-    private Date endDate;
+
 }

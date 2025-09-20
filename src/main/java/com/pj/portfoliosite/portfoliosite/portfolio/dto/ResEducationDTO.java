@@ -13,6 +13,5 @@ public class ResEducationDTO {
     private Long id;
     private String school;
     private String schoolStatus;
-    private Date startDate;
-    private Date endDate;
+
 }

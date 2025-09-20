@@ -207,7 +207,7 @@ public class PortFolioService {
                 resEducationDTO.setId(education.getId());
                 resEducationDTO.setSchool(education.getSchool());
                 resEducationDTO.setSchoolStatus(education.getSchoolStatus());
-                resEducationDTO.setStartDate(education.getStartDate());
+
                 resEducationDTOS.add(resEducationDTO);
             }
             return resEducationDTOS;
