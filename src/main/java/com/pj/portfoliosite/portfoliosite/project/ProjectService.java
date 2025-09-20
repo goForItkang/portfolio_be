@@ -74,9 +74,13 @@ public class ProjectService {
             }else{
              project.setThumbnailURL(null);
             }
-            String demonstrationURL = imgUtil.imgUpload(reqProject.getDemonstrationVideo());
+            if(project.getThumbnailURL() == null){
+                project.setDemonstrationVideo(null);
+            }else{
+                String demonstrationURL = imgUtil.imgUpload(reqProject.getDemonstrationVideo());
+                project.setDemonstrationVideo(demonstrationURL);
+            }
 
-            project.setDemonstrationVideo(demonstrationURL);
             projectRepository.insertProject(project);
             user.get().addProject(project);
         }
