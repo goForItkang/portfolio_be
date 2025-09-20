@@ -93,4 +93,22 @@ public class BlogRepository {
     }
 
 
+    public List<Blog> selectByCreatAtDesc(int safePage, int safeSize) {
+        return em.createQuery(
+                """
+        select b from Blog b order by b.createdAt desc 
+         """,Blog.class
+        ).setFirstResult(safePage * safeSize)
+                .setMaxResults(safeSize)
+                .setHint("org.hibernate.cacheable", true)
+                .getResultList();
+    }
+
+    public Long selectCount() {
+        return em.createQuery(
+                """
+    select count(b) from Blog b
+""",long.class
+        ).getSingleResult();
+    }
 }

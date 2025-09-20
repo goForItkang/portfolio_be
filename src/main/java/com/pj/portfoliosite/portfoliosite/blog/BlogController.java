@@ -4,6 +4,7 @@ import com.pj.portfoliosite.portfoliosite.blog.dto.ReqBlogDTO;
 import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogDTO;
 import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogInfo;
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
+import com.pj.portfoliosite.portfoliosite.global.dto.PageDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -27,6 +28,16 @@ public class BlogController {
         DataResponse dataResponse = new DataResponse();
         List<ResBlogDTO> blogDTOS = blogService.getRecommend();
         dataResponse.setData(blogDTOS);
+        return ResponseEntity.ok(dataResponse);
+    }
+    @GetMapping("/blogs")
+    public ResponseEntity<DataResponse> getBlogs(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "12") Integer size
+    ){
+        DataResponse dataResponse = new DataResponse();
+        PageDTO<ResBlogDTO> blogDTOPageDTO = blogService.getBlog(page,size);
+        dataResponse.setData(blogDTOPageDTO);
         return ResponseEntity.ok(dataResponse);
     }
 

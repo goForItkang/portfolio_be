@@ -173,6 +173,8 @@ public class PortFolioService {
                 resCareerDTO.setId(career.getId());
                 resCareerDTO.setCompanyName(career.getCompanyName());
                 resCareerDTO.setCompanyPosition(career.getCompanyPosition());
+                resCareerDTO.setStartDate(career.getStartDate());
+                resCareerDTO.setEndDate(career.getEndDate());
                 resCareerDTO.setDate(career.getDate());
                 resCareerDTO.setDuty(career.getDuty());
                 resCareerDTO.setDutyDescription(career.getDutyDescription());
@@ -192,6 +194,7 @@ public class PortFolioService {
                 resEducationDTO.setId(education.getId());
                 resEducationDTO.setSchool(education.getSchool());
                 resEducationDTO.setSchoolStatus(education.getSchoolStatus());
+                resEducationDTO.setStartDate(education.getStartDate());
                 resEducationDTOS.add(resEducationDTO);
             }
             return resEducationDTOS;

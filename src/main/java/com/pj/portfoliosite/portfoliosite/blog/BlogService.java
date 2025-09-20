@@ -5,6 +5,7 @@ import com.pj.portfoliosite.portfoliosite.blog.dto.ReqBlogDTO;
 import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogDTO;
 import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogInfo;
 import com.pj.portfoliosite.portfoliosite.blog.like.LikeRepository;
+import com.pj.portfoliosite.portfoliosite.global.dto.PageDTO;
 import com.pj.portfoliosite.portfoliosite.global.entity.Blog;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
@@ -149,4 +150,34 @@ public class BlogService {
         return resBlogDTOS;
 
     }
+    // 페이징 처리한 blogs
+    public PageDTO<ResBlogDTO> getBlog(Integer page, Integer size) {
+    int safePage = Math.max(page, 0);
+    int safeSize = Math.min(Math.max(size, 1), 50);
+
+    List<Blog> blogs = blogRepository.selectByCreatAtDesc(safePage,safeSize);
+    Long total = blogRepository.selectCount();
+    List<ResBlogDTO> content = blogListToResBlogDTOList(blogs);
+
+    int totalPages = (int) Math.ceil(total / (double) safeSize);
+    boolean first = safePage == 0;
+    boolean last = (totalPages == 0) || (safePage >= totalPages - 1);
+    boolean hasNext = safePage < totalPages - 1;
+    boolean hasPrevious = safePage > 0;
+    int count = content.size();
+    return new PageDTO<>(
+            content,
+            safePage,
+            safeSize,
+            total,
+            totalPages,
+            first,
+            last,
+            hasNext,
+            hasPrevious,
+            count
+    );
+    }
+
+
 }
