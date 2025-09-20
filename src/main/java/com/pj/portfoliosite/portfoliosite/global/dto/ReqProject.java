@@ -19,6 +19,7 @@ public class ReqProject {
     private LocalDate startDate;   // 날짜만 필요
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;     // 날짜만 필요
+    private String people;
     private String role;
     private String skill;
     private boolean distribution;

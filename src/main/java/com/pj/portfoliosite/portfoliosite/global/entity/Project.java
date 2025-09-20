@@ -25,6 +25,7 @@ public class Project {
     private String role; // 담당 파트
     private String thumbnailURL;
     private String DemonstrationVideo;
+    private String people;
     @Column(nullable = false, columnDefinition = "timestamp default current_timestamp")
     private LocalDateTime createdAt;
     private boolean distribution; // 배포 현황
@@ -48,6 +49,7 @@ public class Project {
         this.endDate = reqProject.getEndDate();
         this.distribution = reqProject.isDistribution();
         this.role = reqProject.getRole();
+        this.people = reqProject.getPeople();
     }
     //썸네일 이미지 삽입
     public void setThumbnailURL(String thumbnailURL) {
