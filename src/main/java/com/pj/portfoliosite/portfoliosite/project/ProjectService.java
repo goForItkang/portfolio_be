@@ -68,9 +68,14 @@ public class ProjectService {
             Project project = new Project();
             project.setUser(user.get()); // 사입하고
             project.setProject(reqProject);
-            String imgUrl = imgUtil.imgUpload(reqProject.getThumbnailImg());
+            if(reqProject.getThumbnailImg() != null){
+                String imgUrl = imgUtil.imgUpload(reqProject.getThumbnailImg());
+                project.setThumbnailURL(imgUrl);
+            }else{
+             project.setThumbnailURL(null);
+            }
             String demonstrationURL = imgUtil.imgUpload(reqProject.getDemonstrationVideo());
-            project.setThumbnailURL(imgUrl);
+
             project.setDemonstrationVideo(demonstrationURL);
             projectRepository.insertProject(project);
             user.get().addProject(project);
