@@ -67,7 +67,7 @@ public class BlogService {
             resBlogInfo.setBookMarkCheck(false);
             resBlogInfo.setLikeCheck(false);
         }
-
+        return resBlogInfo;
     }
 
 }
