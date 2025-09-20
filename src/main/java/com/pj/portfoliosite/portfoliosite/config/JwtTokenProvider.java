@@ -16,8 +16,13 @@ public class JwtTokenProvider {
     @Value("${jwt.secret-key:eW91ci1zdXBlci1zZWNyZXQta2V5LWF0LWxlYXN0LTMyLWNoYXJhY3RlcnMtbG9uZw==}")
     private String secretKey;
 
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 1시간
-    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7; // 7일
+    // 기존 코드 (1시간, 7일)
+    // private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 1시간
+    // private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7; // 7일
+
+    // 테스트용 무제한
+    private static final long EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 365 * 100;
+    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 365 * 100;
 
     private Key signingKey;
 

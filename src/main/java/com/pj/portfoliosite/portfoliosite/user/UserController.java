@@ -12,6 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetRequestDto;
+import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetDto;
+import jakarta.validation.Valid;
+import com.pj.portfoliosite.portfoliosite.user.dto.UserDeleteDto;
+import org.springframework.security.core.Authentication;
 
 import java.net.URI;
 import java.util.Map;
@@ -100,5 +105,24 @@ public class UserController {
         user.setRefreshToken(null);
 
         return new DataResponse<>(200, "사용자 정보 조회 성공", user);
+    }
+
+    // 비밀번호 재설정 요청 (1단계)
+    @PostMapping("/password-reset-request")
+    public DataResponse<String> requestPasswordReset(@RequestBody PasswordResetRequestDto request) {
+        return userService.sendPasswordResetEmail(request.getEmail());
+    }
+
+    // 비밀번호 재설정 실행 (2단계)
+    @PostMapping("/password-reset")
+    public DataResponse<String> resetPassword(@Valid @RequestBody PasswordResetDto request) {
+        return userService.resetPassword(request.getEmail(), request.getNewPassword(), request.getVerificationCode());
+    }
+
+    // 회원탈퇴
+    @DeleteMapping("/delete")
+    public DataResponse<String> deleteUser(@RequestBody UserDeleteDto request, Authentication authentication) {
+        String email = authentication.getName();
+        return userService.deleteUser(email, request.getPassword());
     }
 }

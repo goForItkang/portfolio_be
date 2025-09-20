@@ -113,6 +113,7 @@ public class BlogService {
             resBlogInfo.setLikeCheck(false);
         }
         return resBlogInfo;
+
     }
     // 추천 블로그 가져오기
     public List<ResBlogDTO> getRecommend() {
@@ -142,5 +143,6 @@ public class BlogService {
             resBlogDTOS.add(resBlogDTO);
         }
         return resBlogDTOS;
+
     }
 }
