@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -113,5 +115,20 @@ public class BlogService {
         }
         return resBlogInfo;
     }
-
+    // 추천 블로그 가져오기
+    public List<ResBlogDTO> getRecommend() {
+        //추천 블로그 12개 가겨오기 좋아요 순으로 12개 가져오기
+        // 오늘날짜와 1주일 전날짜를 가져옴
+        try{
+            LocalDate today = LocalDate.now();
+            LocalDate weekAgo = today.minusWeeks(1);
+            List<Blog> blogs = blogRepository.selectByLikeDesc(today,weekAgo);
+            return null;
+        }catch (Exception e){
+            return null;
+        }
+    }
+    private List<ResBlogDTO> blogListToResBlogDTOList(List<Blog> blogs) {
+        return null;
+    }
 }

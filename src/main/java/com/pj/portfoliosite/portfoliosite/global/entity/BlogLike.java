@@ -3,6 +3,10 @@ package com.pj.portfoliosite.portfoliosite.global.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDateTime;
 
 @Data
 @Getter
@@ -25,6 +29,10 @@ public class BlogLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "blog_id", nullable = false)
     private Blog blog;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
 
     public void addUser(User user) {
         this.user = user;

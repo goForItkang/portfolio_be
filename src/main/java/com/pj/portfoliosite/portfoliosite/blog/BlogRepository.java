@@ -1,12 +1,14 @@
 package com.pj.portfoliosite.portfoliosite.blog;
 
-import com.pj.portfoliosite.portfoliosite.blog.dto.ReqBlogDTO;
 import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogInfo;
 import com.pj.portfoliosite.portfoliosite.global.entity.Blog;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @Transactional
@@ -73,6 +75,24 @@ public class BlogRepository {
             resBlogInfo.setLikeCheck(false);
         }
         return resBlogInfo;
+    }
+
+    public List<Blog> selectByLikeDesc(LocalDate today, LocalDate weekAgo) {
+        return em.createQuery("""
+    select b
+    from Blog b
+    order by (
+        select count(bl)
+        from BlogLike bl
+        where bl.blog.id = b.id
+          and b.createdAt >= :startTs
+          and b.createdAt <  :endTs
+    ) desc
+        """, Blog.class)
+                .setParameter("startTs", weekAgo.atStartOfDay())
+                .setParameter("endTs", today.plusDays(1).atStartOfDay())
+                .setMaxResults(12)
+                .getResultList();
     }
 
 }

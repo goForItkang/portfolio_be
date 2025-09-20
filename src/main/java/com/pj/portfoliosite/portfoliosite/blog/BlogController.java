@@ -11,12 +11,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class BlogController {
     private final BlogService blogService;
+    @GetMapping("/blog/recommend")
+    @Operation(
+            summary = "메인 화면에 추천 블로그",
+            description = "오늘 날짜로 부터 1주일간 가장 많은 좋아요를 얻은 블로그 4개 출력"
+    )
+    public ResponseEntity<DataResponse> recommend() {
+        DataResponse dataResponse = new DataResponse();
+        List<ResBlogDTO> blogDTOS = blogService.getRecommend();
+        return ResponseEntity.ok(dataResponse);
+    }
+
+
 //    테스트 완료
     @PostMapping(value = "/blogs",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(

@@ -3,6 +3,9 @@ package com.pj.portfoliosite.portfoliosite.global.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDateTime;
 
 @Data
 @Getter
@@ -24,6 +27,9 @@ public class PortFolioBookMark {
     @JoinColumn(name = "portfolio_id", nullable = false)
 
     private PortFolio portfolio;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
     public void addUser(User user) {
         this.user = user;
     }

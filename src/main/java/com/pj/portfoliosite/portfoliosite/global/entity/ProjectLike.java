@@ -2,6 +2,9 @@ package com.pj.portfoliosite.portfoliosite.global.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -24,6 +27,8 @@ public class ProjectLike {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
+    @CreatedDate
+    private LocalDateTime createdAt;
     public void addUser(User user){
         this.user = user;
     }
