@@ -21,7 +21,7 @@ public class ReqProject {
     private LocalDate endDate;     // 날짜만 필요
     private String people;
     private String role;
-    private String skill;
+//    private String skill;
     private boolean distribution;
     private String projectURL; // 프로젝트 URL
     private MultipartFile thumbnailImg; // null 일 수 있음
