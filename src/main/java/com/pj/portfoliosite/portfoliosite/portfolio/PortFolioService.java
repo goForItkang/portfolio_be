@@ -55,6 +55,9 @@ public class PortFolioService {
 
     // award list 형 변환
     private List<Award> toAwardList(List<ReqAwardDTO> reqAwardDTOList) {
+        if (reqAwardDTOList == null || reqAwardDTOList.isEmpty()) {
+            return new ArrayList<>();
+        }
         List<Award> awardList = new ArrayList<>();
         for (ReqAwardDTO reqAwardDTO : reqAwardDTOList) {
             Award award = new Award();
@@ -66,7 +69,11 @@ public class PortFolioService {
     }
     // 커리어 리스트 db에 값으로 변환
     private List<Career> toCareerList(List<ReqCareerDTO> reqCareerDTOList) {
+        if (reqCareerDTOList == null || reqCareerDTOList.isEmpty()) {
+            return new ArrayList<>();
+        }
         List<Career> careerList = new ArrayList<>();
+
         for (ReqCareerDTO reqCareerDTO : reqCareerDTOList) {
             Career career = new Career();
             career.ReqCareerDTO(reqCareerDTO);
@@ -76,6 +83,9 @@ public class PortFolioService {
     }
     // education 리스트
     private List<Education> toEducationList(List<ReqEducationDTO> reqEducationDTOList ) {
+        if (reqEducationDTOList == null || reqEducationDTOList.isEmpty()) {
+            return new ArrayList<>();
+        }
         List<Education> educationList = new ArrayList<>();
         for (ReqEducationDTO reqEducationDTO : reqEducationDTOList) {
             Education education = new Education();
@@ -86,6 +96,9 @@ public class PortFolioService {
     }
     // certificate 리스트
     private List<Certificate> toCertificateList(List<ReqCertificateDTO> reqCertificateDTOList) {
+        if (reqCertificateDTOList == null || reqCertificateDTOList.isEmpty()) {
+            return new ArrayList<>();
+        }
         List<Certificate> certificateList = new ArrayList<>();
         for (ReqCertificateDTO reqCertificateDTO : reqCertificateDTOList) {
             Certificate certificate = new Certificate();
