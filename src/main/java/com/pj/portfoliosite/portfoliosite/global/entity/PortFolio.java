@@ -62,7 +62,7 @@ public class PortFolio {
         email = req.getEmail();
         industry = req.getIndustry();
         jobPosition = req.getJobPosition();
-        skill = req.getSkill();
+//        skill = req.getSkill();
         introductions = req.getIntroductions();
         saveStatus = req.isSaveStatus(); // 임시 저장인지 아닌지 확인
         createAt = LocalDateTime.now();
