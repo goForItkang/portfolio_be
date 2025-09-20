@@ -32,10 +32,10 @@ public class EmailUtil {
         final LocalDateTime expirationTime;
         boolean verified;
         // 수정 했습니다.
-        VerificationInfo(String code, LocalDateTime expirationTime, boolean verified) {
+        VerificationInfo(String code, LocalDateTime expirationTime) {
             this.code = code;
             this.expirationTime = expirationTime;
-            this.verified = verified;
+            this.verified = true;
         }
 
         boolean isExpired() {
