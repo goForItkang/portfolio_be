@@ -40,7 +40,7 @@ public class User {
     private String refreshToken;
     private LocalDateTime refreshTokenExpiry;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamPost> teamPosts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
@@ -58,7 +58,22 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<PortfolioComment> portfolioComments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamPostComment> teamPostComments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamPostLike> teamPostLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamPostBookMark> teamPostBookMarks = new ArrayList<>();
+
     public void addProject(Project project) {
         projects.add(project);
     }
+
+    // 편의 메서드
+    public void addTeamPost(TeamPost teamPost) {
+        teamPosts.add(teamPost);
+    }
 }
+

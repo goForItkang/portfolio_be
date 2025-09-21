@@ -6,10 +6,11 @@ import lombok.*;
 @Entity
 @NoArgsConstructor
 @Getter
+@Setter
 @AllArgsConstructor
 public class RecruitRole {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String role;
     private int count;
@@ -24,6 +25,11 @@ public class RecruitRole {
         this.role = role;
         this.count = count;
         this.people = 0; // default
+        this.teamPost = teamPost;
+    }
+    
+    // 편의 메서드
+    public void setTeamPost(TeamPost teamPost) {
         this.teamPost = teamPost;
     }
 }

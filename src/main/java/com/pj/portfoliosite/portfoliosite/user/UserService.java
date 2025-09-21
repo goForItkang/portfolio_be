@@ -253,9 +253,49 @@ public class UserService {
         return new DataResponse<>(200, "비밀번호가 성공적으로 변경되었습니다.", null);
     }
 
+    // 로그아웃
+    @Transactional
+    public DataResponse<String> logout(String email) {
+        try {
+            Optional<User> userOpt = userRepository.findByEmail(email);
+            
+            if (userOpt.isEmpty()) {
+                return new DataResponse<>(404, "사용자를 찾을 수 없습니다.", null);
+            }
+            
+            User user = userOpt.get();
+            
+            // RefreshToken 삭제
+            user.setRefreshToken(null);
+            user.setRefreshTokenExpiry(null);
+            userRepository.save(user);
+            
+            return new DataResponse<>(200, "로그아웃이 완료되었습니다.", null);
+            
+        } catch (Exception e) {
+            return new DataResponse<>(500, "로그아웃 처리 중 오류가 발생했습니다.", null);
+        }
+    }
+
+    // 회원탈퇴용 이메일 인증 발송
+    public DataResponse<String> sendDeleteAccountVerificationEmail(String email) {
+        // 사용자 존재 여부 확인
+        if (!userRepository.findByEmail(email).isPresent()) {
+            return new DataResponse<>(404, "등록되지 않은 이메일입니다.", null);
+        }
+
+        boolean success = emailUtil.sendDeleteAccountEmail(email);
+
+        if (success) {
+            return new DataResponse<>(200, "회원탈퇴 인증 코드가 발송되었습니다.", null);
+        } else {
+            return new DataResponse<>(500, "이메일 발송에 실패했습니다.", null);
+        }
+    }
+
     // 회원탈퇴
     @Transactional
-    public DataResponse<String> deleteUser(String email, String password) {
+    public DataResponse<String> deleteUser(String email, String password, String verificationCode) {
         // 사용자 존재 여부 확인
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (!userOpt.isPresent()) {
@@ -269,9 +309,17 @@ public class UserService {
             return new DataResponse<>(400, "비밀번호가 일치하지 않습니다.", null);
         }
 
+        // 이메일 인증 코드 확인
+        if (!emailUtil.verifyCode(email, verificationCode)) {
+            return new DataResponse<>(400, "잘못된 인증 코드이거나 만료되었습니다.", null);
+        }
+
         try {
             // 사용자 삭제
             userRepository.delete(user);
+
+            // 인증 정보 정리
+            emailUtil.removeVerifiedEmail(email);
 
             return new DataResponse<>(200, "회원탈퇴가 완료되었습니다.", null);
 

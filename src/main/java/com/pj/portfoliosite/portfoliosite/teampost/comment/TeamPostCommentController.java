@@ -1,0 +1,53 @@
+package com.pj.portfoliosite.portfoliosite.teampost.comment;
+
+import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
+import com.pj.portfoliosite.portfoliosite.teampost.dto.ReqTeamCommentDTO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api")
+public class TeamPostCommentController {
+    private final TeamPostCommentService teamPostCommentService;
+
+    @PostMapping("/teampost/{teamPostId}/comments")
+    public ResponseEntity<DataResponse> addComment(
+            @PathVariable Long teamPostId,
+            @RequestBody ReqTeamCommentDTO reqTeamCommentDTO) {
+        teamPostCommentService.addComment(teamPostId, reqTeamCommentDTO);
+        DataResponse dataResponse = new DataResponse();
+        dataResponse.setMessage("댓글 작성 완료");
+        return ResponseEntity.ok(dataResponse);
+    }
+
+    @DeleteMapping("/teampost/{teamPostId}/comments/{commentId}")
+    public ResponseEntity<DataResponse> deleteComment(
+            @PathVariable Long teamPostId,
+            @PathVariable Long commentId) {
+        boolean result = teamPostCommentService.deleteComment(teamPostId, commentId);
+        DataResponse dataResponse = new DataResponse();
+        if (result) {
+            dataResponse.setMessage("댓글 삭제 완료");
+        } else {
+            dataResponse.setMessage("댓글을 찾을 수 없습니다");
+        }
+        return ResponseEntity.ok(dataResponse);
+    }
+
+    @PatchMapping("/teampost/{teamPostId}/comments/{commentId}")
+    public ResponseEntity<DataResponse> updateComment(
+            @PathVariable Long teamPostId,
+            @PathVariable Long commentId,
+            @RequestParam String comment) {
+        boolean result = teamPostCommentService.updateComment(teamPostId, commentId, comment);
+        DataResponse dataResponse = new DataResponse();
+        if (result) {
+            dataResponse.setMessage("댓글 수정 완료");
+        } else {
+            dataResponse.setMessage("댓글 수정 실패");
+        }
+        return ResponseEntity.ok(dataResponse);
+    }
+}

@@ -38,7 +38,6 @@ public class ProjectLikeService {
                 // Exception 터트림
             }
         }catch (Exception e){
-            e.printStackTrace();
         }
     }
 
@@ -52,7 +51,6 @@ public class ProjectLikeService {
                     // Exception 터트림
                 }
             }catch (Exception e){
-                e.printStackTrace();
             }
         }
 

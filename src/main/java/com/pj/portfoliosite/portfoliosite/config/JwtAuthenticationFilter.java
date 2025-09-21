@@ -68,9 +68,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
+        String method = request.getMethod();
+        
+        // 인증이 필요한 경로들을 명시적으로 제외
+        if (path.matches("/api/teampost/\\d+/like") ||
+            path.matches("/api/teampost/\\d+/bookmark") ||
+            path.matches("/api/teampost/\\d+/publish") ||
+            path.matches("/api/teampost/\\d+/draft") ||
+            path.startsWith("/api/user/teamposts/drafts") ||
+            (path.startsWith("/api/teampost") && !path.equals("/api/teampost") && !path.startsWith("/api/teamposts") && !"GET".equals(method))) {
+            return false;
+        }
+        
         return path.startsWith("/api/user/oauth/") ||
                 path.startsWith("/api/user/login") ||
                 path.startsWith("/api/user/register") ||
+                path.startsWith("/api/user/send-verification") ||
+                path.startsWith("/api/user/verify-email") ||
+                path.startsWith("/api/teamposts") ||  // GET 목록 조회만 허용
+                (path.matches("/api/teampost/\\d+") && "GET".equals(method)) ||  // GET 상세 조회만 허용
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/api-docs") ||
                 path.equals("/test") ||

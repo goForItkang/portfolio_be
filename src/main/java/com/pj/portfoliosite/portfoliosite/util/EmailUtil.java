@@ -59,13 +59,11 @@ public class EmailUtil {
 
             verificationMap.put(email, new VerificationInfo(verificationCode, expirationTime));
 
-            sendEmailMessage(email, verificationCode, "회원가입"); // 3번째 파라미터 추가
+            sendEmailMessage(email, verificationCode, "회원가입");
 
-            log.info("인증 이메일 발송 성공: {} (코드: {})", email, verificationCode);
             return true;
 
         } catch (Exception e) {
-            log.error("인증 이메일 발송 실패: {}", email, e);
             return false;
         }
     }
@@ -86,29 +84,39 @@ public class EmailUtil {
         }
     }
 
+    // 회원탈퇴용 이메일 발송
+    public boolean sendDeleteAccountEmail(String email) {
+        try {
+            verificationMap.remove(email);
+            String verificationCode = generateVerificationCode();
+            LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(expirationMinutes);
+            verificationMap.put(email, new VerificationInfo(verificationCode, expirationTime));
+
+            sendEmailMessage(email, verificationCode, "회원탈퇴");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     // 인증 코드 확인
     public boolean verifyCode(String email, String code) {
         VerificationInfo info = verificationMap.get(email);
 
         if (info == null) {
-            log.warn("존재하지 않는 이메일 인증 요청: {}", email);
             return false;
         }
 
         if (info.isExpired()) {
-            log.warn("만료된 인증 코드 사용 시도: {}", email);
             verificationMap.remove(email);
             return false;
         }
 
         if (!info.code.equals(code)) {
-            log.warn("잘못된 인증 코드 입력: email={}, input={}, expected={}",
-                    email, code, info.code);
             return false;
         }
 
         info.verified = true;
-        log.info("이메일 인증 성공: {}", email);
         return true;
     }
 
@@ -119,22 +127,11 @@ public class EmailUtil {
     }
 
     public void cleanupExpiredCodes() {
-        int beforeSize = verificationMap.size();
         verificationMap.entrySet().removeIf(entry -> entry.getValue().isExpired());
-        int afterSize = verificationMap.size();
-        int removedCount = beforeSize - afterSize;
-
-        if (removedCount > 0) {
-            log.info("만료된 이메일 인증 코드 {} 개 정리 완료", removedCount);
-        }
     }
 
-    // 인증 완료된 이메일 정보를 메모리에서 제거
     public void removeVerifiedEmail(String email) {
-        VerificationInfo removed = verificationMap.remove(email);
-        if (removed != null) {
-            log.info("인증 완료된 이메일 정보 정리: {}", email);
-        }
+        verificationMap.remove(email);
     }
 
     // 현재 메모리에 저장된 인증 요청 개수 반환
@@ -164,6 +161,9 @@ public class EmailUtil {
         } else if ("비밀번호재설정".equals(purpose)) {
             message.setSubject("[Port Cloud] 비밀번호 재설정 인증 코드");
             message.setText(createPasswordResetEmailContent(code));
+        } else if ("회원탈퇴".equals(purpose)) {
+            message.setSubject("[Port Cloud] 회원탈퇴 인증 코드");
+            message.setText(createDeleteAccountEmailContent(code));
         }
 
         mailSender.send(message);
@@ -189,6 +189,19 @@ public class EmailUtil {
                 "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
                 "• 이 코드는 " + expirationMinutes + "분간 유효합니다.\n" +
                 "• 코드를 타인과 공유하지 마세요.\n" +
+                "감사합니다.\n" +
+                "Port Cloud";
+    }
+    
+    private String createDeleteAccountEmailContent(String code) {
+        return "안녕하세요!\n\n" +
+                "Port Cloud 회원탈퇴를 위한 인증 코드입니다.\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "   인증 코드: " + code + "\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                "• 이 코드는 " + expirationMinutes + "분간 유효합니다.\n" +
+                "• 코드를 타인과 공유하지 마세요.\n" +
+                "• 회원탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n" +
                 "감사합니다.\n" +
                 "Port Cloud";
     }

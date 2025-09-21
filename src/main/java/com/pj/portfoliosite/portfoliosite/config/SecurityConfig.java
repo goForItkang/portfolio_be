@@ -45,7 +45,8 @@ public class SecurityConfig {
                                 "/api/user/password-reset",
                                 "/api/user/oauth/*/url",
                                 "/api/user/oauth/*/callback",
-                                "/api/**"
+                                "/api/teamposts",
+                                "/api/teampost/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
