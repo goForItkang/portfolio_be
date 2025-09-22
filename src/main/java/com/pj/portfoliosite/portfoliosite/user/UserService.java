@@ -108,7 +108,7 @@ public class UserService {
         // 추가 정보 설정
         user.setName(request.getName());
         user.setNickname(request.getNickname());
-        user.setJob(request.getJob());
+
 
         // 생년월일 변환 (String -> LocalDateTime)
         if (request.getBirthDate() != null && !request.getBirthDate().isEmpty()) {
