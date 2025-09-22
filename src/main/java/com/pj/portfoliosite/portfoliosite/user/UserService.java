@@ -4,6 +4,7 @@ import com.pj.portfoliosite.portfoliosite.config.JwtTokenProvider;
 import com.pj.portfoliosite.portfoliosite.global.dto.LoginRequestDto;
 import com.pj.portfoliosite.portfoliosite.global.dto.LoginResponseDto;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
+import com.pj.portfoliosite.portfoliosite.user.dto.ReqLoginDTO;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import com.pj.portfoliosite.portfoliosite.util.EmailUtil;
 import com.pj.portfoliosite.portfoliosite.util.OAuthUtil;
@@ -36,7 +37,7 @@ public class UserService {
     @Autowired
     private OAuthUtil oAuthUtil;
 
-    public LoginResponseDto login(LoginRequestDto request) {
+    public LoginResponseDto login(ReqLoginDTO request) {
         String inputEmail = request.getEmail();
         String inputPassword = request.getPassword();
 

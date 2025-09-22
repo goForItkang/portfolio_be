@@ -6,6 +6,7 @@ import com.pj.portfoliosite.portfoliosite.global.dto.LoginResponseDto;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.global.exception.CustomException;
 import com.pj.portfoliosite.portfoliosite.global.errocode.UserErrorCode;
+import com.pj.portfoliosite.portfoliosite.user.dto.ReqLoginDTO;
 import com.pj.portfoliosite.portfoliosite.util.OAuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public DataResponse<LoginResponseDto> login(@RequestBody LoginRequestDto requestDto) {
+    public DataResponse<LoginResponseDto> login(
+            @RequestBody ReqLoginDTO requestDto
+    ) {
         LoginResponseDto responseDto = userService.login(requestDto);
         return new DataResponse<>(200, "Login processed", responseDto);
     }
