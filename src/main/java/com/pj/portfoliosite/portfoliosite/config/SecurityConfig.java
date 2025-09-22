@@ -46,7 +46,8 @@ public class SecurityConfig {
                                 "/api/user/oauth/*/url",
                                 "/api/user/oauth/*/callback",
                                 "/api/teamposts",
-                                "/api/teampost/**"
+                                "/api/teampost/**",
+                                "/api/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
