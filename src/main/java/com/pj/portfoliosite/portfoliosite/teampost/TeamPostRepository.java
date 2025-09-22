@@ -1,0 +1,102 @@
+package com.pj.portfoliosite.portfoliosite.teampost;
+
+import com.pj.portfoliosite.portfoliosite.global.entity.TeamPost;
+import com.pj.portfoliosite.portfoliosite.global.entity.RecruitRole;
+import com.pj.portfoliosite.portfoliosite.teampost.dto.ResTeamPostDTO;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
+@Repository
+@Transactional
+public class TeamPostRepository {
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public void insertTeamPost(TeamPost teamPost) {
+        try {
+            entityManager.persist(teamPost);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public TeamPost findById(Long id) {
+        return entityManager.find(TeamPost.class, id);
+    }
+
+    public List<TeamPost> selectByCreateAtDesc(int page, int size) {
+        return entityManager.createQuery(
+                        "select tp " +
+                                "from TeamPost tp " +
+                                "left join fetch tp.user u " +
+                                "where tp.saveStatus = false " +
+                                "order by tp.createdAt desc, tp.id desc",
+                        TeamPost.class)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .setHint("org.hibernate.readOnly", true)
+                .getResultList();
+    }
+
+    public Long selectAllCount() {
+        return entityManager.createQuery(
+                        "select count(tp) from TeamPost tp where tp.saveStatus = false",
+                        Long.class)
+                .getSingleResult();
+    }
+
+    public void updateTeamPost(TeamPost teamPost) {
+        entityManager.merge(teamPost);
+    }
+
+    public void deleteTeamPost(Long id) {
+        TeamPost teamPost = entityManager.find(TeamPost.class, id);
+        if (teamPost != null) {
+            entityManager.remove(teamPost);
+        }
+    }
+
+    public TeamPost getReference(Long teamPostId) {
+        return entityManager.getReference(TeamPost.class, teamPostId);
+    }
+
+    // 사용자의 임시저장 게시물 조회
+    public List<ResTeamPostDTO> findDraftsByUserId(Long userId) {
+        List<TeamPost> drafts = entityManager.createQuery(
+                        "SELECT tp FROM TeamPost tp WHERE tp.user.id = :userId AND tp.saveStatus = true ORDER BY tp.createdAt DESC",
+                        TeamPost.class)
+                .setParameter("userId", userId)
+                .getResultList();
+
+        return drafts.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    // TeamPost를 ResTeamPostDTO로 변환하는 헬퍼 메서드
+    private ResTeamPostDTO convertToDTO(TeamPost teamPost) {
+        ResTeamPostDTO dto = new ResTeamPostDTO();
+        dto.setId(teamPost.getId());
+        dto.setTitle(teamPost.getTitle());
+        dto.setWriterName(teamPost.getUser() != null ? teamPost.getUser().getName() : null);
+        dto.setProjectType(teamPost.getProjectType());
+        dto.setCreatedAt(teamPost.getCreatedAt());
+        dto.setRecruitStatus(teamPost.getRecruitStatus().toString());
+        dto.setViewCount(teamPost.getViewCount());
+        dto.setLikeCount(teamPost.getLikes() != null ? teamPost.getLikes().size() : 0);
+
+        List<String> requiredRoles = new ArrayList<>();
+        if (teamPost.getRecruitRoles() != null) {
+            for (RecruitRole role : teamPost.getRecruitRoles()) {
+                requiredRoles.add(role.getRole());
+            }
+        }
+        dto.setRequiredRoles(requiredRoles);
+
+        return dto;
+    }
+}

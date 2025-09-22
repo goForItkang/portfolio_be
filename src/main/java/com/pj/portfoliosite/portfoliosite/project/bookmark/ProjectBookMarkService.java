@@ -33,7 +33,6 @@ public class ProjectBookMarkService {
                 // Exception 터트림
             }
         }catch (Exception e){
-            e.printStackTrace();
         }
     }
     //ㅍ로젝트 북 마크 취송한 경우
@@ -49,7 +48,6 @@ public class ProjectBookMarkService {
                 // Exception 터트림
             }
         }catch (Exception e){
-            e.printStackTrace();
         }
     }
 }

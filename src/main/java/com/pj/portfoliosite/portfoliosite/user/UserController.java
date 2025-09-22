@@ -39,6 +39,16 @@ public class UserController {
         return new DataResponse<>(200, "Login processed", responseDto);
     }
 
+    @PostMapping("/logout")
+    public DataResponse<String> logout(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new DataResponse<>(401, "로그인이 필요합니다.", null);
+        }
+        
+        String email = authentication.getName();
+        return userService.logout(email);
+    }
+
     @GetMapping("/email/{id}")
     public DataResponse<String> getDecryptedEmail(@PathVariable Long id) {
         String decryptedEmail = userService.getDecryptedEmail(id);
@@ -119,10 +129,16 @@ public class UserController {
         return userService.resetPassword(request.getEmail(), request.getNewPassword(), request.getVerificationCode());
     }
 
+    // 회원탈퇴용 이메일 인증 코드 발송
+    @PostMapping("/send-delete-verification")
+    public DataResponse<String> sendDeleteAccountVerification(@RequestBody Map<String, String> request) {
+        return userService.sendDeleteAccountVerificationEmail(request.get("email"));
+    }
+
     // 회원탈퇴
     @DeleteMapping("/delete")
     public DataResponse<String> deleteUser(@RequestBody UserDeleteDto request, Authentication authentication) {
         String email = authentication.getName();
-        return userService.deleteUser(email, request.getPassword());
+        return userService.deleteUser(email, request.getPassword(), request.getVerificationCode());
     }
 }
