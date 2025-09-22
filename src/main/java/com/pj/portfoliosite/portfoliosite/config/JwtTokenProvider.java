@@ -1,5 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.config;
 
+import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -47,8 +48,8 @@ public class JwtTokenProvider {
         return signingKey;
     }
 
-    public String createToken(String email) {
-        if (email == null || email.trim().isEmpty()) {
+    public String createToken(User user) {
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
             throw new IllegalArgumentException("이메일은 null이거나 빈 값일 수 없습니다.");
         }
 
@@ -56,7 +57,9 @@ public class JwtTokenProvider {
         Date expiry = new Date(now.getTime() + EXPIRATION_TIME);
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(user.getEmail())
+                .claim("nickname", user.getNickname())
+                .claim("name", user.getName())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)

@@ -47,7 +47,7 @@ public class UserService {
             return new LoginResponseDto(false, "로그인 실패", null);
         }
 
-        String token = jwtTokenProvider.createToken(inputEmail);
+        String token = jwtTokenProvider.createToken(user);
         String refreshToken = jwtTokenProvider.createRefreshToken(inputEmail);
 
         user.setRefreshToken(refreshToken);
@@ -171,7 +171,7 @@ public class UserService {
                 userRepository.save(user);
             }
 
-            String jwtToken = jwtTokenProvider.createToken(email);
+            String jwtToken = jwtTokenProvider.createToken(user);
             String refreshToken = jwtTokenProvider.createRefreshToken(email);
 
             user.setRefreshToken(refreshToken);
