@@ -22,7 +22,7 @@ public class JwtTokenProvider {
     // private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7; // 7일
 
     // 테스트용 무제한
-    private static final long EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 365 * 100;
+    private static final long EXPIRATION_TIME = 1000L * 60 * 60 * 24;
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 365 * 100;
 
     private Key signingKey;
