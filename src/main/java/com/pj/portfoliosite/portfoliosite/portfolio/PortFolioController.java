@@ -32,7 +32,7 @@ public class PortFolioController {
             description = "id 기준으로 포트 폴리오가져오기"
     )
     public ResponseEntity<DataResponse> portfolioGetById(
-        @PathVariable Long id
+        @RequestParam Long id
     ){
         DataResponse dataResponse = new DataResponse();
         dataResponse.setData(portfolioService.getPortFolio(id));

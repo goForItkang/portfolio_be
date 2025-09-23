@@ -26,14 +26,7 @@ public class PortFolioService {
     // 저장 로직
     public Long save(ReqPortfolioDTO reqPortfolioDTO) {
         //user part
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        String userEmail;
-        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
-            userEmail = authentication.getName();
-        } else {
-            throw new RuntimeException("로그인이 필요합니다.");
-        }
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<User> user = userRepository.findByEmail(userEmail);
         // user 로직
 
