@@ -8,6 +8,7 @@ import com.pj.portfoliosite.portfoliosite.global.exception.CustomException;
 import com.pj.portfoliosite.portfoliosite.global.errocode.UserErrorCode;
 import com.pj.portfoliosite.portfoliosite.user.dto.ReqLoginDTO;
 import com.pj.portfoliosite.portfoliosite.util.OAuthUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -38,6 +40,7 @@ public class UserController {
     public DataResponse<LoginResponseDto> login(
             @RequestBody ReqLoginDTO requestDto
     ) {
+        log.warn("Login Request: {}", requestDto);
         LoginResponseDto responseDto = userService.login(requestDto);
         return new DataResponse<>(200, "Login processed", responseDto);
     }
