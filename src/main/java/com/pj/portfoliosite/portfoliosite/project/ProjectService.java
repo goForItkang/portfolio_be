@@ -61,29 +61,35 @@ public class ProjectService {
     public void projectUpload(ReqProject reqProject) throws IOException {
         //TEST 단계에서 값을 가져옴
         // 실제 배포단계면  securitContectHolder 에 값 가져옴
-        String testLoginId = "portfolio@naver.com";
-        Optional<User> user = userRepository.findByEmail(testLoginId);
-        if(user.isPresent()) {
-            // Null이 아닐경우 project 에 user 삽입
-            Project project = new Project();
-            project.setUser(user.get()); // 사입하고
-            project.setProject(reqProject);
-            if(reqProject.getThumbnailImg() != null){
-                String imgUrl = imgUtil.imgUpload(reqProject.getThumbnailImg());
-                project.setThumbnailURL(imgUrl);
-            }else{
-             project.setThumbnailURL(null);
-            }
-            if(project.getThumbnailURL() == null){
-                project.setDemonstrationVideo(null);
-            }else{
-                String demonstrationURL = imgUtil.imgUpload(reqProject.getDemonstrationVideo());
-                project.setDemonstrationVideo(demonstrationURL);
-            }
+        try{
+            String testLoginId = "portfolio@naver.com";
+            Optional<User> user = userRepository.findByEmail(testLoginId);
+            if(user.isPresent()) {
+                // Null이 아닐경우 project 에 user 삽입
+                Project project = new Project();
+                project.setUser(user.get()); // 사입하고
+                project.setProject(reqProject);
+                if(reqProject.getThumbnailImg() != null){
+                    String imgUrl = imgUtil.imgUpload(reqProject.getThumbnailImg());
+                    project.setThumbnailURL(imgUrl);
+                }else{
+                    project.setThumbnailURL(null);
+                }
+                if(project.getThumbnailURL() == null){
+                    project.setDemonstrationVideo(null);
+                }else{
+                    String demonstrationURL = imgUtil.imgUpload(reqProject.getDemonstrationVideo());
+                    project.setDemonstrationVideo(demonstrationURL);
+                }
 
-            projectRepository.insertProject(project);
-            user.get().addProject(project);
+
+                projectRepository.insertProject(project);
+                user.get().addProject(project);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
     @Transactional(readOnly = true)
