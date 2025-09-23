@@ -20,11 +20,10 @@ public class PortFolioService {
     private final PortFolioLikeRepository pfLikeRepository;
     private final PortfolioBookMarkRepository pfBookMarkRepository;
     // 저장 로직
-    public void save(ReqPortfolioDTO reqPortfolioDTO) {
+    public Long save(ReqPortfolioDTO reqPortfolioDTO) {
         //user part
         String testLogin = "portfolio@naver.com";
         Optional<User> user = userRepository.findByEmail(testLogin);
-
         // user 로직
 
         PortFolio portfolio = new PortFolio();
@@ -41,6 +40,8 @@ public class PortFolioService {
         portfolio.addProjectDescription(toProjectDescription(reqPortfolioDTO.getProjectDescriptions()));
         portfolio.save(reqPortfolioDTO);
         pfRepository.insert(portfolio);
+        Long id = portfolio.getId();
+        return id;
     }
     // 프로젝트 설명란
      private List<ProjectDescription> toProjectDescription(List<ReqProjectDescription> reqProjectDescriptionList) {
