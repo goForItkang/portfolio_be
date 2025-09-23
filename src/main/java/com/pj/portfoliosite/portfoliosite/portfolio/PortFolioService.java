@@ -6,6 +6,8 @@ import com.pj.portfoliosite.portfoliosite.portfolio.dto.*;
 import com.pj.portfoliosite.portfoliosite.portfolio.like.PortFolioLikeRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PortFolioService {
     private final PortFolioRepository pfRepository;
     private final UserRepository userRepository;
@@ -22,6 +25,8 @@ public class PortFolioService {
     // 저장 로직
     public Long save(ReqPortfolioDTO reqPortfolioDTO) {
         //user part
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.warn("email : " + email);
         String testLogin = "portfolio@naver.com";
         Optional<User> user = userRepository.findByEmail(testLogin);
         // user 로직
