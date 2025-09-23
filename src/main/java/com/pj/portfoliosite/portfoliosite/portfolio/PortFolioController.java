@@ -5,12 +5,14 @@ import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqPortfolioDTO;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortfolioDetailDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Slf4j
 public class PortFolioController {
     private final PortFolioService portfolioService;
     @PostMapping("/portfolio")
@@ -34,6 +36,7 @@ public class PortFolioController {
     public ResponseEntity<DataResponse> portfolioGetById(
         @RequestParam Long id
     ){
+        log.warn("portpolio get id : " + id);
         DataResponse dataResponse = new DataResponse();
         dataResponse.setData(portfolioService.getPortFolio(id));
 
