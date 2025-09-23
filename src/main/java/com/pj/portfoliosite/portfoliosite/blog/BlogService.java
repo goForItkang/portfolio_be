@@ -12,6 +12,7 @@ import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.util.ImgUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -31,8 +32,11 @@ public class BlogService {
     private final ImgUtil imgUtil;
     public void save(ReqBlogDTO reqBlogDTO) throws IOException {
 
-        String userEmail = "portfolio@naver.com";
-        Optional<User> user =userRepository.findByEmail(userEmail);
+        String testLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(testLogin == null){
+            throw new RuntimeException("로그인이 필요합니다. ");
+        }
+        Optional<User> user = userRepository.findByEmail(testLogin);
         Blog blog = new Blog();
         // 이미지 등록
         if(reqBlogDTO.getThumbnail() != null){
@@ -48,8 +52,11 @@ public class BlogService {
     }
 
     public void delete(Long id) {
-        String userEmail = "portclod.com"; // 사용자 이메일
-        Optional<User> user =userRepository.findByEmail(userEmail);
+        String testLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(testLogin == null){
+            throw new RuntimeException("로그인이 필요합니다. ");
+        }
+        Optional<User> user = userRepository.findByEmail(testLogin);
         Blog blog = blogRepository.selectById(id);
         if(user.isPresent() && blog.getUser().equals(user.get())){
             // exceptio 처리
@@ -61,8 +68,11 @@ public class BlogService {
         Blog blog = blogRepository.selectById(id);
         ResBlogDTO resBlogDTO = new ResBlogDTO();
 
-        String userEmail = "portfolio@naver.com";
-        Optional<User> user =userRepository.findByEmail(userEmail);
+        String testLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(testLogin == null){
+            throw new RuntimeException("로그인이 필요합니다. ");
+        }
+        Optional<User> user = userRepository.findByEmail(testLogin);
         if(user.isPresent()){
             // 로그인 한 사용자 일 경우
             if(user.get().getId() == blog.getUser().getId()){

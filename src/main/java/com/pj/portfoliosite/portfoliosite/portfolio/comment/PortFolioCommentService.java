@@ -10,6 +10,7 @@ import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +27,12 @@ public class PortFolioCommentService {
 
     @Transactional
     public void saveComment(Long portfolioId, ReqCommentDTO reqCommentDTO) {
-        String testLogin  = "portfolio@naver.com";
-        Optional<User> userOpt = userRepository.findByEmail(testLogin);
-        if (userOpt.isEmpty()) {
-            return;
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(email == null){
+            throw new RuntimeException("로그인이 필요합니다. ");
         }
+        Optional<User> userOpt = userRepository.findByEmail(email);
+
 
         PortFolio portfolio = portFolioRepository.selectById(portfolioId);
         if (portfolio == null) {

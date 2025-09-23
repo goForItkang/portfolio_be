@@ -7,6 +7,7 @@ import com.pj.portfoliosite.portfoliosite.portfolio.like.PortFolioLikeRepository
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +26,15 @@ public class PortFolioService {
     // 저장 로직
     public Long save(ReqPortfolioDTO reqPortfolioDTO) {
         //user part
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        log.warn("email : " + email);
-        Optional<User> user = userRepository.findByEmail(email);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String userEmail;
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
+            userEmail = authentication.getName();
+        } else {
+            throw new RuntimeException("로그인이 필요합니다.");
+        }
+        Optional<User> user = userRepository.findByEmail(userEmail);
         // user 로직
 
         PortFolio portfolio = new PortFolio();
@@ -237,8 +244,15 @@ public class PortFolioService {
     }
 
     public ResPortfolioDetailDTO getPortFolioDetails(Long id) {
-        String testLogin = "portfolio@naver.com";
-        Optional<User> user = userRepository.findByEmail(testLogin);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String userEmail;
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
+            userEmail = authentication.getName();
+        } else {
+            throw new RuntimeException("로그인이 필요합니다.");
+        }
+        Optional<User> user = userRepository.findByEmail(userEmail);
         ResPortfolioDetailDTO resPortfolioDetailDTO = new ResPortfolioDetailDTO();
         if(user.isPresent()){
             //get user

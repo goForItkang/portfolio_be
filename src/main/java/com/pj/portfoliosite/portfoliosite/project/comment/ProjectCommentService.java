@@ -7,6 +7,8 @@ import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.project.ProjectRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +24,16 @@ public class ProjectCommentService {
     public void addComment(Long projectId, ReqCommentDTO reqCommentDTO) {
         Project project = projectRepository.getReference(projectId);
 
-        String testLoginId = "portfolio@naver.com";
-        Optional<User> user = userRepository.findByEmail(testLoginId); // 로그인 한 유저
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String userEmail;
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
+            userEmail = authentication.getName();
+        } else {
+            throw new RuntimeException("로그인이 필요합니다.");
+        }
+
+        Optional<User> user = userRepository.findByEmail(userEmail);
         // Comment 객체  생성
         ProjectComment projectComment = new ProjectComment(reqCommentDTO.getComment(),user.get(),project);
 
@@ -48,6 +58,15 @@ public class ProjectCommentService {
 
     public boolean deleteComment(Long projectId, Long commentId) {
         //ProjectComment 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String userEmail;
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
+            userEmail = authentication.getName();
+        } else {
+            throw new RuntimeException("로그인이 필요합니다.");
+        }
+
         ProjectComment projectComment = projectCommentRepository.selectByProjectIdAndId(projectId,commentId);
         if(projectComment!=null) {
             projectCommentRepository.deleteComment(projectComment);
@@ -59,6 +78,16 @@ public class ProjectCommentService {
     }
     @Transactional
     public boolean updateComment(Long projectId, Long commentId, String comment) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String userEmail;
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
+            userEmail = authentication.getName();
+        } else {
+            throw new RuntimeException("로그인이 필요합니다.");
+        }
+
         ProjectComment projectComment = projectCommentRepository.selectByProjectIdAndId(projectId,commentId);
         if(projectComment!=null) {
             projectComment.updateComment(comment);
