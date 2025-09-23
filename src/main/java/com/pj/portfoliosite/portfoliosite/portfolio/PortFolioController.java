@@ -28,7 +28,7 @@ public class PortFolioController {
         System.out.println("데이터 전을 받았습니당~");
         return ResponseEntity.ok(dataResponse);
     }
-    @GetMapping("/portfolio/{id}")
+    @GetMapping("/portfolio")
     @Operation(
             summary = "포트폴리오 가져오기",
             description = "id 기준으로 포트 폴리오가져오기"
