@@ -27,8 +27,7 @@ public class PortFolioService {
         //user part
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         log.warn("email : " + email);
-        String testLogin = "portfolio@naver.com";
-        Optional<User> user = userRepository.findByEmail(testLogin);
+        Optional<User> user = userRepository.findByEmail(email);
         // user 로직
 
         PortFolio portfolio = new PortFolio();
