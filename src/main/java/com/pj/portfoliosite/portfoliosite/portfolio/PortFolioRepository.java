@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -84,18 +86,21 @@ public class PortFolioRepository {
     }
 
     public List<PortFolio> findTopProjectsByLikesInPeriod(LocalDate today, LocalDate weekAgo) {
+        LocalDateTime start = weekAgo.atStartOfDay();
+        LocalDateTime end = today.atTime(LocalTime.MAX);
         return entityManager.createQuery(
-                """
-            select p from PortFolio  p
-            left join p.portFolioLikes pl
-            where p.createAt between :today and :weekAgo
-            group by p
-            order by count(pl) desc
-            """,PortFolio.class
-        )
-                .setParameter("today",today)
-                .setParameter("weekAgo",weekAgo)
+                        """
+                    select p from PortFolio p
+                    join p.portFolioLikes pl
+                    where pl.createdAt between :startDate and :endDate
+                    group by p
+                    order by count(pl) desc
+                    """,PortFolio.class
+                )
+                .setParameter("startDate", start)
+                .setParameter("endDate", end)
                 .setMaxResults(4)
                 .getResultList();
     }
+
 }

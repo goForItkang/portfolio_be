@@ -277,6 +277,7 @@ public class PortFolioService {
                 ResPortFolioDTO resPortfolioDTO = new ResPortFolioDTO();
                 resPortfolioDTO.setId(portfolio.getId()); // id
                 resPortfolioDTO.setEmail(portfolio.getEmail()); //이메일
+                resPortfolioDTO.setWriteName(portfolio.getUser().getNickname());
                 resPortfolioDTO.setTitle(portfolio.getTitle()); //제목
                 resPortfolioDTO.setIndustry(portfolio.getIndustry());// 분야
                 resPortfolioDTO.setJobPosition(portfolio.getJobPosition());
