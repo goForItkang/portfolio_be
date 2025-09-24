@@ -22,7 +22,7 @@ public class ResPortFolioDTO {
     private String introductions;  // 본인 소개
     private LocalDateTime createAt;
     private boolean saveStatus;    // 임시 저장 여부
-
+    private String writeName;
     // 연관관계 엔티티들 DTO 리스트
     private List<ResProjectDescription> projectDescriptions;
     private List<ResCareerDTO> careers;

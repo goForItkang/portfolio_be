@@ -17,7 +17,6 @@ public class ReqPortfolioDTO {
 //  private List skill;          // 스킬
     private String introductions;  // 본인 소개
     private boolean saveStatus;    // 임시 저장 여부
-
     // 연관관계 엔티티들 DTO 리스트
     private List<ReqProjectDescription> projectDescriptions;
     private List<ReqCareerDTO> careers;

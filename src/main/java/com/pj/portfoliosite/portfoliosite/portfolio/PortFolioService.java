@@ -124,6 +124,7 @@ public class PortFolioService {
         //변경
         resPortFolioDTO.setId(portFolio.getId());
         resPortFolioDTO.setEmail(portFolio.getUser().getEmail());
+        resPortFolioDTO.setWriteName(portFolio.getUser().getNickname());
         resPortFolioDTO.setTitle(portFolio.getTitle());
         resPortFolioDTO.setIndustry(portFolio.getIndustry());
         resPortFolioDTO.setSkill(portFolio.getSkill());
