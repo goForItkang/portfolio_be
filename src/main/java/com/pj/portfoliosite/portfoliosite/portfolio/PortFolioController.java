@@ -55,5 +55,16 @@ public class PortFolioController {
         dataResponse.setData(portfolioDetailDTO);
         return ResponseEntity.ok(dataResponse);
     }
+    @GetMapping("/portfolio/recommend")
+    @Operation(
+            summary = "추천 포트폴리오 ",
+            description = "4개 출력"
+    )
+    public ResponseEntity<DataResponse> portfolioRecommend(){
+        DataResponse dataResponse = new DataResponse();
+        dataResponse.setData(portfolioService.getPortFolioRecommend());
+        dataResponse.setStatus(200);
+        return ResponseEntity.ok(dataResponse);
+    }
 
 }

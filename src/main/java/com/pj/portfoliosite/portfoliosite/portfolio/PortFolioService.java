@@ -7,10 +7,12 @@ import com.pj.portfoliosite.portfoliosite.portfolio.like.PortFolioLikeRepository
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -282,5 +284,14 @@ public class PortFolioService {
             }
             return resPortfolioDTOS;
         }
+    }
+    //추천 프로젝트 오늘 부터 일주일 동안 가장 많이 받은 좋아요 갯수
+    public List<ResPortFolioDTO> getPortFolioRecommend() {
+        LocalDate today = LocalDate.now();
+        LocalDate weekAgo = today.minusWeeks(1);
+
+        List<PortFolio> portFolios = pfRepository.findTopProjectsByLikesInPeriod(today,weekAgo);
+        return portfolioDTOTOEntity(portFolios);
+
     }
 }

@@ -8,6 +8,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -79,6 +80,22 @@ public class PortFolioRepository {
          select p from PortFolio p where p.user.email =:email
 """,PortFolio.class
         ).setParameter("email",email)
+                .getResultList();
+    }
+
+    public List<PortFolio> findTopProjectsByLikesInPeriod(LocalDate today, LocalDate weekAgo) {
+        return entityManager.createQuery(
+                """
+            select p from PortFolio  p
+            left join p.portFolioLikes pl
+            where p.createAt between :today and :weekAgo
+            group by p
+            order by count(pl) desc
+            """,PortFolio.class
+        )
+                .setParameter("today",today)
+                .setParameter("weekAgo",weekAgo)
+                .setMaxResults(4)
                 .getResultList();
     }
 }
