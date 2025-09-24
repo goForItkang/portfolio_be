@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,9 +27,14 @@ public class TeamPost {
     private String content;                  // 내용
 
     private String projectType;              // 프로젝트 유형 (웹, 앱, 게임 등)
-    private String skills;                   // 필요 기술스택
+    
+    @ElementCollection
+    @CollectionTable(name = "team_post_skills", joinColumns = @JoinColumn(name = "team_post_id"))
+    @Column(name = "skill")
+    private List<String> skills = new ArrayList<>(); // 필요 기술스택 (배열)
+    
     private String contactMethod;            // 연락방법
-    private LocalDateTime recruitDeadline;   // 모집마감일
+    private java.time.LocalDate recruitDeadline;   // 모집마감일 (날짜만)
 
     @Enumerated(EnumType.STRING)
     private RecruitStatus recruitStatus = RecruitStatus.RECRUITING; // 모집상태

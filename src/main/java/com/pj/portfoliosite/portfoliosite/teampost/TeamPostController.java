@@ -15,16 +15,10 @@ import java.util.List;
 @RequestMapping("/api")
 public class TeamPostController {
     private final TeamPostService teamPostService;
-    
-    @GetMapping("/teampost/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("TeamPost Controller is working!");
-    }
 
     @PostMapping("/teampost")
     @Operation(summary = "팀원 구하기 정식 등록", description = "header에 JWT 토큰 필요")
     public ResponseEntity<DataResponse> createTeamPost(@RequestBody ReqTeamPostDTO reqTeamPostDTO) {
-        // 정식 등록은 saveStatus를 false로 설정
         reqTeamPostDTO.setSaveStatus(false);
         teamPostService.saveTeamPost(reqTeamPostDTO);
         DataResponse dataResponse = new DataResponse();
@@ -35,7 +29,6 @@ public class TeamPostController {
     @PostMapping("/teampost/draft")
     @Operation(summary = "팀원 구하기 임시저장", description = "header에 JWT 토큰 필요")
     public ResponseEntity<DataResponse> saveDraft(@RequestBody ReqTeamPostDTO reqTeamPostDTO) {
-        // 임시저장은 saveStatus를 true로 설정
         reqTeamPostDTO.setSaveStatus(true);
         teamPostService.saveTeamPost(reqTeamPostDTO);
         DataResponse dataResponse = new DataResponse();
@@ -44,7 +37,7 @@ public class TeamPostController {
     }
 
     @GetMapping("/teamposts")
-    @Operation(summary = "팀원 구하기 목록", description = "페이지네이션 적용된 팀원 구하기 목록")
+    @Operation(summary = "팀원 구하기 목록", description = "페이지네이션 적용된 팀원 구하기 목록 (비로그인 가능)")
     public ResponseEntity<DataResponse> getTeamPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size) {
@@ -55,7 +48,7 @@ public class TeamPostController {
     }
 
     @GetMapping("/teampost/{id}")
-    @Operation(summary = "팀원 구하기 상세", description = "팀원 구하기 상세 정보")
+    @Operation(summary = "팀원 구하기 상세", description = "팀원 구하기 상세 정보 (비로그인 가능)")
     public ResponseEntity<DataResponse> getTeamPostDetail(@PathVariable Long id) {
         DataResponse dataResponse = new DataResponse();
         ResTeamPostDetailDTO teamPostDetail = teamPostService.getTeamPostById(id);
@@ -66,7 +59,6 @@ public class TeamPostController {
     @PutMapping("/teampost/{id}")
     @Operation(summary = "팀원 구하기 수정 (정식 등록)", description = "header에 JWT 토큰 필요")
     public ResponseEntity<DataResponse> updateTeamPost(@PathVariable Long id, @RequestBody ReqTeamPostDTO reqTeamPostDTO) {
-        // 수정 시 정식 등록으로 처리
         reqTeamPostDTO.setSaveStatus(false);
         teamPostService.updateTeamPost(id, reqTeamPostDTO);
         DataResponse dataResponse = new DataResponse();
@@ -77,7 +69,6 @@ public class TeamPostController {
     @PutMapping("/teampost/{id}/draft")
     @Operation(summary = "팀원 구하기 수정 (임시저장)", description = "header에 JWT 토큰 필요")
     public ResponseEntity<DataResponse> updateTeamPostAsDraft(@PathVariable Long id, @RequestBody ReqTeamPostDTO reqTeamPostDTO) {
-        // 수정 시 임시저장으로 처리
         reqTeamPostDTO.setSaveStatus(true);
         teamPostService.updateTeamPost(id, reqTeamPostDTO);
         DataResponse dataResponse = new DataResponse();
@@ -95,7 +86,7 @@ public class TeamPostController {
     }
 
     @GetMapping("/teampost/{id}/details")
-    @Operation(summary = "팀원 구하기 세부정보", description = "좋아요/북마크 상태 정보")
+    @Operation(summary = "팀원 구하기 세부정보", description = "좋아요/북마크 상태 정보 (비로그인 가능)")
     public ResponseEntity<DataResponse> getTeamPostDetails(@PathVariable Long id) {
         DataResponse dataResponse = new DataResponse();
         ResTeamPostDetailDTO teamPostDetails = teamPostService.getTeamPostById(id);
@@ -119,13 +110,13 @@ public class TeamPostController {
         String result = teamPostService.publishDraft(id);
         DataResponse dataResponse = new DataResponse();
         dataResponse.setMessage(result);
-        
+
         if (result.contains("오류") || result.contains("찾을 수 없습니다") || result.contains("권한이 없습니다")) {
             dataResponse.setStatus(400);
         } else {
             dataResponse.setStatus(200);
         }
-        
+
         return ResponseEntity.ok(dataResponse);
     }
 
@@ -135,13 +126,13 @@ public class TeamPostController {
         String result = teamPostService.deleteDraft(id);
         DataResponse dataResponse = new DataResponse();
         dataResponse.setMessage(result);
-        
+
         if (result.contains("오류") || result.contains("찾을 수 없습니다") || result.contains("권한이 없습니다")) {
             dataResponse.setStatus(400);
         } else {
             dataResponse.setStatus(200);
         }
-        
+
         return ResponseEntity.ok(dataResponse);
     }
 }
