@@ -21,8 +21,9 @@ public class PortFolio {
     private String title;
     private String email;
     private String industry; // 분야
-    private String jobPosition;; //직무
+    private String jobPosition; //직무
     private String skill; // 스킬
+    @Lob
     private String introductions; // 본인 소개
 
     private LocalDateTime createAt; // 작성일

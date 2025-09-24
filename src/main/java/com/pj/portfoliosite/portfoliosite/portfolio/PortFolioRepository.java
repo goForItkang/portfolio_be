@@ -2,6 +2,7 @@ package com.pj.portfoliosite.portfoliosite.portfolio;
 
 import com.pj.portfoliosite.portfoliosite.global.entity.*;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortFolioDTO;
+import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortfolioDetailDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -69,6 +70,15 @@ public class PortFolioRepository {
         return entityManager.createQuery(
                 "select pd from ProjectDescription pd where pd.portfolio.id =:pid",ProjectDescription.class
         ).setParameter("pid",id)
+                .getResultList();
+    }
+
+    public List<PortFolio> selectByUserEmail(String email) {
+        return entityManager.createQuery(
+                """
+         select p from PortFolio p where p.user.email =:email
+""",PortFolio.class
+        ).setParameter("email",email)
                 .getResultList();
     }
 }
