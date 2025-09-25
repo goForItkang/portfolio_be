@@ -296,4 +296,8 @@ public class PortFolioService {
         return portfolioDTOTOEntity(portFolios);
 
     }
+
+    public void deletePortfolio(Long id) {
+        pfRepository.deleteById(id);
+    }
 }

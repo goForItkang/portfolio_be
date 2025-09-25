@@ -103,4 +103,7 @@ public class PortFolioRepository {
                 .getResultList();
     }
 
+    public void deleteById(Long id) {
+
+    }
 }

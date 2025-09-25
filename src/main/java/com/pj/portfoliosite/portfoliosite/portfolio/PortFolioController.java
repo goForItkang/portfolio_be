@@ -66,5 +66,13 @@ public class PortFolioController {
         dataResponse.setStatus(200);
         return ResponseEntity.ok(dataResponse);
     }
+    @DeleteMapping("/portfolio")
+    public ResponseEntity<DataResponse> portfolioDelete(
+            @RequestParam Long id
+    ){
+        DataResponse dataResponse = new DataResponse();
+        portfolioService.deletePortfolio(id);
+        return ResponseEntity.ok(dataResponse);
+    }
 
 }
