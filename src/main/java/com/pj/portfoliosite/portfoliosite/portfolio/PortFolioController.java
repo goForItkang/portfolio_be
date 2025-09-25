@@ -23,7 +23,7 @@ public class PortFolioController {
         description = "header에 jwt 넣어주세요"
     )
     public ResponseEntity<DataResponse> portfolioUpload(
-            @ModelAttribute ReqPortfolioDTO reqPortfolioDTO
+            @RequestBody ReqPortfolioDTO reqPortfolioDTO
     ) throws IOException {
         Long id = portfolioService.save(reqPortfolioDTO);
         DataResponse dataResponse = new DataResponse();
