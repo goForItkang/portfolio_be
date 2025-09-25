@@ -106,6 +106,7 @@ public class PortFolio {
         for(ProjectDescription pd : projectDescriptions){
             pd.addPortfolio(this);
             this.projectDescriptions.add(pd);
+
         }
     }
     public void addPortfolioFile(String fileName){
