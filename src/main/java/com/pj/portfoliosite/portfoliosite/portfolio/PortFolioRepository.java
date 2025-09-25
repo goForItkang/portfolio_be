@@ -103,7 +103,7 @@ public class PortFolioRepository {
                 .getResultList();
     }
 
-    public void deleteById(Long id) {
-
+    public void deleteById(PortFolio portfolio) {
+        entityManager.remove(portfolio);
     }
 }

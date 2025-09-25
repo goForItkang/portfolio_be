@@ -298,6 +298,7 @@ public class PortFolioService {
     }
 
     public void deletePortfolio(Long id) {
-        pfRepository.deleteById(id);
+        PortFolio portFolio = pfRepository.selectById(id);
+        pfRepository.deleteById(portFolio);
     }
 }
