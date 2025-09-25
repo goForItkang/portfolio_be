@@ -5,6 +5,7 @@ import com.pj.portfoliosite.portfoliosite.portfolio.bookmark.PortfolioBookMarkRe
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.*;
 import com.pj.portfoliosite.portfoliosite.portfolio.like.PortFolioLikeRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
+import com.pj.portfoliosite.portfoliosite.util.ImgUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cglib.core.Local;
@@ -12,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,14 +27,21 @@ public class PortFolioService {
     private final UserRepository userRepository;
     private final PortFolioLikeRepository pfLikeRepository;
     private final PortfolioBookMarkRepository pfBookMarkRepository;
+    private final ImgUtil imgUtil;
     // 저장 로직
-    public Long save(ReqPortfolioDTO reqPortfolioDTO) {
+    public Long save(ReqPortfolioDTO reqPortfolioDTO) throws IOException {
         //user part
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<User> user = userRepository.findByEmail(userEmail);
         // user 로직
-
         PortFolio portfolio = new PortFolio();
+        if(reqPortfolioDTO.getFile() == null){
+            return null;
+        }else{
+            String url = imgUtil.imgUpload(reqPortfolioDTO.getFile());
+            portfolio.addPortfolioFile(url);
+        }
+
         portfolio.addUser(user.get());
         // award list
         portfolio.addAward(toAwardList(reqPortfolioDTO.getAwards()));
@@ -119,8 +128,9 @@ public class PortFolioService {
         // 전체 가져오기
 //        PortFolio portFolio = pfRepository.selectWithAllById(id);
        PortFolio portFolio = pfRepository.selectById(id);
-        // entity to dto
+       // entity to dto
         ResPortFolioDTO resPortFolioDTO = new ResPortFolioDTO(); // dto
+        resPortFolioDTO.setFile(portFolio.getThumbnailURL());
         //변경
         resPortFolioDTO.setId(portFolio.getId());
         resPortFolioDTO.setEmail(portFolio.getUser().getEmail());
@@ -275,6 +285,7 @@ public class PortFolioService {
             List<ResPortFolioDTO> resPortfolioDTOS = new ArrayList<>();
             for (PortFolio portfolio : portfolios) {
                 ResPortFolioDTO resPortfolioDTO = new ResPortFolioDTO();
+                resPortfolioDTO.setFile(portfolio.getThumbnailURL());
                 resPortfolioDTO.setId(portfolio.getId()); // id
                 resPortfolioDTO.setEmail(portfolio.getEmail()); //이메일
                 resPortfolioDTO.setWriteName(portfolio.getUser().getNickname());
@@ -296,6 +307,7 @@ public class PortFolioService {
         return portfolioDTOTOEntity(portFolios);
 
     }
+
 
     public void deletePortfolio(Long id) {
         PortFolio portFolio = pfRepository.selectById(id);

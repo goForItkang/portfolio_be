@@ -3,6 +3,7 @@ package com.pj.portfoliosite.portfoliosite.portfolio.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class ReqPortfolioDTO {
     private String introductions;  // 본인 소개
     private boolean saveStatus;    // 임시 저장 여부
     // 연관관계 엔티티들 DTO 리스트
+    private MultipartFile file;
     private List<ReqProjectDescription> projectDescriptions;
     private List<ReqCareerDTO> careers;
     private List<ReqAwardDTO> awards;

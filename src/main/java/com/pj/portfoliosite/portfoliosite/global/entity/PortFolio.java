@@ -25,6 +25,7 @@ public class PortFolio {
     private String skill; // 스킬
     @Lob
     private String introductions; // 본인 소개
+    private String thumbnailURL;
 
     private LocalDateTime createAt; // 작성일
     // 임시 저장
@@ -106,6 +107,9 @@ public class PortFolio {
             pd.addPortfolio(this);
             this.projectDescriptions.add(pd);
         }
+    }
+    public void addPortfolioFile(String fileName){
+        this.thumbnailURL = fileName;
     }
 
 }

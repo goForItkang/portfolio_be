@@ -6,8 +6,11 @@ import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortfolioDetailDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,13 +18,13 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class PortFolioController {
     private final PortFolioService portfolioService;
-    @PostMapping("/portfolio")
+    @PostMapping(value = "/portfolio",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "포트폴리오 저장",
         description = "header에 jwt 넣어주세요"
     )
     public ResponseEntity<DataResponse> portfolioUpload(
             @RequestBody ReqPortfolioDTO reqPortfolioDTO
-    ){
+    ) throws IOException {
         Long id = portfolioService.save(reqPortfolioDTO);
         DataResponse dataResponse = new DataResponse();
         dataResponse.setData(id);
