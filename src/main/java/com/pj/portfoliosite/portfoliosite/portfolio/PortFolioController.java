@@ -29,6 +29,7 @@ public class PortFolioController {
         DataResponse dataResponse = new DataResponse();
         dataResponse.setData(id);
         System.out.println("데이터 전을 받았습니당~");
+
         return ResponseEntity.ok(dataResponse);
     }
     @GetMapping("/portfolio")
