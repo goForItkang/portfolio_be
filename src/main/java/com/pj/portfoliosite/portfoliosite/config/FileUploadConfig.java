@@ -14,6 +14,8 @@ public class FileUploadConfig {
         FileUpload upload = new FileUpload(); // 1. 기본 생성자로 객체를 생성합니다.
         upload.setFileItemFactory(factory);   // 2. Setter를 사용해 factory를 설정합니다.
         upload.setFileCountMax(30);
+
+
         return upload;
     }
 }
