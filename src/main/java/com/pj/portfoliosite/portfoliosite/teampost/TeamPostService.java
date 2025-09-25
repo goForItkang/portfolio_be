@@ -8,6 +8,7 @@ import com.pj.portfoliosite.portfoliosite.teampost.comment.TeamPostCommentReposi
 import com.pj.portfoliosite.portfoliosite.teampost.dto.*;
 import com.pj.portfoliosite.portfoliosite.teampost.like.TeamPostLikeRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
+import com.pj.portfoliosite.portfoliosite.util.PersonalDataUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,29 +27,28 @@ public class TeamPostService {
     private final TeamPostCommentRepository teamPostCommentRepository;
     private final TeamPostLikeRepository teamPostLikeRepository;
     private final TeamPostBookMarkRepository teamPostBookMarkRepository;
+    private final PersonalDataUtil personalDataUtil;
 
     // 팀원 구하기 저장
     @Transactional
     public void saveTeamPost(ReqTeamPostDTO reqTeamPostDTO) {
-        // 현재 인증된 사용자 정보 가져오기
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
-        String userEmail;
-        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
-            userEmail = authentication.getName();
-        } else {
-            throw new RuntimeException("로그인이 필요합니다.");
-        }
-        
-        Optional<User> user = userRepository.findByEmail(userEmail);
-        
-        if (user.isEmpty()) {
-            throw new RuntimeException("사용자를 찾을 수 없습니다: " + userEmail);
-        }
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (user.isPresent()) {
+            String userEmail;
+            if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
+                userEmail = authentication.getName();
+            } else {
+                throw new RuntimeException("로그인이 필요합니다.");
+            }
+
+            User user = findUserByEmailSafely(userEmail);
+            if (user == null) {
+                throw new RuntimeException("사용자를 찾을 수 없습니다: " + userEmail);
+            }
+
             TeamPost teamPost = new TeamPost();
-            teamPost.setUser(user.get());
+            teamPost.setUser(user);
             teamPost.setTitle(reqTeamPostDTO.getTitle());
             teamPost.setContent(reqTeamPostDTO.getContent());
             teamPost.setProjectType(reqTeamPostDTO.getProjectType());
@@ -57,7 +57,6 @@ public class TeamPostService {
             teamPost.setSaveStatus(reqTeamPostDTO.isSaveStatus());
             teamPost.setSkills(reqTeamPostDTO.getSkills());
 
-            // 모집 역할 추가
             if (reqTeamPostDTO.getRecruitRoles() != null) {
                 for (RecruitRoleDto roleDto : reqTeamPostDTO.getRecruitRoles()) {
                     RecruitRole recruitRole = new RecruitRole();
@@ -68,7 +67,12 @@ public class TeamPostService {
             }
 
             teamPostRepository.insertTeamPost(teamPost);
-            user.get().addTeamPost(teamPost);
+            user.addTeamPost(teamPost);
+            
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("게시글 저장 중 오류가 발생했습니다.", e);
         }
     }
 
@@ -98,32 +102,27 @@ public class TeamPostService {
         );
     }
 
-    // 팀원 구하기 상세
     @Transactional
     public ResTeamPostDetailDTO getTeamPostById(Long id) {
         TeamPost teamPost = teamPostRepository.findById(id);
-        
-        // null 체크 추가
+
         if (teamPost == null) {
             throw new RuntimeException("해당 ID의 팀포스트를 찾을 수 없습니다: " + id);
         }
-        
-        // 현재 인증된 사용자 정보 가져오기
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = null;
         if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
             userEmail = authentication.getName();
         }
-        
-        Optional<User> user = userEmail != null ? userRepository.findByEmail(userEmail) : Optional.empty();
 
-        // 조회수 증가
+        User user = userEmail != null ? findUserByEmailSafely(userEmail) : null;
+
         teamPost.increaseViewCount();
         teamPostRepository.updateTeamPost(teamPost);
 
         ResTeamPostDetailDTO dto = new ResTeamPostDetailDTO();
 
-        // 기본 정보
         dto.setId(teamPost.getId());
         dto.setTitle(teamPost.getTitle());
         dto.setContent(teamPost.getContent());
@@ -136,13 +135,11 @@ public class TeamPostService {
         dto.setRecruitStatus(teamPost.getRecruitStatus().toString());
         dto.setViewCount(teamPost.getViewCount());
 
-        // 좋아요/북마크 수
         dto.setLikeCount(teamPostLikeRepository.countByTeamPostId(id));
         dto.setBookmarkCount(teamPostBookMarkRepository.countByTeamPostId(id));
 
-        // 사용자별 상태
-        if (user.isPresent()) {
-            Long userId = user.get().getId();
+        if (user != null) {
+            Long userId = user.getId();
             dto.setLiked(teamPostLikeRepository.existLike(id, userId));
             dto.setBookmarked(teamPostBookMarkRepository.existBookMark(id, userId));
             dto.setOwner(teamPost.getUser().getId().equals(userId));
@@ -152,7 +149,6 @@ public class TeamPostService {
             dto.setOwner(false);
         }
 
-        // 댓글 목록
         List<TeamPostComment> comments = teamPostCommentRepository.findByTeamPostId(id);
         List<ResTeamCommentListDTO> commentDTOs = new ArrayList<>();
         for (TeamPostComment comment : comments) {
@@ -160,7 +156,6 @@ public class TeamPostService {
         }
         dto.setComments(commentDTOs);
 
-        // 모집 역할 목록
         List<RecruitRoleDto> roleDTOs = new ArrayList<>();
         for (RecruitRole role : teamPost.getRecruitRoles()) {
             RecruitRoleDto roleDto = new RecruitRoleDto();
@@ -177,18 +172,18 @@ public class TeamPostService {
     public List<ResTeamPostDTO> getUserDrafts() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            
+
             if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
                 return new ArrayList<>();
             }
-            
+
             String userEmail = authentication.getName();
-            Optional<User> user = userRepository.findByEmail(userEmail);
-            
-            if (user.isPresent()) {
-                return teamPostRepository.findDraftsByUserId(user.get().getId());
+            User user = findUserByEmailSafely(userEmail);
+
+            if (user != null) {
+                return teamPostRepository.findDraftsByUserId(user.getId());
             }
-            
+
             return new ArrayList<>();
         } catch (Exception e) {
             return new ArrayList<>();
@@ -200,38 +195,38 @@ public class TeamPostService {
     public String publishDraft(Long id) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            
+
             if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
                 return "로그인이 필요합니다.";
             }
-            
+
             String userEmail = authentication.getName();
-            Optional<User> user = userRepository.findByEmail(userEmail);
-            
-            if (user.isEmpty()) {
+            User user = findUserByEmailSafely(userEmail);
+
+            if (user == null) {
                 return "사용자를 찾을 수 없습니다.";
             }
-            
+
             TeamPost teamPost = teamPostRepository.findById(id);
-            
+
             if (teamPost == null) {
                 return "게시물을 찾을 수 없습니다.";
             }
-            
-            if (!teamPost.getUser().getId().equals(user.get().getId())) {
+
+            if (!teamPost.getUser().getId().equals(user.getId())) {
                 return "게시물을 발행할 권한이 없습니다.";
             }
-            
+
             if (!teamPost.isSaveStatus()) {
                 return "이미 발행된 게시물입니다.";
             }
-            
+
             teamPost.setSaveStatus(false);
             teamPost.setCreatedAt(java.time.LocalDateTime.now());
             teamPostRepository.updateTeamPost(teamPost);
-            
+
             return "게시물이 정식 발행되었습니다.";
-            
+
         } catch (Exception e) {
             return "발행 처리 중 오류가 발생했습니다.";
         }
@@ -242,36 +237,36 @@ public class TeamPostService {
     public String deleteDraft(Long id) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            
+
             if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
                 return "로그인이 필요합니다.";
             }
-            
+
             String userEmail = authentication.getName();
-            Optional<User> user = userRepository.findByEmail(userEmail);
-            
-            if (user.isEmpty()) {
+            User user = findUserByEmailSafely(userEmail);
+
+            if (user == null) {
                 return "사용자를 찾을 수 없습니다.";
             }
-            
+
             TeamPost teamPost = teamPostRepository.findById(id);
-            
+
             if (teamPost == null) {
                 return "게시물을 찾을 수 없습니다.";
             }
-            
-            if (!teamPost.getUser().getId().equals(user.get().getId())) {
+
+            if (!teamPost.getUser().getId().equals(user.getId())) {
                 return "게시물을 삭제할 권한이 없습니다.";
             }
-            
+
             if (!teamPost.isSaveStatus()) {
                 return "임시저장된 게시물이 아닙니다.";
             }
-            
+
             teamPostRepository.deleteTeamPost(id);
-            
+
             return "임시저장 게시물이 삭제되었습니다.";
-            
+
         } catch (Exception e) {
             return "삭제 처리 중 오류가 발생했습니다.";
         }
@@ -328,7 +323,6 @@ public class TeamPostService {
         dto.setUserProfileURL(comment.getUser().getProfile());
         dto.setUserWriteName(comment.getUser().getName());
 
-        // 대댓글 처리
         List<ResTeamCommentListDTO> replies = new ArrayList<>();
         for (TeamPostComment reply : comment.getReplies()) {
             replies.add(toCommentDTO(reply));
@@ -336,5 +330,52 @@ public class TeamPostService {
         dto.setReplies(replies);
 
         return dto;
+    }
+
+    private User findUserByEmailSafely(String email) {
+        try {
+            try {
+                String encryptedEmail = personalDataUtil.encryptPersonalData(email);
+                Optional<User> userOpt = userRepository.findByEmail(encryptedEmail);
+                if (userOpt.isPresent()) {
+                    return userOpt.get();
+                }
+            } catch (Exception e) {
+                // 암호화된 이메일 검색 실패 시 다음 단계로
+            }
+
+            Optional<User> userOpt = userRepository.findByEmail(email);
+            if (userOpt.isPresent()) {
+                return userOpt.get();
+            }
+
+            List<User> allUsers = userRepository.findAllForMigration();
+            for (User user : allUsers) {
+                try {
+                    String userEmail = user.getEmail();
+                    if (userEmail != null) {
+                        if (email.equals(userEmail)) {
+                            return user;
+                        }
+                        
+                        try {
+                            String decryptedEmail = personalDataUtil.decryptPersonalData(userEmail);
+                            if (email.equals(decryptedEmail)) {
+                                return user;
+                            }
+                        } catch (Exception decryptError) {
+                            // 복호화 실패는 무시
+                        }
+                    }
+                } catch (Exception e) {
+                    // 개별 사용자 처리 실패 무시
+                }
+            }
+            
+            return null;
+            
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

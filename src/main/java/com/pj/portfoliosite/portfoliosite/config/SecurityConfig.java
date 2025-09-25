@@ -40,6 +40,7 @@ public class SecurityConfig {
                                 "/api/user/login",
                                 "/api/user/register",
                                 "/api/user/send-verification",
+                                "/api/user/send-verification-email",
                                 "/api/user/verify-email",
                                 "/api/user/password-reset-request",
                                 "/api/user/password-reset",
@@ -47,8 +48,18 @@ public class SecurityConfig {
                                 "/api/user/oauth/*/callback",
                                 "/api/teamposts",
                                 "/api/teampost/**",
-                                "/api/**"
+                                "/api/**",
+                                "/api/admin/migration/**"
                         ).permitAll()
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.GET,
+                                "/api/teamposts",
+                                "/api/teampost/*",
+                                "/api/teampost/*/details"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/teampost/**"
+                        ).hasRole("USER")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
@@ -74,6 +85,11 @@ public class SecurityConfig {
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
+    }
+    
+    @Bean
+    public org.springframework.security.crypto.password.PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(12);
     }
 }

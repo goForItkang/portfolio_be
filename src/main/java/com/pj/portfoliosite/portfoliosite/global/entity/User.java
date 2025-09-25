@@ -15,23 +15,32 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@EntityListeners(UserEncryptionListener.class) // 암호화 리스너 재활성화
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String email;
-    private String password;
-    private String name;
-    private LocalDateTime birthday; // 생년월일
-    private String nickname;
+    @Column(unique = true)
+    private String email; // AES 암호화됨
+    private String password; // BCrypt 해시됨 (복호화 불가)
+    private String name; // AES 암호화됨
+    private LocalDateTime birthday; // 암호화 안함 (검색/통계용)
+    private String job; // AES 암호화됨
+    private String interest; // AES 암호화됨
+    private String interest2; // AES 암호화됨
+    private String tech_stack; // 암호화 안함 (공개 정보)
+    private String gitLink; // AES 암호화됨
+    private String nickname; // AES 암호화됨
     @Lob
-    private String introduce; // 자기소개
-    private String profile; // 이미지 url
-    private String createAt;
-    private String provider = "LOCAL";
-    private String providerId;
-    private String refreshToken;
-    private LocalDateTime refreshTokenExpiry;
+    private String introduce; // AES 암호화됨
+    private String profile; // AES 암호화됨 (이미지 URL)
+    private String createAt; // 암호화 안함
+
+    private String provider = "LOCAL"; // 암호화 안함
+    private String providerId; // 암호화 안함
+
+    private String refreshToken; // 암호화 안함 (시스템용)
+    private LocalDateTime refreshTokenExpiry; // 암호화 안함 (시스템용)
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamPost> teamPosts = new ArrayList<>();

@@ -1,11 +1,15 @@
 package com.pj.portfoliosite.portfoliosite.teampost.dto;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.RecruitRoleDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.pj.portfoliosite.portfoliosite.teampost.dto.FlexibleLocalDateDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -18,9 +22,13 @@ public class ResTeamPostDetailDTO {
     private String writerName;
     private String projectType;
     private LocalDateTime createdAt;
-    private LocalDateTime recruitDeadline;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+    @JsonDeserialize(using = FlexibleLocalDateDeserializer.class)
+    private LocalDate recruitDeadline;
+    
     private String contactMethod;
-    private String skills;
+    private List<String> skills;
     private String recruitStatus;
     private int viewCount;
 

@@ -15,5 +15,6 @@ public class LoginRequestDto {
     private String nickname;
     private String job;
     private boolean agreeTerms;
+    private String verificationCode; // 추가: 회원가입 시 이메일 인증 코드
 
 }
