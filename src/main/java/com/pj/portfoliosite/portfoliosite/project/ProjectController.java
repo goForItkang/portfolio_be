@@ -63,13 +63,13 @@ public class ProjectController {
         return ResponseEntity.ok(dataResponse);
     }
     //프로젝트 상세페이지 내용
-    @GetMapping("/project/{id}")
+    @GetMapping("/project")
     @Operation(
             summary = "프로젝트 상세페이지",
             description = "아직 미구현 곧 구현 할꺼에용~"
     )
     public ResponseEntity<DataResponse> getProject(
-            @PathVariable Long id
+            @RequestPart Long id
     ){
         DataResponse dataResponse = new DataResponse();
         ResProjectDetailDTO projectDetailDTO = projectService.projectGetById(id);

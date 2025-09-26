@@ -13,8 +13,8 @@ public class ReqCareerDTO {
     private String companyName;
     private String duty; // 직무
     private String companyPosition; // 직책
-    private Date startDate;
-    private Date endDate;
+    private String startDate;
+    private String endDate;
     private String date; // 기간  1달 2달 1년
     private String dutyDescription; // 설명
 
