@@ -10,6 +10,6 @@ import java.sql.Date;
 @Data
 public class ReqCertificateDTO {
     private String certificateName;
-    private String certificateDate; // 취득일
+    private Date certificateDate; // 취득일
     private String number; // 등록 번호
 }

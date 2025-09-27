@@ -30,8 +30,8 @@ public class Career {
         this.companyName = reqCareerDTO.getCompanyName();
         this.duty = reqCareerDTO.getDuty();
         this.companyPosition = reqCareerDTO.getCompanyPosition();
-        this.startDate = parseDate(reqCareerDTO.getDate());
-        this.endDate = parseDate(reqCareerDTO.getCompanyPosition());
+        this.startDate = reqCareerDTO.getStartDate();
+        this.endDate = reqCareerDTO.getEndDate();
         if(reqCareerDTO.getDate() == null && reqCareerDTO.getCompanyPosition() == null){
             this.date = null;
         }else{
