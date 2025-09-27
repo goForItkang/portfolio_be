@@ -14,7 +14,7 @@ public class SkillService {
     public DataResponse getSkill() {
         DataResponse response = new DataResponse();
         List<Skill> skill=skillRepository.selectAllSkill();
-
+        response.setData(skill);
         return response;
 
     }
