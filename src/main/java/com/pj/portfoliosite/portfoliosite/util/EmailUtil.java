@@ -36,7 +36,7 @@ public class EmailUtil {
         VerificationInfo(String code, LocalDateTime expirationTime) {
             this.code = code;
             this.expirationTime = expirationTime;
-            this.verified = false; // 수정됨: 초기에는 인증되지 않은 상태
+            this.verified = true; // 수정됨: 초기에는 인증되지 않은 상태
         }
 
         boolean isExpired() {
