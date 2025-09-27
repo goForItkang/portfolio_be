@@ -48,7 +48,6 @@ public class SecurityConfig {
                                 "/api/user/oauth/*/callback",
                                 "/api/teamposts",
                                 "/api/teampost/**",
-                                "/api/**",
                                 "/api/admin/migration/**"
                         ).permitAll()
                         .requestMatchers(

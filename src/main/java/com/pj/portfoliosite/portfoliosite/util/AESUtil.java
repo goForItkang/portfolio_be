@@ -143,12 +143,6 @@ public class AESUtil {
             }
         }
         
-        // 너무 많은 비ASCII 문자가 있으면 복호화 실패로 간주
-        long nonAsciiCount = data.chars().filter(c -> c > 127).count();
-        if (nonAsciiCount > data.length() / 2) {
-            return false;
-        }
-        
         return true;
     }
 
