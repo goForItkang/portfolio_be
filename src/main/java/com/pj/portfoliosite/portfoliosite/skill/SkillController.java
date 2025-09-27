@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class SkillController {
     private final SkillService skillService;
-    @GetMapping("/skill")
+    @GetMapping("/skills")
     public ResponseEntity<DataResponse> getSkill(){
         return ResponseEntity.ok(skillService.getSkill());
     }
