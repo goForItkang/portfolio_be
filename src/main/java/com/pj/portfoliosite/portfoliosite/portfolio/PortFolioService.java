@@ -1,6 +1,7 @@
 package com.pj.portfoliosite.portfoliosite.portfolio;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
+import com.pj.portfoliosite.portfoliosite.global.dto.PageDTO;
 import com.pj.portfoliosite.portfoliosite.global.entity.*;
 import com.pj.portfoliosite.portfoliosite.portfolio.bookmark.PortfolioBookMarkRepository;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.*;
@@ -301,7 +302,7 @@ public class PortFolioService {
                 resPortfolioDTO.setFile(portfolio.getThumbnailURL());
                 resPortfolioDTO.setId(portfolio.getId()); // id
                 resPortfolioDTO.setEmail(portfolio.getEmail()); //이메일
-                resPortfolioDTO.setWriteName(portfolio.getUser().getNickname());
+                resPortfolioDTO.setWriteName(aesUtil.decode(portfolio.getUser().getNickname()));
                 resPortfolioDTO.setTitle(portfolio.getTitle()); //제목
                 resPortfolioDTO.setIndustry(portfolio.getIndustry());// 분야
                 resPortfolioDTO.setJobPosition(portfolio.getJobPosition());
@@ -328,5 +329,40 @@ public class PortFolioService {
         pfRepository.deleteById(portFolio);
     }
 
+
+    public PageDTO<ResPortFolioDTO> getAll(int page, int size) {
+        // 1) 입력 값 검증 및 기본값 설정
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 50);
+
+        // 2) Repository에서 데이터 목록과 전체 개수 조회
+        List<PortFolio> rows = pfRepository.selectByCreateAtDesc(safePage, safeSize);
+        long totalElements = pfRepository.selectAllCount();
+
+        // 3) 조회된 엔티티 목록을 DTO 목록으로 변환
+        List<ResPortFolioDTO> content = portfolioDTOTOEntity(rows);
+
+        // 4) 페이지네이션 메타 데이터 계산
+        int totalPages = (int) Math.ceil((double) totalElements / safeSize);
+        boolean first = safePage == 0;
+        boolean last = (totalPages == 0) || (safePage >= totalPages - 1);
+        boolean hasNext = !last;
+        boolean hasPrevious = !first;
+        int count = content.size();
+
+        // 5) 최종 PageDTO 객체를 생성하여 반환
+        return new PageDTO<>(
+                content,
+                safePage,
+                safeSize,
+                totalElements,
+                totalPages,
+                first,
+                last,
+                hasNext,
+                hasPrevious,
+                count
+        );
+    }
 
 }

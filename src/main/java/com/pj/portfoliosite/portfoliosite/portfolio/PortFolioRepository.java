@@ -106,4 +106,21 @@ public class PortFolioRepository {
     public void deleteById(PortFolio portfolio) {
         entityManager.remove(portfolio);
     }
+
+    public List<PortFolio> selectByCreateAtDesc(int safePage, int safeSize) {
+        return entityManager.createQuery(
+                """
+        select p from PortFolio p 
+        left join fetch p.user
+        order by p.createAt desc,p.id desc
+""",PortFolio.class
+        ).setFirstResult(safePage * safeSize)
+                .setMaxResults(safeSize)
+                .getResultList();
+    }
+    public Long selectAllCount() {
+        return entityManager.createQuery(
+                "select count(p) from PortFolio p"
+        ,Long.class).getSingleResult();
+    }
 }

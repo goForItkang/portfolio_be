@@ -1,7 +1,9 @@
 package com.pj.portfoliosite.portfoliosite.portfolio;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
+import com.pj.portfoliosite.portfoliosite.global.dto.PageDTO;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqPortfolioDTO;
+import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortFolioDTO;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortfolioDetailDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -83,6 +85,15 @@ public class PortFolioController {
         DataResponse dataResponse = new DataResponse();
         portfolioService.deletePortfolio(id);
         return ResponseEntity.ok(dataResponse);
+    }
+    // 기준 날짜 포트폴리오 가져오기
+    @GetMapping("/portfolios/all")
+    public ResponseEntity<PageDTO<ResPortFolioDTO>> portfolioGetAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
+    ){
+
+        return ResponseEntity.ok(portfolioService.getAll(page,size));
     }
 
 

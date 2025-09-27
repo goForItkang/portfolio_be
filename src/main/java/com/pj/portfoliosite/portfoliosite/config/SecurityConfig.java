@@ -51,7 +51,8 @@ public class SecurityConfig {
                                 "/api/admin/migration/**",
                                 "/api/portfolio/recommend",
                                 "/api/projects/recommend",
-                                "/api/skills"
+                                "/api/skills",
+                                "/api/portfolios/all"
                         ).permitAll()
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.GET,
