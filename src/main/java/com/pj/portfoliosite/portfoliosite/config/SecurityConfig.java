@@ -48,7 +48,9 @@ public class SecurityConfig {
                                 "/api/user/oauth/*/callback",
                                 "/api/teamposts",
                                 "/api/teampost/**",
-                                "/api/admin/migration/**"
+                                "/api/admin/migration/**",
+                                "/api/portfolio/recommend",
+                                "/api/projects/recommend"
                         ).permitAll()
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.GET,
