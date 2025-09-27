@@ -28,7 +28,7 @@ public class Certificate {
 
     public void reqCertificateDTO(ReqCertificateDTO reqCertificateDTO) {
         this.certificateName = reqCertificateDTO.getCertificateName();
-        this.certificateDate = reqCertificateDTO.getCertificateDate();
+        this.certificateDate = parseDate(reqCertificateDTO.getCertificateDate());
         this.number = reqCertificateDTO.getNumber();
     }
     public void setPortfolio(PortFolio portfolio) {

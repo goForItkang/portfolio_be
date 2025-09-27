@@ -14,10 +14,8 @@ public class ReqCareerDTO {
     private String companyName;
     private String duty; // 직무
     private String companyPosition; // 직책
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date startDate;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date endDate;
+    private String startDate;
+    private String endDate;
     private String date; // 기간  1달 2달 1년
     private String dutyDescription; // 설명
 

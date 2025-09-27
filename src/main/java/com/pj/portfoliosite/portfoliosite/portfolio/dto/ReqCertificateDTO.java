@@ -11,7 +11,6 @@ import java.sql.Date;
 @Data
 public class ReqCertificateDTO {
     private String certificateName;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date certificateDate; // 취득일
+    private String certificateDate; // 취득일
     private String number; // 등록 번호
 }
