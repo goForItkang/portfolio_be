@@ -4,10 +4,12 @@ import com.pj.portfoliosite.portfoliosite.global.entity.Skill;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Repository
+@Transactional
 public class SkillRepository {
    @PersistenceContext
    private EntityManager entityManager;
