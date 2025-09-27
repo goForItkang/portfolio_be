@@ -1,5 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.portfolio;
 
+import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.global.entity.*;
 import com.pj.portfoliosite.portfoliosite.portfolio.bookmark.PortfolioBookMarkRepository;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.*;
@@ -326,4 +327,6 @@ public class PortFolioService {
         PortFolio portFolio = pfRepository.selectById(id);
         pfRepository.deleteById(portFolio);
     }
+
+
 }

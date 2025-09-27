@@ -16,4 +16,5 @@ public class TestController {
         String msg = "project_CICD_test";
         return new HttpEntity<>(msg);
     }
+
 }
