@@ -32,6 +32,7 @@ public class PortFolioService {
     public Long save(ReqPortfolioDTO reqPortfolioDTO) throws IOException {
         //user part
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info(userEmail);
         Optional<User> user = userRepository.findByEmail(userEmail);
         // user 로직
         PortFolio portfolio = new PortFolio();
