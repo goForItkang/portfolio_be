@@ -152,10 +152,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String method = request.getMethod();
         
         log.debug("shouldNotFilter 검사 - URI: {}, Method: {}", path, method);
-        if (path.equals("/api/portfolio") && "POST".equals(method)) {
-            log.debug("파일 업로드 요청이므로 JWT 필터를 건너뜁니다.");
-            return true;
-        }
 
         // 인증이 필요하지 않은 경로들 (permitAll)
         boolean shouldSkip = path.startsWith("/api/user/oauth/") ||
