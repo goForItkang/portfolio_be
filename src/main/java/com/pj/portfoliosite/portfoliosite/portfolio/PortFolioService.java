@@ -13,6 +13,7 @@ import org.springframework.cglib.core.Local;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -31,6 +32,7 @@ public class PortFolioService {
     private final ImgUtil imgUtil;
     private final AESUtil aesUtil;
     // 저장 로직
+    @Transactional
     public Long save(ReqPortfolioDTO reqPortfolioDTO) throws IOException {
         //user part
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
