@@ -5,6 +5,7 @@ import com.pj.portfoliosite.portfoliosite.portfolio.bookmark.PortfolioBookMarkRe
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.*;
 import com.pj.portfoliosite.portfoliosite.portfolio.like.PortFolioLikeRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
+import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import com.pj.portfoliosite.portfoliosite.util.ImgUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +29,15 @@ public class PortFolioService {
     private final PortFolioLikeRepository pfLikeRepository;
     private final PortfolioBookMarkRepository pfBookMarkRepository;
     private final ImgUtil imgUtil;
+    private final AESUtil aesUtil;
     // 저장 로직
     public Long save(ReqPortfolioDTO reqPortfolioDTO) throws IOException {
         //user part
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         log.info(userEmail);
+        String endcodeEamil = aesUtil.encode(userEmail);
 
-        Optional<User> user = userRepository.findByEmail(userEmail);
+        Optional<User> user = userRepository.findByEmail(endcodeEamil);
         // user 로직
         PortFolio portfolio = new PortFolio();
         if(reqPortfolioDTO.getFile() == null){
