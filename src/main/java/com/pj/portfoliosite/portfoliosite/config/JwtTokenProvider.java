@@ -1,9 +1,11 @@
 package com.pj.portfoliosite.portfoliosite.config;
 
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
+import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
@@ -12,10 +14,13 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
     @Value("${jwt.secret-key:eW91ci1zdXBlci1zZWNyZXQta2V5LWF0LWxlYXN0LTMyLWNoYXJhY3RlcnMtbG9uZw==}")
     private String secretKey;
+
+    private final AESUtil aesUtil;
 
     // 기존 코드 (1시간, 7일)
     // private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 1시간
@@ -58,8 +63,10 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setSubject(user.getEmail())
-                .claim("nickname", user.getNickname())
-                .claim("name", user.getName())
+                .claim("nickname",
+                        aesUtil.decode(user.getNickname()))
+                .claim("name",
+                        aesUtil.decode(user.getName()))
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
