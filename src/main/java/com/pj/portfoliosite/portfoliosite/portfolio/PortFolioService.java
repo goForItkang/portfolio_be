@@ -6,6 +6,7 @@ import com.pj.portfoliosite.portfoliosite.global.entity.*;
 import com.pj.portfoliosite.portfoliosite.portfolio.bookmark.PortfolioBookMarkRepository;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.*;
 import com.pj.portfoliosite.portfoliosite.portfolio.like.PortFolioLikeRepository;
+import com.pj.portfoliosite.portfoliosite.skill.SkillRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import com.pj.portfoliosite.portfoliosite.util.ImgUtil;
@@ -33,6 +34,7 @@ public class PortFolioService {
     private final PortfolioBookMarkRepository pfBookMarkRepository;
     private final ImgUtil imgUtil;
     private final AESUtil aesUtil;
+    private final SkillRepository skillRepository;
     // 저장 로직
     @Transactional
     public Long save(ReqPortfolioDTO reqPortfolioDTO) throws IOException {
@@ -62,11 +64,31 @@ public class PortFolioService {
         portfolio.addCertificate(toCertificateList(reqPortfolioDTO.getCertificates()));
         // project description list
         portfolio.addProjectDescription(toProjectDescription(reqPortfolioDTO.getProjectDescriptions()));
+
+        // ===== 스킬 처리 로직 추가 시작 =====
+        List<Long> skillIds = reqPortfolioDTO.getSkillIds(); // DTO에서 ID 목록을 가져옵니다.
+        if (skillIds != null && !skillIds.isEmpty()) {
+            List<PortfolioSkill> portfolioSkills = new ArrayList<>();
+            for (Long skillId : skillIds) {
+                // getReferenceById를 사용해 실제 DB 조회 없이 엔티티 참조(프록시)만 가져옵니다. (성능 최적화)
+                Skill skillReference = skillRepository.getReferenceById(skillId);
+
+                // 중간 테이블 엔티티인 PortfolioSkill을 생성합니다.
+                PortfolioSkill portfolioSkill = new PortfolioSkill();
+                portfolioSkill.setSkill(skillReference); // Skill 참조 설정
+                portfolioSkills.add(portfolioSkill);
+            }
+            // PortFolio에 최종적으로 생성된 중간 엔티티 리스트를 연결합니다.
+            portfolio.addPortfolioSkills(portfolioSkills);
+        }
+        // ===== 스킬 처리 로직 추가 끝 =====
+
         portfolio.save(reqPortfolioDTO);
         pfRepository.insert(portfolio);
         Long id = portfolio.getId();
         return id;
     }
+
     // 프로젝트 설명란
      private List<ProjectDescription> toProjectDescription(List<ReqProjectDescription> reqProjectDescriptionList) {
         List<ProjectDescription> projectDescriptionList = new ArrayList<>();

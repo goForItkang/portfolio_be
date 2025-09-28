@@ -16,4 +16,8 @@ public class SkillRepository {
     public List<Skill> selectAllSkill() {
     return entityManager.createQuery("SELECT s FROM Skill s", Skill.class).getResultList();
     }
+
+    public Skill getReferenceById(Long skillId) {
+        return entityManager.getReference(Skill.class, skillId);
+    }
 }

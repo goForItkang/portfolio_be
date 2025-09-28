@@ -1,5 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.portfolio.dto;
 
+import com.pj.portfoliosite.portfoliosite.global.entity.Skill;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class ReqPortfolioDTO {
     private String jobPosition;    // 직업
     private String introductions;  // 본인 소개
     private boolean saveStatus;    // 임시 저장 여부
-    // 연관관계 엔티티들 DTO 리스트
+    private List<Long> skillIds;
     private MultipartFile file;
     private List<ReqProjectDescription> projectDescriptions;
     private List<ReqCareerDTO> careers;
