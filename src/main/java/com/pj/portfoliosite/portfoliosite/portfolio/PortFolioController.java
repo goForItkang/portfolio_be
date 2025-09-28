@@ -19,7 +19,8 @@ import java.io.IOException;
 @RequestMapping("/api")
 @Slf4j
 public class PortFolioController {
-    private final PortFolioService portfolioService;
+    private final PortFolioService
+            portfolioService;
     @PostMapping(value = "/portfolio",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "포트폴리오 저장",
         description = "header에 jwt 넣어주세요"

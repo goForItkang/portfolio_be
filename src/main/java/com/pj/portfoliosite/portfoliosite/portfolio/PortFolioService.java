@@ -309,7 +309,8 @@ public class PortFolioService {
         } else {
             throw new RuntimeException("로그인이 필요합니다.");
         }
-        Optional<User> user = userRepository.findByEmail(userEmail);
+        String encodeEmail = aesUtil.encode(userEmail);
+        Optional<User> user = userRepository.findByEmail(encodeEmail);
         ResPortfolioDetailDTO resPortfolioDetailDTO = new ResPortfolioDetailDTO();
         if(user.isPresent()){
             //get user
