@@ -95,6 +95,24 @@ public class PortFolioController {
 
         return ResponseEntity.ok(portfolioService.getAll(page,size));
     }
+    @PutMapping(value = "/portfolio/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "포트폴리오 수정 ",description = "header에 jwt 넣어주세요 ")
+    public ResponseEntity<DataResponse> portfolioUpdate(
+            @PathVariable Long id,
+            ReqPortfolioDTO reqPortfolioDTO
+    ) throws IOException {
+        DataResponse dataResponse = new DataResponse();
+
+        boolean result =portfolioService.update(id,reqPortfolioDTO);
+        if(result){
+            dataResponse.setStatus(200);
+            dataResponse.setMessage("변경 성공");
+        }else{
+            dataResponse.setStatus(400);
+            dataResponse.setMessage("변경 실패");
+        }
+        return ResponseEntity.ok(dataResponse);
+    }
 
 
 }

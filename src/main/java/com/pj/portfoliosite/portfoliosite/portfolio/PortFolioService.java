@@ -11,6 +11,7 @@ import com.pj.portfoliosite.portfoliosite.skill.SkillRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import com.pj.portfoliosite.portfoliosite.util.ImgUtil;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cglib.core.Local;
@@ -400,5 +401,56 @@ public class PortFolioService {
                 count
         );
     }
+
+    @Transactional
+    public boolean update(Long portfolioId, ReqPortfolioDTO reqPortfolioDTO) throws IOException {
+
+        PortFolio portfolio = pfRepository.selectById(portfolioId);
+        if (portfolio == null) {
+            // 수정할 대상이 없으면 예외를 발생시키거나 false를 반환할 수 있습니다.
+            throw new EntityNotFoundException("해당 ID의 포트폴리오를 찾을 수 없습니다: " + portfolioId);
+        }
+        portfolio.save(reqPortfolioDTO);
+
+        // 3. 파일이 새로 들어온 경우에만 기존 파일을 덮어씁니다.
+        if (reqPortfolioDTO.getFile() != null && !reqPortfolioDTO.getFile().isEmpty()) {
+            String url = imgUtil.imgUpload(reqPortfolioDTO.getFile());
+            portfolio.addPortfolioFile(url);
+        }
+        portfolio.getCareers().clear();
+        portfolio.getAwards().clear();
+        portfolio.getCertificates().clear();
+        portfolio.getEducations().clear();
+        portfolio.getPortfolioSkills().clear();
+        portfolio.getProjectDescriptions().clear();
+
+        portfolio.addCareer(toCareerList(reqPortfolioDTO.getCareers()));
+        portfolio.addAward(toAwardList(reqPortfolioDTO.getAwards()));
+        portfolio.addCertificate(toCertificateList(reqPortfolioDTO.getCertificates()));
+        portfolio.addEducation(toEducationList(reqPortfolioDTO.getEducations()));
+        portfolio.addProjectDescription(toProjectDescription(reqPortfolioDTO.getProjectDescriptions()));
+
+
+        List<String> skillIdStrings = reqPortfolioDTO.getSkillIds(); // DTO는 List<String> skillIds를 가져야 합니다.
+        if (skillIdStrings != null && !skillIdStrings.isEmpty()) {
+            List<PortfolioSkill> newPortfolioSkills = new ArrayList<>();
+            for (String skillIdString : skillIdStrings) {
+                try {
+                    Long skillId = Long.parseLong(skillIdString);
+                    Skill skillReference = skillRepository.getReferenceById(skillId);
+
+                    PortfolioSkill portfolioSkill = new PortfolioSkill();
+                    portfolioSkill.setSkill(skillReference);
+                    newPortfolioSkills.add(portfolioSkill);
+                } catch (NumberFormatException e) {
+                    log.warn("숫자로 변환할 수 없는 Skill ID '{}'는 무시됩니다.", skillIdString);
+                }
+            }
+            portfolio.addPortfolioSkills(newPortfolioSkills);
+        }
+
+        return true;
+    }
+
 
 }
