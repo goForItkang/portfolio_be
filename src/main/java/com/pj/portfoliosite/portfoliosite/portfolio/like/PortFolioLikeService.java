@@ -8,6 +8,7 @@ import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PortFolioLikeService {
     private final PortFolioLikeRepository portFolioLikeRepository;
     private final PortFolioRepository portFolioRepository;
@@ -23,6 +25,7 @@ public class PortFolioLikeService {
     @Transactional
     public void portfolioLike(Long id) {
         String testLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.warn(testLogin);
         if(testLogin == null){
             throw new RuntimeException("로그인이 필요합니다. ");
         }
