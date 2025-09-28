@@ -1,5 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.portfolio.like;
 
+import com.pj.portfoliosite.portfoliosite.config.JwtTokenProvider;
 import com.pj.portfoliosite.portfoliosite.global.entity.PortFolio;
 import com.pj.portfoliosite.portfoliosite.global.entity.PortFolioLike;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
@@ -22,8 +23,11 @@ public class PortFolioLikeService {
     private final PortFolioRepository portFolioRepository;
     private final UserRepository userRepository;
     private final AESUtil aesUtil;
+    private final JwtTokenProvider jwtTokenProvider;
     @Transactional
     public void portfolioLike(Long id) {
+
+
         String testLogin = SecurityContextHolder.getContext().getAuthentication().getName();
         log.warn(testLogin);
         if(testLogin == null){
