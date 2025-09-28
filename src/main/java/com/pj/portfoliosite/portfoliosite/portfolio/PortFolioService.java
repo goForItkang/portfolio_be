@@ -66,21 +66,32 @@ public class PortFolioService {
         portfolio.addProjectDescription(toProjectDescription(reqPortfolioDTO.getProjectDescriptions()));
 
         // ===== 스킬 처리 로직 추가 시작 =====
-        List<Long> skillIds = reqPortfolioDTO.getSkillIds(); // DTO에서 ID 목록을 가져옵니다.
+        List<String> skillIds = reqPortfolioDTO.getSkillIds(); // DTO에서 ID 목록을 가져옵니다.
+
         if (skillIds != null && !skillIds.isEmpty()) {
             List<PortfolioSkill> portfolioSkills = new ArrayList<>();
-            for (Long skillId : skillIds) {
-                // getReferenceById를 사용해 실제 DB 조회 없이 엔티티 참조(프록시)만 가져옵니다. (성능 최적화)
-                Skill skillReference = skillRepository.getReferenceById(skillId);
+            for (String skillIdString : skillIds) { // 변수명을 skillIdString으로 변경하여 명확히 함
+                try {
+                    // 문자열을 Long 타입으로 변환합니다.
+                    Long skillId = Long.parseLong(skillIdString);
 
-                // 중간 테이블 엔티티인 PortfolioSkill을 생성합니다.
-                PortfolioSkill portfolioSkill = new PortfolioSkill();
-                portfolioSkill.setSkill(skillReference); // Skill 참조 설정
-                portfolioSkills.add(portfolioSkill);
+                    // getReferenceById를 사용해 실제 DB 조회 없이 엔티티 참조(프록시)만 가져옵니다. (성능 최적화)
+                    Skill skillReference = skillRepository.getReferenceById(skillId);
+
+                    // 중간 테이블 엔티티인 PortfolioSkill을 생성합니다.
+                    PortfolioSkill portfolioSkill = new PortfolioSkill();
+                    portfolioSkill.setSkill(skillReference); // Skill 참조 설정
+                    portfolioSkills.add(portfolioSkill);
+                } catch (NumberFormatException e) {
+                    // 만약 skillIdString이 숫자로 변환될 수 없는 값이라면, 이 예외가 발생합니다.
+                    // 해당 스킬은 무시하고 계속 진행하거나, 로그를 남길 수 있습니다.
+                    log.warn("숫자로 변환할 수 없는 Skill ID를 건너뜁니다: {}", skillIdString);
+                }
             }
             // PortFolio에 최종적으로 생성된 중간 엔티티 리스트를 연결합니다.
             portfolio.addPortfolioSkills(portfolioSkills);
         }
+
         // ===== 스킬 처리 로직 추가 끝 =====
 
         portfolio.save(reqPortfolioDTO);

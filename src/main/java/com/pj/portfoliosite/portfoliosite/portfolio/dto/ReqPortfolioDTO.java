@@ -18,7 +18,7 @@ public class ReqPortfolioDTO {
     private String jobPosition;    // 직업
     private String introductions;  // 본인 소개
     private boolean saveStatus;    // 임시 저장 여부
-    private List<Long> skillIds;
+    private List<String> skillIds;
     private MultipartFile file;
     private List<ReqProjectDescription> projectDescriptions;
     private List<ReqCareerDTO> careers;
