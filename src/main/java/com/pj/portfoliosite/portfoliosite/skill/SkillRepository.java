@@ -20,4 +20,14 @@ public class SkillRepository {
     public Skill getReferenceById(Long skillId) {
         return entityManager.getReference(Skill.class, skillId);
     }
+
+    public List<Skill> selectByPortfolioId(Long id) {
+        return entityManager.createQuery(
+                """
+        SELECT ps.skill FROM PortfolioSkill ps WHERE ps.portfolio.id = :portfolioId
+    """,Skill.class
+        ).setParameter("portfolioId",id)
+                .getResultList();
+
+    }
 }

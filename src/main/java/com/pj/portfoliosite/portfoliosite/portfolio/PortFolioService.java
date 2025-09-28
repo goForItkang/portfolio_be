@@ -6,6 +6,7 @@ import com.pj.portfoliosite.portfoliosite.global.entity.*;
 import com.pj.portfoliosite.portfoliosite.portfolio.bookmark.PortfolioBookMarkRepository;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.*;
 import com.pj.portfoliosite.portfoliosite.portfolio.like.PortFolioLikeRepository;
+import com.pj.portfoliosite.portfoliosite.skill.ResSkill;
 import com.pj.portfoliosite.portfoliosite.skill.SkillRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
@@ -184,7 +185,9 @@ public class PortFolioService {
         );
         resPortFolioDTO.setTitle(portFolio.getTitle());
         resPortFolioDTO.setIndustry(portFolio.getIndustry());
-        resPortFolioDTO.setSkill(portFolio.getSkill());
+        List<Skill> portfolioSkills = skillRepository.selectByPortfolioId(id);
+        ResSkill resSkill = new ResSkill();
+        resPortFolioDTO.setSkill(resSkill.toResSkillList(portfolioSkills));
         resPortFolioDTO.setIntroductions(portFolio.getIntroductions());
         resPortFolioDTO.setCreateAt(portFolio.getCreateAt());
 
