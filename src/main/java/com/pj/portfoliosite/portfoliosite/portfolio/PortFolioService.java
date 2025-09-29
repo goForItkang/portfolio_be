@@ -323,6 +323,7 @@ public class PortFolioService {
             resPortfolioDetailDTO.setLikeCheck(false);
             resPortfolioDetailDTO.setBookMarkCheck(false);
         }
+
         // Like 및 bookmark 갯수
         Long likeCount = pfLikeRepository.countByPortfolioId(id);
         resPortfolioDetailDTO.setLikeCount(likeCount);
