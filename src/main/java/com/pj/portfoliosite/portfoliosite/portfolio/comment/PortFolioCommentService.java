@@ -9,6 +9,7 @@ import com.pj.portfoliosite.portfoliosite.global.entity.PortfolioComment;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
+import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class PortFolioCommentService {
     private final PortFolioCommentRepository portFolioCommentRepository;
     private final UserRepository userRepository;
     private final PortFolioRepository portFolioRepository;
+    private final AESUtil aesUtil;
 
     @Transactional
     public void saveComment(Long portfolioId, ReqCommentDTO reqCommentDTO) {
@@ -31,9 +33,7 @@ public class PortFolioCommentService {
         if(email == null){
             throw new RuntimeException("로그인이 필요합니다. ");
         }
-        Optional<User> userOpt = userRepository.findByEmail(email);
-
-
+        Optional<User> userOpt = userRepository.findByEmail(aesUtil.encode(email));
         PortFolio portfolio = portFolioRepository.selectById(portfolioId);
         if (portfolio == null) {
             PortfolioComment comment = new PortfolioComment(reqCommentDTO.getComment(), userOpt.get(), portfolio);
@@ -77,11 +77,10 @@ public class PortFolioCommentService {
 
     public List<ResCommentListDTO> getComment(Long portfolioId) {
         // 로그인 사용자 ID 확보(소유자 표시용)
-        String testLogin  = "portfolio@naver.com";
-        Long loginUserId = userRepository.findByEmail(testLogin)
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Long loginUserId = userRepository.findByEmail(aesUtil.encode(email))
                 .map(User::getId)
                 .orElse(null);
-
         List<PortfolioComment> parents = portFolioCommentRepository.findByPortfolioId(portfolioId);
         List<ResCommentListDTO> result = new ArrayList<>();
         for (PortfolioComment parent : parents) {
@@ -133,5 +132,6 @@ public class PortFolioCommentService {
         }
         return dto;
     }
+
 
 }
