@@ -30,7 +30,7 @@ public class BlogController {
         dataResponse.setData(blogDTOS);
         return ResponseEntity.ok(dataResponse);
     }
-    @GetMapping("/blogs")
+    @GetMapping("/blogs/all")
     public ResponseEntity<DataResponse> getBlogs(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "12") Integer size

@@ -54,7 +54,6 @@ public class SecurityConfig {
                                 "/api/skills",
                                 "/api/portfolios/all",
                                 "api/portfolio/**",
-                                "/api/blogs",
                                 "/api/blogs/**"
                         ).permitAll()
                         .requestMatchers(
