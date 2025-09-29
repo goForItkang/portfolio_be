@@ -260,15 +260,25 @@ public class EmailUtil {
     }
 
     private String createSignupEmailContent(String code) {
-        return "안녕하세요!\n\n" +
-                "Port Cloud 회원가입을 위한 이메일 인증 코드입니다.\n\n" +
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-                "   인증 코드: " + code + "\n" +
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
-                "• 이 코드는 " + expirationMinutes + "분간 유효합니다.\n" +
-                "• 코드를 타인과 공유하지 마세요.\n" +
-                "감사합니다.\n" +
-                "Port Cloud";
+        return """
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9f9f9;">
+            <div style="background: #f3e8ff; border-radius: 12px; padding: 20px; text-align: center;">
+                <h2 style="color: #5b21b6; margin-bottom: 10px;">PortCloud</h2>
+                <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
+                    이메일 인증을 완료하려면 아래의 <b>인증번호</b>를 입력해주세요.
+                </p>
+                <div style="margin: 20px auto; padding: 20px; background: #fff; border-radius: 8px; width: fit-content;">
+                    <h3 style="margin: 0; font-size: 14px; color: #555;">인증번호</h3>
+                    <p style="font-size: 28px; font-weight: bold; margin: 10px 0; color: #111;">%s</p>
+                    <small style="color: #777;">개인정보 보호를 위해<br>이메일 인증번호는 %d분간 유효합니다.</small>
+                </div>
+                <p style="font-size: 12px; color: #666; margin-top: 30px;">
+                    본 메일은 관계 법령상 광고성 메일 수신 동의 여부와 무관하게 발송되었습니다.<br>
+                    문의사항이 있으시면 PortCloud 고객센터로 연락 부탁드립니다.
+                </p>
+            </div>
+        </div>
+        """.formatted(code, expirationMinutes);
     }
 
     private String createPasswordResetEmailContent(String code) {
