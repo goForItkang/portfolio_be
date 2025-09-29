@@ -1,10 +1,12 @@
 package com.pj.portfoliosite.portfoliosite.util;
 
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
@@ -235,27 +237,28 @@ public class EmailUtil {
     // 실제 이메일 발송 처리
     private void sendEmailMessage(String email, String code, String purpose) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(email);
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(email);
 
             if ("회원가입".equals(purpose)) {
-                message.setSubject("[Port Cloud] 이메일 인증 코드");
-                message.setText(createSignupEmailContent(code));
+                helper.setSubject("[Port Cloud] 이메일 인증 코드");
+                helper.setText(createSignupEmailContent(code), true); // <-- HTML 모드 true
             } else if ("비밀번호재설정".equals(purpose)) {
-                message.setSubject("[Port Cloud] 비밀번호 재설정 인증 코드");
-                message.setText(createPasswordResetEmailContent(code));
+                helper.setSubject("[Port Cloud] 비밀번호 재설정 인증 코드");
+                helper.setText(createPasswordResetEmailContent(code), false); // 그냥 텍스트
             } else if ("회원탈퇴".equals(purpose)) {
-                message.setSubject("[Port Cloud] 회원탈퇴 인증 코드");
-                message.setText(createDeleteAccountEmailContent(code));
+                helper.setSubject("[Port Cloud] 회원탈퇴 인증 코드");
+                helper.setText(createDeleteAccountEmailContent(code), false);
             }
 
-            mailSender.send(message);
+            mailSender.send(mimeMessage);
             log.info("{} 이메일 발송 완료: {}", purpose, maskEmail(email));
-            
         } catch (Exception e) {
             log.error("{} 이메일 발송 실패 - {}: {}", purpose, maskEmail(email), e.getMessage());
-            throw e; // 상위로 예외 전파
+            e.printStackTrace();
         }
     }
 
