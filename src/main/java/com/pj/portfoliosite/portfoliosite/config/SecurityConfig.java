@@ -53,7 +53,7 @@ public class SecurityConfig {
                                 "/api/projects/recommend",
                                 "/api/skills",
                                 "/api/portfolios/all",
-                                "api/portfolio"
+                                "api/portfolio/**"
                         ).permitAll()
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.GET,
