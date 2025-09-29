@@ -11,6 +11,7 @@ import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PortFolioCommentService {
     private final PortFolioCommentRepository portFolioCommentRepository;
     private final UserRepository userRepository;
@@ -33,6 +35,7 @@ public class PortFolioCommentService {
         if(email == null){
             throw new RuntimeException("로그인이 필요합니다. ");
         }
+        log.info("portfolioSaveComment email {} ",email);
         Optional<User> userOpt = userRepository.findByEmail(aesUtil.encode(email));
         PortFolio portfolio = portFolioRepository.selectById(portfolioId);
         if (portfolio == null) {
