@@ -34,8 +34,8 @@ public class BlogController {
     }
     @GetMapping("/blogs/all")
     public ResponseEntity<DataResponse> getBlogs(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "12") Integer size
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
     ){
         DataResponse dataResponse = new DataResponse();
         PageDTO<ResBlogDTO> blogDTOPageDTO = blogService.getBlog(page,size);
