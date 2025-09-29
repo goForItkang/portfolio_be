@@ -69,9 +69,9 @@ public class BlogController {
         return ResponseEntity.ok(dataResponse);
     }
 //  테스트 완료
-    @GetMapping("/blogs/{id}")
+    @GetMapping("/blogs")
     public ResponseEntity<DataResponse> getBlogs(
-            @PathVariable Long id
+            @RequestParam Long id
     ){
         ResBlogDTO resBlogDTO =  blogService.getId(id);
         DataResponse dataResponse = new DataResponse();
