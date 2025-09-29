@@ -7,6 +7,7 @@ import com.pj.portfoliosite.portfoliosite.teampost.bookmark.TeamPostBookMarkRepo
 import com.pj.portfoliosite.portfoliosite.teampost.comment.TeamPostCommentRepository;
 import com.pj.portfoliosite.portfoliosite.teampost.dto.*;
 import com.pj.portfoliosite.portfoliosite.teampost.like.TeamPostLikeRepository;
+import com.pj.portfoliosite.portfoliosite.teampost.skill.TeamPostSkillService;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.util.PersonalDataUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class TeamPostService {
     private final TeamPostCommentRepository teamPostCommentRepository;
     private final TeamPostLikeRepository teamPostLikeRepository;
     private final TeamPostBookMarkRepository teamPostBookMarkRepository;
+    private final TeamPostSkillService teamPostSkillService;
     private final PersonalDataUtil personalDataUtil;
 
     // 팀원 구하기 저장
@@ -55,7 +57,7 @@ public class TeamPostService {
             teamPost.setRecruitDeadline(reqTeamPostDTO.getRecruitDeadline());
             teamPost.setContactMethod(reqTeamPostDTO.getContactMethod());
             teamPost.setSaveStatus(reqTeamPostDTO.isSaveStatus());
-            teamPost.setSkills(reqTeamPostDTO.getSkills());
+            // 스킬은 엔티티 저장 후에 처리
 
             if (reqTeamPostDTO.getRecruitRoles() != null) {
                 for (RecruitRoleDto roleDto : reqTeamPostDTO.getRecruitRoles()) {
@@ -68,6 +70,11 @@ public class TeamPostService {
 
             teamPostRepository.insertTeamPost(teamPost);
             user.addTeamPost(teamPost);
+            
+            // 스킬 추가
+            if (reqTeamPostDTO.getSkills() != null && !reqTeamPostDTO.getSkills().isEmpty()) {
+                teamPostSkillService.addSkillsToTeamPost(teamPost, reqTeamPostDTO.getSkills());
+            }
             
         } catch (RuntimeException e) {
             throw e;
@@ -131,7 +138,7 @@ public class TeamPostService {
         dto.setCreatedAt(teamPost.getCreatedAt());
         dto.setRecruitDeadline(teamPost.getRecruitDeadline());
         dto.setContactMethod(teamPost.getContactMethod());
-        dto.setSkills(teamPost.getSkills());
+        dto.setSkills(teamPost.getSkillNames()); // 중간 엔티티를 통해 스킬 이름 가져오기
         dto.setRecruitStatus(teamPost.getRecruitStatus().toString());
         dto.setViewCount(teamPost.getViewCount());
 
@@ -283,7 +290,10 @@ public class TeamPostService {
         teamPost.setRecruitDeadline(reqTeamPostDTO.getRecruitDeadline());
         teamPost.setContactMethod(reqTeamPostDTO.getContactMethod());
         teamPost.setSaveStatus(reqTeamPostDTO.isSaveStatus());
-        teamPost.setSkills(reqTeamPostDTO.getSkills());
+        // 스킬 업데이트
+        if (reqTeamPostDTO.getSkills() != null) {
+            teamPostSkillService.updateTeamPostSkills(teamPost, reqTeamPostDTO.getSkills());
+        }
 
         teamPostRepository.updateTeamPost(teamPost);
     }

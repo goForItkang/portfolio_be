@@ -376,6 +376,11 @@ public class UserService {
                         "비밀번호는 8-16자, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.", null);
             }
 
+            // 현재 비밀번호와 새 비밀번호가 같은지 확인
+            if (passwordEncoder.matches(newPassword, user.getPassword())) {
+                return new DataResponse<>(400, "새 비밀번호는 현재 비밀번호와 달라야 합니다.", null);
+            }
+
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
 

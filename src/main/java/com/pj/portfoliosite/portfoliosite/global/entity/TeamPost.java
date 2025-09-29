@@ -28,10 +28,9 @@ public class TeamPost {
 
     private String projectType;              // 프로젝트 유형 (웹, 앱, 게임 등)
     
-    @ElementCollection
-    @CollectionTable(name = "team_post_skills", joinColumns = @JoinColumn(name = "team_post_id"))
-    @Column(name = "skill")
-    private List<String> skills = new ArrayList<>(); // 필요 기술스택 (배열)
+    // Skills 연관관계 (중간 엔티티를 통해 관리)
+    @OneToMany(mappedBy = "teamPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamPostSkill> teamPostSkills = new ArrayList<>();
     
     private String contactMethod;            // 연락방법
     private java.time.LocalDate recruitDeadline;   // 모집마감일 (날짜만)
@@ -85,6 +84,23 @@ public class TeamPost {
     public void addRecruitRole(RecruitRole recruitRole) {
         this.recruitRoles.add(recruitRole);
         recruitRole.setTeamPost(this);
+    }
+
+    public void addTeamPostSkill(TeamPostSkill teamPostSkill) {
+        this.teamPostSkills.add(teamPostSkill);
+        teamPostSkill.setTeamPost(this);
+    }
+
+    public void removeTeamPostSkill(TeamPostSkill teamPostSkill) {
+        this.teamPostSkills.remove(teamPostSkill);
+        teamPostSkill.setTeamPost(null);
+    }
+
+    // 스킬 이름 목록 가져오기 편의 메서드
+    public List<String> getSkillNames() {
+        return this.teamPostSkills.stream()
+                .map(teamPostSkill -> teamPostSkill.getSkill().getName())
+                .toList();
     }
 
     // 조회수 증가
