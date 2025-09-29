@@ -9,9 +9,11 @@ import com.pj.portfoliosite.portfoliosite.global.dto.PageDTO;
 import com.pj.portfoliosite.portfoliosite.global.entity.Blog;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
+import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import com.pj.portfoliosite.portfoliosite.util.ImgUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BlogService {
 //    사용자 이메일을 받아 삭제 여부 확인 해야함
     private final BookmarkRepository bookmarkRepository;
@@ -30,13 +33,17 @@ public class BlogService {
     private final BlogRepository blogRepository;
     private final UserRepository userRepository;
     private final ImgUtil imgUtil;
+    private final AESUtil aesUtil;
+
     public void save(ReqBlogDTO reqBlogDTO) throws IOException {
 
         String testLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+
         if(testLogin == null){
             throw new RuntimeException("로그인이 필요합니다. ");
         }
-        Optional<User> user = userRepository.findByEmail(testLogin);
+        String encodeEmail = aesUtil.encode(testLogin);
+        Optional<User> user = userRepository.findByEmail(encodeEmail);
         Blog blog = new Blog();
         // 이미지 등록
         if(reqBlogDTO.getThumbnail() != null){
