@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,9 +15,10 @@ public class ResCommentsDTO {
     private String comment;
     private boolean checkMe; // 본인이 작성한 값인지
     // 사용자 정보
-    private String writeName;
+    private String writeName; // nickname 정보
     private String writeId;
     private String profileUrl;
     // 정보
     private Long parentCommentId;
+    private LocalDateTime createdAt;
 }
