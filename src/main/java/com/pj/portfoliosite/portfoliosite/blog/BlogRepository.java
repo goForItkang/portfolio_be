@@ -111,4 +111,12 @@ public class BlogRepository {
 """,long.class
         ).getSingleResult();
     }
+
+    public List<Blog> selectByUserEmail(String endoceEamil) {
+        return  em.createQuery("""
+select b from Blog b where b.user.email =:email
+""",Blog.class)
+                .setParameter("email",endoceEamil)
+                .getResultList();
+    }
 }

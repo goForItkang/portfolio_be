@@ -79,7 +79,8 @@ public class BlogService {
         if(testLogin == null){
             throw new RuntimeException("로그인이 필요합니다. ");
         }
-        Optional<User> user = userRepository.findByEmail(testLogin);
+        String encodeEmail = aesUtil.encode(testLogin);
+        Optional<User> user = userRepository.findByEmail(encodeEmail);
         if(user.isPresent()){
             // 로그인 한 사용자 일 경우
             if(user.get().getId() == blog.getUser().getId()){
@@ -98,7 +99,8 @@ public class BlogService {
         resBlogDTO.setThumbnailUrl(blog.getThumbnailURL());
         resBlogDTO.setBlogStatus(blog.getAccess()); // 접근 파일
         resBlogDTO.setCreatedAt(blog.getCreatedAt());
-        resBlogDTO.setWriteName(blog.getUser().getName());
+        resBlogDTO.setWriteName(
+                aesUtil.decode(blog.getUser().getNickname()));
         resBlogDTO.setUserId(blog.getUser().getId());
         resBlogDTO.setUserProfileURL(blog.getUser().getProfile());
 
@@ -118,8 +120,8 @@ public class BlogService {
     }
 
     public ResBlogInfo getInfo(Long id) {
-        String loginEmail = "portfolio@naver.com";
-        Optional<User> user = userRepository.findByEmail(loginEmail);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
         ResBlogInfo resBlogInfo = new ResBlogInfo();
         if(user.isPresent()){
             // 사용자 있으면
@@ -155,7 +157,8 @@ public class BlogService {
             resBlogDTO.setId(blog.getId());
             resBlogDTO.setTitle(blog.getTitle());
             resBlogDTO.setContent(blog.getContent());
-            resBlogDTO.setWriteName(blog.getUser().getName());
+            resBlogDTO.setWriteName(
+                    aesUtil.decode(blog.getUser().getNickname()));
             resBlogDTO.setUserId(blog.getUser().getId());
             resBlogDTO.setUserProfileURL(blog.getUser().getProfile());
             resBlogDTO.setCreatedAt(blog.getCreatedAt());
@@ -195,6 +198,23 @@ public class BlogService {
             count
     );
     }
+    public List<ResBlogDTO> entityTOBlogDTO(List<Blog> blogs) {
+        List<ResBlogDTO> resBlogDTOS = new ArrayList<>();
+        for (Blog blog : blogs) {
+            ResBlogDTO resBlogDTO = new ResBlogDTO();
+            resBlogDTO.setId(blog.getId());
+            resBlogDTO.setTitle(blog.getTitle());
+            resBlogDTO.setContent(blog.getContent());
+            resBlogDTO.setWriteName(aesUtil.decode(blog.getUser().getNickname()));
+            resBlogDTO.setUserId(blog.getUser().getId());
+            resBlogDTO.setUserProfileURL(blog.getUser().getProfile());
+            resBlogDTO.setCreatedAt(blog.getCreatedAt());
+            resBlogDTO.setCategory(blog.getCategory());
+            resBlogDTO.setThumbnailUrl(blog.getThumbnailURL());
+            resBlogDTOS.add(resBlogDTO);
+        }
 
+        return resBlogDTOS;
+    }
 
 }

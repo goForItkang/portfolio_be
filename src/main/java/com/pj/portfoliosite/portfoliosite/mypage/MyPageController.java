@@ -18,6 +18,10 @@ public class MyPageController {
     public ResponseEntity<DataResponse> getPortfolio() {
         return ResponseEntity.ok(myPageService.getPortfolio());
     }
+    @GetMapping("/blogs")
+    public ResponseEntity<DataResponse> getBlogs() {
+        return ResponseEntity.ok(myPageService.getBlog());
+    }
 
 
 }

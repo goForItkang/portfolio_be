@@ -16,7 +16,7 @@ public class CommentRepository {
     public List<BlogComment> selectByBlogId(Long id) {
         return em.createQuery(
                 """
-     select bc from BlogComment bc where bc.blog =:id 
+     select bc from BlogComment bc where bc.blog.id =:id 
  """,BlogComment.class
         ).setParameter("id",id)
                 .getResultList();

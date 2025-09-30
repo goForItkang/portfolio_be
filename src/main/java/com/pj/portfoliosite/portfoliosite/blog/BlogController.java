@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 public class BlogController {
     private final BlogService blogService;
-    @GetMapping("/blog/recommend")
+    @GetMapping("/blogs/recommend")
     @Operation(
             summary = "메인 화면에 추천 블로그",
             description = "오늘 날짜로 부터 1주일간 가장 많은 좋아요를 얻은 블로그 4개 출력"
@@ -94,7 +94,7 @@ public class BlogController {
         return ResponseEntity.ok(dataResponse);
     }
 //    테스트 완료
-    @GetMapping("/blogs/{id}/info")
+    @GetMapping("/blogs/{id}/details")
     @Operation(
             summary = "북마크 및 좋아요 count and owner check"
     )
