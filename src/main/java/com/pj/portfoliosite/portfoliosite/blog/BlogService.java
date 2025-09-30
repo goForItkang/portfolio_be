@@ -79,7 +79,8 @@ public class BlogService {
         if(testLogin == null){
             throw new RuntimeException("로그인이 필요합니다. ");
         }
-        Optional<User> user = userRepository.findByEmail(testLogin);
+        String encodeEmail = aesUtil.encode(testLogin);
+        Optional<User> user = userRepository.findByEmail(encodeEmail);
         if(user.isPresent()){
             // 로그인 한 사용자 일 경우
             if(user.get().getId() == blog.getUser().getId()){
