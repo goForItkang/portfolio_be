@@ -14,7 +14,7 @@ public class ResBlogComment {
     private Long id;
     private String comment; // 댓글 내용
     private Long userId;
-    private String writeName;
+    private String userWriteName;
     private String writeProfileImgUrl;
     private LocalDateTime createdAt; // 생성일
     private boolean isOwner; // 작성자 일 경우

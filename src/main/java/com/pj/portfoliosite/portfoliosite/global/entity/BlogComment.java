@@ -53,6 +53,7 @@ public class BlogComment {
         this.createdAt = LocalDateTime.now();
     }
     public void commentSave(String comment){
+        this.createdAt = LocalDateTime.now();
         this.comment = comment;
     }
     @PrePersist
