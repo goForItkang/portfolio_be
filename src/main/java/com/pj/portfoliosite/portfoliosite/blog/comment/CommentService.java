@@ -80,6 +80,7 @@ public class CommentService {
         dto.setUserId(authorId);
         dto.setUserWriteName((author != null) ? aesUtil.decode(author.getNickname()) : null);
         dto.setWriteProfileImgUrl((author != null) ? author.getProfile() : null);
+        dto.setCreatedAt(comment.getCreatedAt());
         // isOwner: 미로그인(null), 로그인했지만 본인 아님(false), 본인(true)
         if (currentUserId == null) {
             dto.setOwner(false);

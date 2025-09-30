@@ -38,9 +38,10 @@ public class CommentController {
    }
    @DeleteMapping("/blogs/{blogsId}/comments/{commentId}")
     public ResponseEntity<DataResponse> deleteComment(
-            @PathVariable Long id,
-            @PathVariable Long id2
+            @PathVariable Long blogsId,
+            @PathVariable Long commentId
    ){
+
         return null;
    }
 }
