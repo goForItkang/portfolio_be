@@ -198,6 +198,23 @@ public class BlogService {
             count
     );
     }
+    public List<ResBlogDTO> entityTOBlogDTO(List<Blog> blogs) {
+        List<ResBlogDTO> resBlogDTOS = new ArrayList<>();
+        for (Blog blog : blogs) {
+            ResBlogDTO resBlogDTO = new ResBlogDTO();
+            resBlogDTO.setId(blog.getId());
+            resBlogDTO.setTitle(blog.getTitle());
+            resBlogDTO.setContent(blog.getContent());
+            resBlogDTO.setWriteName(aesUtil.decode(blog.getUser().getNickname()));
+            resBlogDTO.setUserId(blog.getUser().getId());
+            resBlogDTO.setUserProfileURL(blog.getUser().getProfile());
+            resBlogDTO.setCreatedAt(blog.getCreatedAt());
+            resBlogDTO.setCategory(blog.getCategory());
+            resBlogDTO.setThumbnailUrl(blog.getThumbnailURL());
+            resBlogDTOS.add(resBlogDTO);
+        }
 
+        return resBlogDTOS;
+    }
 
 }
