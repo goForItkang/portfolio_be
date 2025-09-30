@@ -50,6 +50,7 @@ public class BlogComment {
         this.comment = Comment;
         this.user = user;
         this.blog = blog;
+        this.createdAt = LocalDateTime.now();
     }
     public void commentSave(String comment){
         this.comment = comment;

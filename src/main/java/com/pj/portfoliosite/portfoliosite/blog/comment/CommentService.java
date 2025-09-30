@@ -73,9 +73,13 @@ public class CommentService {
         ResBlogComment dto = new ResBlogComment();
         dto.setId(comment.getId());
         dto.setComment(comment.getComment());
-        Long authorId = (comment.getUser() != null) ? comment.getUser().getId() : null;
-        dto.setUserId(authorId);
 
+        // 작성자 정보
+        User author = comment.getUser();
+        Long authorId = (author != null) ? author.getId() : null;
+        dto.setUserId(authorId);
+        dto.setWriteName((author != null) ? aesUtil.decode(author.getNickname()) : null);
+        dto.setWriteProfileImgUrl((author != null) ? author.getProfile() : null);
         // isOwner: 미로그인(null), 로그인했지만 본인 아님(false), 본인(true)
         if (currentUserId == null) {
             dto.setOwner(false);
@@ -91,6 +95,7 @@ public class CommentService {
             }
         }
         dto.setReplies(childDTOs);
+
         return dto;
     }
 

@@ -36,4 +36,11 @@ public class CommentController {
         commentService.save(id,req);
        return ResponseEntity.ok(dataResponse);
    }
+   @DeleteMapping("/blogs/{blogsId}/comments/{commentId}")
+    public ResponseEntity<DataResponse> deleteComment(
+            @PathVariable Long id,
+            @PathVariable Long id2
+   ){
+        return null;
+   }
 }
