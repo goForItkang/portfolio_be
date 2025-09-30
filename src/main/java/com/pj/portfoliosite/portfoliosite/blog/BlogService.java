@@ -98,7 +98,8 @@ public class BlogService {
         resBlogDTO.setThumbnailUrl(blog.getThumbnailURL());
         resBlogDTO.setBlogStatus(blog.getAccess()); // 접근 파일
         resBlogDTO.setCreatedAt(blog.getCreatedAt());
-        resBlogDTO.setWriteName(blog.getUser().getName());
+        resBlogDTO.setWriteName(
+                aesUtil.decode(blog.getUser().getNickname()));
         resBlogDTO.setUserId(blog.getUser().getId());
         resBlogDTO.setUserProfileURL(blog.getUser().getProfile());
 
@@ -155,7 +156,8 @@ public class BlogService {
             resBlogDTO.setId(blog.getId());
             resBlogDTO.setTitle(blog.getTitle());
             resBlogDTO.setContent(blog.getContent());
-            resBlogDTO.setWriteName(blog.getUser().getName());
+            resBlogDTO.setWriteName(
+                    aesUtil.decode(blog.getUser().getNickname()));
             resBlogDTO.setUserId(blog.getUser().getId());
             resBlogDTO.setUserProfileURL(blog.getUser().getProfile());
             resBlogDTO.setCreatedAt(blog.getCreatedAt());
