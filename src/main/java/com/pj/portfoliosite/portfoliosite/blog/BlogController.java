@@ -94,7 +94,7 @@ public class BlogController {
         return ResponseEntity.ok(dataResponse);
     }
 //    테스트 완료
-    @GetMapping("/blogs/{id}/info")
+    @GetMapping("/blogs/{id}/details")
     @Operation(
             summary = "북마크 및 좋아요 count and owner check"
     )

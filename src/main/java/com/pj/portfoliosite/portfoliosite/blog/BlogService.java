@@ -120,8 +120,8 @@ public class BlogService {
     }
 
     public ResBlogInfo getInfo(Long id) {
-        String loginEmail = "portfolio@naver.com";
-        Optional<User> user = userRepository.findByEmail(loginEmail);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
         ResBlogInfo resBlogInfo = new ResBlogInfo();
         if(user.isPresent()){
             // 사용자 있으면

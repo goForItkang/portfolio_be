@@ -10,7 +10,7 @@ import javax.xml.crypto.Data;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class LikeController {
+public class BlogLikeController {
      private final LikeService likeService;
 
 //     테스트 완료
