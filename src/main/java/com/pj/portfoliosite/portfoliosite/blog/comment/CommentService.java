@@ -7,8 +7,10 @@ import com.pj.portfoliosite.portfoliosite.global.entity.Blog;
 import com.pj.portfoliosite.portfoliosite.global.entity.BlogComment;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
+import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,11 +23,12 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final BlogRepository blogRepository;
+    private final AESUtil aesUtil;
     // 저장 메서드
     public void save(Long blogId, ReqBlogCommentDTO req) {
         Blog blog = blogRepository.selectById(blogId);
-        String loginEmail = "portfolio@naver.com";
-        Optional<User> user =  userRepository.findByEmail(loginEmail);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
         if(req.getParentCommentId() == null ){
             // 부모가 없는 댓글 일 경우 즉 대댓글이 없는 경우
             BlogComment comment = new BlogComment();
@@ -50,9 +53,9 @@ public class CommentService {
 
     public List<ResBlogComment> getComment(Long id) {
         // 접속 하는 사용자(없을 수 있음)
-        String userEmail = "portfolio@naver.com";
-        Optional<User> currentUser = userRepository.findByEmail(userEmail);
-        Long currentUserId = currentUser.map(User::getId).orElse(null);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
+        Long currentUserId = user.map(User::getId).orElse(null);
 
         List<BlogComment> blogComments = commentRepository.selectByBlogId(id);
         // 전송 할 데이터: 부모(최상위) 댓글만 선별
