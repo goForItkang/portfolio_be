@@ -41,7 +41,7 @@ public class CommentController {
             @PathVariable Long blogsId,
             @PathVariable Long commentId
    ){
-
+        commentService.delete(blogsId,commentId);
         return null;
    }
 }

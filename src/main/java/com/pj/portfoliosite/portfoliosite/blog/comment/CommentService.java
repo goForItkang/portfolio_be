@@ -101,6 +101,7 @@ public class CommentService {
     }
 
 
+    public void delete(Long blogsId, Long commentId) {
 
-
+    }
 }
