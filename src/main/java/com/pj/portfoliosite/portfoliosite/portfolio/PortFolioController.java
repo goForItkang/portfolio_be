@@ -1,7 +1,9 @@
 package com.pj.portfoliosite.portfoliosite.portfolio;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
+import com.pj.portfoliosite.portfoliosite.global.dto.PageDTO;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqPortfolioDTO;
+import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortFolioDTO;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortfolioDetailDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -17,20 +19,27 @@ import java.io.IOException;
 @RequestMapping("/api")
 @Slf4j
 public class PortFolioController {
-    private final PortFolioService portfolioService;
+    private final PortFolioService
+            portfolioService;
     @PostMapping(value = "/portfolio",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "포트폴리오 저장",
         description = "header에 jwt 넣어주세요"
     )
     public ResponseEntity<DataResponse> portfolioUpload(
-            @RequestBody ReqPortfolioDTO reqPortfolioDTO
+            ReqPortfolioDTO reqPortfolioDTO
     ) throws IOException {
-        Long id = portfolioService.save(reqPortfolioDTO);
-        DataResponse dataResponse = new DataResponse();
-        dataResponse.setData(id);
-        System.out.println("데이터 전을 받았습니당~");
+        try{
+            log.warn("portpolio upload : " + reqPortfolioDTO);
+            Long id = portfolioService.save(reqPortfolioDTO);
+            DataResponse dataResponse = new DataResponse();
+            dataResponse.setData(id);
+            System.out.println("데이터 전을 받았습니당~");
 
-        return ResponseEntity.ok(dataResponse);
+            return ResponseEntity.ok(dataResponse);
+        }catch (Exception e){
+            e.printStackTrace();
+        return null;
+        }
     }
     @GetMapping("/portfolio")
     @Operation(
@@ -78,5 +87,33 @@ public class PortFolioController {
         portfolioService.deletePortfolio(id);
         return ResponseEntity.ok(dataResponse);
     }
+    // 기준 날짜 포트폴리오 가져오기
+    @GetMapping("/portfolios/all")
+    public ResponseEntity<PageDTO<ResPortFolioDTO>> portfolioGetAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
+    ){
+
+        return ResponseEntity.ok(portfolioService.getAll(page,size));
+    }
+    @PutMapping(value = "/portfolio/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "포트폴리오 수정 ",description = "header에 jwt 넣어주세요 ")
+    public ResponseEntity<DataResponse> portfolioUpdate(
+            @PathVariable Long id,
+            ReqPortfolioDTO reqPortfolioDTO
+    ) throws IOException {
+        DataResponse dataResponse = new DataResponse();
+
+        boolean result =portfolioService.update(id,reqPortfolioDTO);
+        if(result){
+            dataResponse.setStatus(200);
+            dataResponse.setMessage("변경 성공");
+        }else{
+            dataResponse.setStatus(400);
+            dataResponse.setMessage("변경 실패");
+        }
+        return ResponseEntity.ok(dataResponse);
+    }
+
 
 }

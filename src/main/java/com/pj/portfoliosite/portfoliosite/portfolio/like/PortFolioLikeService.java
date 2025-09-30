@@ -1,12 +1,15 @@
 package com.pj.portfoliosite.portfoliosite.portfolio.like;
 
+import com.pj.portfoliosite.portfoliosite.config.JwtTokenProvider;
 import com.pj.portfoliosite.portfoliosite.global.entity.PortFolio;
 import com.pj.portfoliosite.portfoliosite.global.entity.PortFolioLike;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
+import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -14,17 +17,24 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PortFolioLikeService {
     private final PortFolioLikeRepository portFolioLikeRepository;
     private final PortFolioRepository portFolioRepository;
     private final UserRepository userRepository;
+    private final AESUtil aesUtil;
+    private final JwtTokenProvider jwtTokenProvider;
     @Transactional
     public void portfolioLike(Long id) {
+
+
         String testLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.warn(testLogin);
         if(testLogin == null){
             throw new RuntimeException("로그인이 필요합니다. ");
         }
-        Optional<User> user = userRepository.findByEmail(testLogin);
+        String encodeEmail = aesUtil.encode(testLogin);
+        Optional<User> user = userRepository.findByEmail(encodeEmail);
         if(user.isPresent()){
             PortFolioLike portFolioLike = new PortFolioLike();
             portFolioLike.addUser(user.get());
@@ -39,7 +49,8 @@ public class PortFolioLikeService {
         if(testLogin == null){
             throw new RuntimeException("로그인이 필요합니다. ");
         }
-        Optional<User> user = userRepository.findByEmail(testLogin);
+        String encodeEmail = aesUtil.encode(testLogin);
+        Optional<User> user = userRepository.findByEmail(encodeEmail);
         if(user.isPresent()){
             portFolioLikeRepository.delectById(user.get().getId(),id);
         }

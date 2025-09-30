@@ -44,7 +44,7 @@ public class Blog {
     public void blogSave(ReqBlogDTO req){
         title = req.getTitle();
         content = req.getContent();
-        access = req.getBlogStatus();
+        access = Integer.parseInt(req.getBlogStatus());
         category = req.getCategory();
         if(req.getThumbnail() == null){
             thumbnailURL = null;
@@ -54,7 +54,7 @@ public class Blog {
     public void update(ReqBlogDTO req){
         title = req.getTitle();
         content = req.getContent();
-        access = req.getBlogStatus();
+        access = Integer.parseInt(req.getBlogStatus());
         category = req.getCategory();
     }
     public void addBookmark(BlogBookmark bookmark){

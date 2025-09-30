@@ -1,17 +1,24 @@
 package com.pj.portfoliosite.portfoliosite.portfolio;
 
+import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
+import com.pj.portfoliosite.portfoliosite.global.dto.PageDTO;
 import com.pj.portfoliosite.portfoliosite.global.entity.*;
 import com.pj.portfoliosite.portfoliosite.portfolio.bookmark.PortfolioBookMarkRepository;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.*;
 import com.pj.portfoliosite.portfoliosite.portfolio.like.PortFolioLikeRepository;
+import com.pj.portfoliosite.portfoliosite.skill.ResSkill;
+import com.pj.portfoliosite.portfoliosite.skill.SkillRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
+import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import com.pj.portfoliosite.portfoliosite.util.ImgUtil;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cglib.core.Local;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -28,11 +35,17 @@ public class PortFolioService {
     private final PortFolioLikeRepository pfLikeRepository;
     private final PortfolioBookMarkRepository pfBookMarkRepository;
     private final ImgUtil imgUtil;
+    private final AESUtil aesUtil;
+    private final SkillRepository skillRepository;
     // 저장 로직
+    @Transactional
     public Long save(ReqPortfolioDTO reqPortfolioDTO) throws IOException {
         //user part
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<User> user = userRepository.findByEmail(userEmail);
+        log.info(userEmail);
+        String endcodeEamil = aesUtil.encode(userEmail);
+
+        Optional<User> user = userRepository.findByEmail(endcodeEamil);
         // user 로직
         PortFolio portfolio = new PortFolio();
         if(reqPortfolioDTO.getFile() == null){
@@ -53,11 +66,42 @@ public class PortFolioService {
         portfolio.addCertificate(toCertificateList(reqPortfolioDTO.getCertificates()));
         // project description list
         portfolio.addProjectDescription(toProjectDescription(reqPortfolioDTO.getProjectDescriptions()));
+
+        // ===== 스킬 처리 로직 추가 시작 =====
+        List<String> skillIds = reqPortfolioDTO.getSkillIds(); // DTO에서 ID 목록을 가져옵니다.
+
+        if (skillIds != null && !skillIds.isEmpty()) {
+            List<PortfolioSkill> portfolioSkills = new ArrayList<>();
+            for (String skillIdString : skillIds) { // 변수명을 skillIdString으로 변경하여 명확히 함
+                try {
+                    // 문자열을 Long 타입으로 변환합니다.
+                    Long skillId = Long.parseLong(skillIdString);
+
+                    // getReferenceById를 사용해 실제 DB 조회 없이 엔티티 참조(프록시)만 가져옵니다. (성능 최적화)
+                    Skill skillReference = skillRepository.getReferenceById(skillId);
+
+                    // 중간 테이블 엔티티인 PortfolioSkill을 생성합니다.
+                    PortfolioSkill portfolioSkill = new PortfolioSkill();
+                    portfolioSkill.setSkill(skillReference); // Skill 참조 설정
+                    portfolioSkills.add(portfolioSkill);
+                } catch (NumberFormatException e) {
+                    // 만약 skillIdString이 숫자로 변환될 수 없는 값이라면, 이 예외가 발생합니다.
+                    // 해당 스킬은 무시하고 계속 진행하거나, 로그를 남길 수 있습니다.
+                    log.warn("숫자로 변환할 수 없는 Skill ID를 건너뜁니다: {}", skillIdString);
+                }
+            }
+            // PortFolio에 최종적으로 생성된 중간 엔티티 리스트를 연결합니다.
+            portfolio.addPortfolioSkills(portfolioSkills);
+        }
+
+        // ===== 스킬 처리 로직 추가 끝 =====
+
         portfolio.save(reqPortfolioDTO);
         pfRepository.insert(portfolio);
         Long id = portfolio.getId();
         return id;
     }
+
     // 프로젝트 설명란
      private List<ProjectDescription> toProjectDescription(List<ReqProjectDescription> reqProjectDescriptionList) {
         List<ProjectDescription> projectDescriptionList = new ArrayList<>();
@@ -94,6 +138,7 @@ public class PortFolioService {
             Career career = new Career();
             career.ReqCareerDTO(reqCareerDTO);
             careerList.add(career);
+
         }
         return careerList;
     }
@@ -133,11 +178,17 @@ public class PortFolioService {
         resPortFolioDTO.setFile(portFolio.getThumbnailURL());
         //변경
         resPortFolioDTO.setId(portFolio.getId());
-        resPortFolioDTO.setEmail(portFolio.getUser().getEmail());
-        resPortFolioDTO.setWriteName(portFolio.getUser().getNickname());
+        resPortFolioDTO.setEmail(
+                aesUtil.decode(portFolio.getUser().getEmail())
+        );
+        resPortFolioDTO.setWriteName(
+               aesUtil.decode(portFolio.getUser().getNickname())
+        );
         resPortFolioDTO.setTitle(portFolio.getTitle());
         resPortFolioDTO.setIndustry(portFolio.getIndustry());
-        resPortFolioDTO.setSkill(portFolio.getSkill());
+        List<Skill> portfolioSkills = skillRepository.selectByPortfolioId(id);
+        ResSkill resSkill = new ResSkill();
+        resPortFolioDTO.setSkill(resSkill.toResSkillList(portfolioSkills));
         resPortFolioDTO.setIntroductions(portFolio.getIntroductions());
         resPortFolioDTO.setCreateAt(portFolio.getCreateAt());
 
@@ -258,7 +309,8 @@ public class PortFolioService {
         } else {
             throw new RuntimeException("로그인이 필요합니다.");
         }
-        Optional<User> user = userRepository.findByEmail(userEmail);
+        String encodeEmail = aesUtil.encode(userEmail);
+        Optional<User> user = userRepository.findByEmail(encodeEmail);
         ResPortfolioDetailDTO resPortfolioDetailDTO = new ResPortfolioDetailDTO();
         if(user.isPresent()){
             //get user
@@ -271,6 +323,7 @@ public class PortFolioService {
             resPortfolioDetailDTO.setLikeCheck(false);
             resPortfolioDetailDTO.setBookMarkCheck(false);
         }
+
         // Like 및 bookmark 갯수
         Long likeCount = pfLikeRepository.countByPortfolioId(id);
         resPortfolioDetailDTO.setLikeCount(likeCount);
@@ -288,7 +341,7 @@ public class PortFolioService {
                 resPortfolioDTO.setFile(portfolio.getThumbnailURL());
                 resPortfolioDTO.setId(portfolio.getId()); // id
                 resPortfolioDTO.setEmail(portfolio.getEmail()); //이메일
-                resPortfolioDTO.setWriteName(portfolio.getUser().getNickname());
+                resPortfolioDTO.setWriteName(aesUtil.decode(portfolio.getUser().getNickname()));
                 resPortfolioDTO.setTitle(portfolio.getTitle()); //제목
                 resPortfolioDTO.setIndustry(portfolio.getIndustry());// 분야
                 resPortfolioDTO.setJobPosition(portfolio.getJobPosition());
@@ -314,4 +367,92 @@ public class PortFolioService {
         PortFolio portFolio = pfRepository.selectById(id);
         pfRepository.deleteById(portFolio);
     }
+
+
+    public PageDTO<ResPortFolioDTO> getAll(int page, int size) {
+        // 1) 입력 값 검증 및 기본값 설정
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 50);
+
+        // 2) Repository에서 데이터 목록과 전체 개수 조회
+        List<PortFolio> rows = pfRepository.selectByCreateAtDesc(safePage, safeSize);
+        long totalElements = pfRepository.selectAllCount();
+
+        // 3) 조회된 엔티티 목록을 DTO 목록으로 변환
+        List<ResPortFolioDTO> content = portfolioDTOTOEntity(rows);
+
+        // 4) 페이지네이션 메타 데이터 계산
+        int totalPages = (int) Math.ceil((double) totalElements / safeSize);
+        boolean first = safePage == 0;
+        boolean last = (totalPages == 0) || (safePage >= totalPages - 1);
+        boolean hasNext = !last;
+        boolean hasPrevious = !first;
+        int count = content.size();
+
+        // 5) 최종 PageDTO 객체를 생성하여 반환
+        return new PageDTO<>(
+                content,
+                safePage,
+                safeSize,
+                totalElements,
+                totalPages,
+                first,
+                last,
+                hasNext,
+                hasPrevious,
+                count
+        );
+    }
+
+    @Transactional
+    public boolean update(Long portfolioId, ReqPortfolioDTO reqPortfolioDTO) throws IOException {
+
+        PortFolio portfolio = pfRepository.selectById(portfolioId);
+        if (portfolio == null) {
+            // 수정할 대상이 없으면 예외를 발생시키거나 false를 반환할 수 있습니다.
+            throw new EntityNotFoundException("해당 ID의 포트폴리오를 찾을 수 없습니다: " + portfolioId);
+        }
+        portfolio.save(reqPortfolioDTO);
+
+        // 3. 파일이 새로 들어온 경우에만 기존 파일을 덮어씁니다.
+        if (reqPortfolioDTO.getFile() != null && !reqPortfolioDTO.getFile().isEmpty()) {
+            String url = imgUtil.imgUpload(reqPortfolioDTO.getFile());
+            portfolio.addPortfolioFile(url);
+        }
+        portfolio.getCareers().clear();
+        portfolio.getAwards().clear();
+        portfolio.getCertificates().clear();
+        portfolio.getEducations().clear();
+        portfolio.getPortfolioSkills().clear();
+        portfolio.getProjectDescriptions().clear();
+
+        portfolio.addCareer(toCareerList(reqPortfolioDTO.getCareers()));
+        portfolio.addAward(toAwardList(reqPortfolioDTO.getAwards()));
+        portfolio.addCertificate(toCertificateList(reqPortfolioDTO.getCertificates()));
+        portfolio.addEducation(toEducationList(reqPortfolioDTO.getEducations()));
+        portfolio.addProjectDescription(toProjectDescription(reqPortfolioDTO.getProjectDescriptions()));
+
+
+        List<String> skillIdStrings = reqPortfolioDTO.getSkillIds(); // DTO는 List<String> skillIds를 가져야 합니다.
+        if (skillIdStrings != null && !skillIdStrings.isEmpty()) {
+            List<PortfolioSkill> newPortfolioSkills = new ArrayList<>();
+            for (String skillIdString : skillIdStrings) {
+                try {
+                    Long skillId = Long.parseLong(skillIdString);
+                    Skill skillReference = skillRepository.getReferenceById(skillId);
+
+                    PortfolioSkill portfolioSkill = new PortfolioSkill();
+                    portfolioSkill.setSkill(skillReference);
+                    newPortfolioSkills.add(portfolioSkill);
+                } catch (NumberFormatException e) {
+                    log.warn("숫자로 변환할 수 없는 Skill ID '{}'는 무시됩니다.", skillIdString);
+                }
+            }
+            portfolio.addPortfolioSkills(newPortfolioSkills);
+        }
+
+        return true;
+    }
+
+
 }

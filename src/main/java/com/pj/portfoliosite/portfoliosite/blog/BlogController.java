@@ -7,6 +7,7 @@ import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.global.dto.PageDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Slf4j
 public class BlogController {
     private final BlogService blogService;
     @GetMapping("/blog/recommend")
@@ -30,10 +32,10 @@ public class BlogController {
         dataResponse.setData(blogDTOS);
         return ResponseEntity.ok(dataResponse);
     }
-    @GetMapping("/blogs")
+    @GetMapping("/blogs/all")
     public ResponseEntity<DataResponse> getBlogs(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "12") Integer size
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
     ){
         DataResponse dataResponse = new DataResponse();
         PageDTO<ResBlogDTO> blogDTOPageDTO = blogService.getBlog(page,size);
@@ -50,7 +52,7 @@ public class BlogController {
     public ResponseEntity<DataResponse> blogUpload(
             ReqBlogDTO reqBlogDTO
     ) throws IOException {
-
+        log.info("reqBlogDTO = {}", reqBlogDTO);
         blogService.save(reqBlogDTO);
         DataResponse dataResponse = new DataResponse();
         dataResponse.setMessage("성공적으로 등록 되었습니다.");
@@ -69,9 +71,9 @@ public class BlogController {
         return ResponseEntity.ok(dataResponse);
     }
 //  테스트 완료
-    @GetMapping("/blogs/{id}")
+    @GetMapping("/blogs")
     public ResponseEntity<DataResponse> getBlogs(
-            @PathVariable Long id
+            @RequestParam Long id
     ){
         ResBlogDTO resBlogDTO =  blogService.getId(id);
         DataResponse dataResponse = new DataResponse();

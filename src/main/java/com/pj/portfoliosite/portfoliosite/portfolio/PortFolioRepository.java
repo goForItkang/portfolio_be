@@ -91,9 +91,9 @@ public class PortFolioRepository {
         return entityManager.createQuery(
                         """
                     select p from PortFolio p
-                    join p.portFolioLikes pl
-                    where pl.createdAt between :startDate and :endDate
-                    group by p
+                    left join p.portFolioLikes pl
+                    where p.createAt between :startDate and :endDate
+                    group by p.id, p.title, p.email, p.industry, p.jobPosition, p.introductions, p.thumbnailURL, p.createAt, p.saveStatus, p.user
                     order by count(pl) desc
                     """,PortFolio.class
                 )
@@ -103,7 +103,25 @@ public class PortFolioRepository {
                 .getResultList();
     }
 
+
     public void deleteById(PortFolio portfolio) {
         entityManager.remove(portfolio);
+    }
+
+    public List<PortFolio> selectByCreateAtDesc(int safePage, int safeSize) {
+        return entityManager.createQuery(
+                """
+        select p from PortFolio p 
+        left join fetch p.user
+        order by p.createAt desc,p.id desc
+""",PortFolio.class
+        ).setFirstResult(safePage * safeSize)
+                .setMaxResults(safeSize)
+                .getResultList();
+    }
+    public Long selectAllCount() {
+        return entityManager.createQuery(
+                "select count(p) from PortFolio p"
+        ,Long.class).getSingleResult();
     }
 }

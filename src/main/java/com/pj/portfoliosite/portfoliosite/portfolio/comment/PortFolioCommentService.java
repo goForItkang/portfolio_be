@@ -9,7 +9,10 @@ import com.pj.portfoliosite.portfoliosite.global.entity.PortfolioComment;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
+import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +23,12 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PortFolioCommentService {
     private final PortFolioCommentRepository portFolioCommentRepository;
     private final UserRepository userRepository;
     private final PortFolioRepository portFolioRepository;
+    private final AESUtil aesUtil;
 
     @Transactional
     public void saveComment(Long portfolioId, ReqCommentDTO reqCommentDTO) {
@@ -31,9 +36,8 @@ public class PortFolioCommentService {
         if(email == null){
             throw new RuntimeException("로그인이 필요합니다. ");
         }
-        Optional<User> userOpt = userRepository.findByEmail(email);
-
-
+        log.info("portfolioSaveComment email {} ",email);
+        Optional<User> userOpt = userRepository.findByEmail(aesUtil.encode(email));
         PortFolio portfolio = portFolioRepository.selectById(portfolioId);
         if (portfolio == null) {
             PortfolioComment comment = new PortfolioComment(reqCommentDTO.getComment(), userOpt.get(), portfolio);
@@ -76,13 +80,23 @@ public class PortFolioCommentService {
 
 
     public List<ResCommentListDTO> getComment(Long portfolioId) {
-        // 로그인 사용자 ID 확보(소유자 표시용)
-        String testLogin  = "portfolio@naver.com";
-        Long loginUserId = userRepository.findByEmail(testLogin)
-                .map(User::getId)
-                .orElse(null);
+        // 1. 현재 인증 정보를 가져옵니다.
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long loginUserId = null; // 로그인하지 않은 사용자를 위해 null로 초기화
 
-        List<PortfolioComment> parents = portFolioCommentRepository.findByPortfolioId(portfolioId);
+        // 2. 인증된 사용자인지 확인하고, 이메일로 ID를 찾아옵니다.
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
+            String email = authentication.getName();
+            // findByEmail은 Optional<User>를 반환하므로, map을 이용해 ID만 추출합니다.
+            loginUserId = userRepository.findByEmail(aesUtil.encode(email))
+                    .map(User::getId)
+                    .orElse(null); // 사용자를 찾지 못한 경우 null
+        }
+
+        // 3. 포트폴리오에 해당하는 최상위 댓글(부모가 없는 댓글) 목록을 가져옵니다.
+        List<PortfolioComment> parents = portFolioCommentRepository.findByPortfolioIdAndParentIsNull(portfolioId);
+
+        // 4. 각 최상위 댓글을 시작으로 트리 구조의 DTO로 변환합니다.
         List<ResCommentListDTO> result = new ArrayList<>();
         for (PortfolioComment parent : parents) {
             result.add(toTreeDTO(parent, loginUserId));
@@ -92,25 +106,38 @@ public class PortFolioCommentService {
 
     // 엔티티 → 트리 DTO(재귀) + isOwner 세팅
     private ResCommentListDTO toTreeDTO(PortfolioComment c, Long loginUserId) {
+        if (c == null) return null; // 방어 코드
+
         ResCommentListDTO dto = new ResCommentListDTO();
         dto.setId(c.getId());
         dto.setComment(c.getComment());
+        dto.setCreatedAt(c.getCreatedAt());
         dto.setParentId(c.getParent() != null ? c.getParent().getId() : null);
+
+        // 댓글 작성자 정보 설정
         if (c.getUser() != null) {
-            dto.setUserId(c.getUser().getId());
-            dto.setUserProfileURL(c.getUser().getProfile());
-            dto.setUserWriteName(c.getUser().getName());
-            dto.setOwner(loginUserId != null && c.getUser().getId().equals(loginUserId));
+            User commentUser = c.getUser();
+            dto.setUserId(commentUser.getId());
+            // 개인정보는 필요 시 복호화하여 설정합니다.
+            dto.setUserProfileURL(aesUtil.decode(commentUser.getProfile()));
+            dto.setUserWriteName(aesUtil.decode(commentUser.getNickname()));
+
+            // 현재 로그인한 사용자와 댓글 작성자가 동일한지 확인하여 isOwner 설정
+            dto.setOwner(loginUserId != null && commentUser.getId().equals(loginUserId));
         } else {
+            // 작성자 정보가 없는 비정상적인 경우
             dto.setOwner(false);
         }
+
+        // 대댓글(자식) 목록을 재귀적으로 처리
         List<ResCommentListDTO> replies = new ArrayList<>();
-        if (c.getReplies() != null) {
+        if (c.getReplies() != null && !c.getReplies().isEmpty()) {
             for (PortfolioComment child : c.getReplies()) {
                 replies.add(toTreeDTO(child, loginUserId));
             }
         }
         dto.setReplies(replies);
+
         return dto;
     }
 
@@ -133,5 +160,6 @@ public class PortFolioCommentService {
         }
         return dto;
     }
+
 
 }

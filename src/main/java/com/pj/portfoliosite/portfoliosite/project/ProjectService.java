@@ -11,8 +11,10 @@ import com.pj.portfoliosite.portfoliosite.project.like.ProjectLikeRepository;
 import com.pj.portfoliosite.portfoliosite.project.like.ProjectLikeService;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserService;
+import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import com.pj.portfoliosite.portfoliosite.util.ImgUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
@@ -36,7 +39,7 @@ public class ProjectService {
     private final ProjectLikeService projectLikeService;
     private final ProjectLikeRepository projectLikeRepository;
     private final ProjectBookMarkRepository projectBookMarkRepository;
-
+    private final AESUtil aesUtil;
 
     //추천 프로젝트 로직 오늘 부터 일주일 동안 가장 많은 좋아요 갯수
     public List<ResProjectRecommendDto> getRecommend() {
@@ -73,7 +76,7 @@ public class ProjectService {
                 throw new RuntimeException("로그인이 필요합니다.");
             }
 
-            Optional<User> user = userRepository.findByEmail(userEmail);
+            Optional<User> user = userRepository.findByEmail(aesUtil.encode(userEmail));
             if(user.isPresent()) {
                 // Null이 아닐경우 project 에 user 삽입
                 Project project = new Project();
@@ -105,8 +108,13 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public ResProjectDetailDTO projectGetById(Long id) {
         Project project = projectRepository.findById(id);
-        String testLoginId = "portfolio@naver.com";
-        Optional<User> user = userRepository.findByEmail(testLoginId);
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(userEmail.equals("anonymousUser")){
+            log.info("확인 할 수 없는 사용자");
+        }else if(userEmail == null){
+            log.info("userEmail 이 null 입니다.");
+        }
+        Optional<User> user = userRepository.findByEmail(aesUtil.encode(userEmail));
 
         ResProjectDetailDTO dto = new ResProjectDetailDTO();
 

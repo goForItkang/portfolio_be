@@ -8,6 +8,7 @@ import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortFolioDTO;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortfolioDetailDTO;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserService;
+import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,16 +23,18 @@ public class MyPageService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final PortFolioService portfolioService;
+    private final AESUtil aesUtil;
     public DataResponse getPortfolio() {
         DataResponse dataResponse = new DataResponse(); //객체 생성
         String email =  SecurityContextHolder.getContext().getAuthentication().getName();
-        if(email == null){
+        String endoceEamil = aesUtil.encode(email);
+        if(endoceEamil == null){
             dataResponse.setData(null);
             dataResponse.setStatus(401);
             dataResponse.setMessage("로그인이 필요합니다. ");
         return dataResponse;
-        }else if(userRepository.findByEmail(email).isPresent()){
-            List<PortFolio> portFolioList = portfolioRepository.selectByUserEmail(email);
+        }else if(userRepository.findByEmail(endoceEamil).isPresent()){
+            List<PortFolio> portFolioList = portfolioRepository.selectByUserEmail(endoceEamil);
             if(portFolioList.isEmpty()){
                 dataResponse.setData(null);
                 dataResponse.setStatus(404);

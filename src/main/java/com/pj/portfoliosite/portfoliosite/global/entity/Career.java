@@ -4,6 +4,8 @@ import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqCareerDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Entity
@@ -28,8 +30,8 @@ public class Career {
         this.companyName = reqCareerDTO.getCompanyName();
         this.duty = reqCareerDTO.getDuty();
         this.companyPosition = reqCareerDTO.getCompanyPosition();
-        this.startDate = reqCareerDTO.getStartDate();
-        this.endDate = reqCareerDTO.getEndDate();
+        this.startDate = parseDate(reqCareerDTO.getStartDate());
+        this.endDate = parseDate(reqCareerDTO.getEndDate());
         if(reqCareerDTO.getDate() == null && reqCareerDTO.getCompanyPosition() == null){
             this.date = null;
         }else{
@@ -40,4 +42,19 @@ public class Career {
     public void setPortfolio(PortFolio portfolio) {
         this.portfolio = portfolio;
     }
+    private Date parseDate(String dateString) {
+        // 입력된 문자열이 유효한지 확인
+        if (dateString == null || dateString.trim().isEmpty()) {
+            return null; // 비어있으면 null 반환
+        }
+        try {
+            // "yyyy-MM-dd" 형식으로 파싱 시도
+            return new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
+        } catch (ParseException e) {
+            // 날짜 형식에 맞지 않으면 경고 로그를 남기고 null 반환
+            // System.err.println("잘못된 날짜 형식입니다: " + dateString);
+            return null;
+        }
+    }
+
 }

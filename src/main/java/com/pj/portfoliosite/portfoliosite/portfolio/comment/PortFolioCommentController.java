@@ -6,6 +6,7 @@ import com.pj.portfoliosite.portfoliosite.global.dto.ResCommentListDTO;
 import com.pj.portfoliosite.portfoliosite.global.dto.ResCommentsDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Slf4j
 public class PortFolioCommentController {
     private final PortFolioCommentService portfolioCommentService;
     @PostMapping("/portfolio/{id}/comment")
@@ -26,6 +28,8 @@ public class PortFolioCommentController {
             @PathVariable Long id,
             @RequestBody ReqCommentDTO reqCommentDTO
     ){
+        log.info("comment : " + reqCommentDTO);
+        log.info("id : " + id);
         portfolioCommentService.saveComment(id, reqCommentDTO);
         DataResponse dataResponse = new DataResponse();
         dataResponse.setMessage("저장 성공");

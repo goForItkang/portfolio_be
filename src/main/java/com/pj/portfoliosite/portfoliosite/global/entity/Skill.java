@@ -1,19 +1,19 @@
 package com.pj.portfoliosite.portfoliosite.global.entity;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Skill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +21,11 @@ public class Skill {
     
     @Column(unique = true, nullable = false)
     private String name;
+
+
+    @OneToMany(mappedBy = "skill")
+    private List<PortfolioSkill> portfolioSkills = new ArrayList<>();
+
     
     // TeamPostSkill과의 연관관계
     @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -36,4 +41,5 @@ public class Skill {
         this.teamPostSkills.add(teamPostSkill);
         teamPostSkill.setSkill(this);
     }
+
 }

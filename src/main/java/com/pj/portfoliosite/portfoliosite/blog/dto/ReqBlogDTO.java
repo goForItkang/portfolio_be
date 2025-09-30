@@ -15,6 +15,6 @@ public class ReqBlogDTO {
     private String content;
     private MultipartFile thumbnail; // null 일 수 있음
     private String category; // 카테고리 변환 작업(자기 개발 or 공우)
-    private int blogStatus; //공개 1, 비공개 2, ,임시 작성  3
+    private String blogStatus; //공개 1, 비공개 2, ,임시 작성  3
 
 }

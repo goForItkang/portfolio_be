@@ -59,12 +59,15 @@ public class PortFolio {
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ProjectDescription> projectDescriptions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PortfolioSkill> portfolioSkills = new ArrayList<>();
+
+
     public void save(ReqPortfolioDTO req){
         title = req.getTitle();
         email = req.getEmail();
         industry = req.getIndustry();
         jobPosition = req.getJobPosition();
-//        skill = req.getSkill();
         introductions = req.getIntroductions();
         saveStatus = req.isSaveStatus(); // 임시 저장인지 아닌지 확인
         createAt = LocalDateTime.now();
@@ -111,6 +114,14 @@ public class PortFolio {
     }
     public void addPortfolioFile(String fileName){
         this.thumbnailURL = fileName;
+    }
+
+    public void addPortfolioSkills(List<PortfolioSkill> portfolioSkills){
+        for (PortfolioSkill portfolioSkill : portfolioSkills) {
+            this.portfolioSkills.add(portfolioSkill);
+            portfolioSkill.setPortfolio(this);
+        }
+
     }
 
 }

@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             
             log.debug("JWT 필터 처리 시작 - URI: {}, Token: {}", requestURI, token != null ? "[있음]" : "[없음]");
 
+
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 String email = jwtTokenProvider.getEmailFromToken(token);
                 log.debug("토큰에서 추출한 이메일: {}", personalDataUtil.maskEmail(email));
@@ -151,7 +152,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String method = request.getMethod();
         
         log.debug("shouldNotFilter 검사 - URI: {}, Method: {}", path, method);
-        
+
         // 인증이 필요하지 않은 경로들 (permitAll)
         boolean shouldSkip = path.startsWith("/api/user/oauth/") ||
                 path.equals("/api/user/login") ||
@@ -168,7 +169,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.startsWith("/api/admin/migration") ||
                 path.equals("/test") ||
                 path.equals("/test2") ||
-                path.equals("/");
+                path.equals("/api");
         
         log.debug("shouldNotFilter 결과 - URI: {}, Skip: {}", path, shouldSkip);
         

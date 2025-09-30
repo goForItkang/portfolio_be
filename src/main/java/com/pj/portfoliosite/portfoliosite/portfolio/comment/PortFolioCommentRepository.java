@@ -60,4 +60,17 @@ public class PortFolioCommentRepository {
     public void deleteComment(PortfolioComment comment) {
         entityManager.remove(comment);
     }
+
+    public List<PortfolioComment> findByPortfolioIdAndParentIsNull(Long portfolioId) {
+        return entityManager.createQuery(
+                        "SELECT pc FROM PortfolioComment pc " +
+                                "LEFT JOIN FETCH pc.user " + // 댓글 작성자 정보를 함께 가져오기 (N+1 문제 방지)
+                                "WHERE pc.portfolio.id = :portfolioId AND pc.parent IS NULL " +
+                                "ORDER BY pc.createdAt ASC", // 오래된 댓글부터 정렬
+                        PortfolioComment.class
+                )
+                .setParameter("portfolioId", portfolioId)
+                .getResultList();
+    }
+
 }

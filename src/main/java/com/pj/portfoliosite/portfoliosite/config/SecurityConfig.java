@@ -48,8 +48,13 @@ public class SecurityConfig {
                                 "/api/user/oauth/*/callback",
                                 "/api/teamposts",
                                 "/api/teampost/**",
-                                "/api/**",
-                                "/api/admin/migration/**"
+                                "/api/admin/migration/**",
+                                "/api/portfolio/recommend",
+                                "/api/projects/recommend",
+                                "/api/skills",
+                                "/api/portfolios/all",
+                                "api/portfolio/**",
+                                "/api/blogs/**"
                         ).permitAll()
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.GET,
@@ -87,9 +92,5 @@ public class SecurityConfig {
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder(12);
     }
-    
-    @Bean
-    public org.springframework.security.crypto.password.PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
-    }
+
 }
