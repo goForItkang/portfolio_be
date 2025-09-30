@@ -191,6 +191,7 @@ public class PortFolioService {
         resPortFolioDTO.setSkill(resSkill.toResSkillList(portfolioSkills));
         resPortFolioDTO.setIntroductions(portFolio.getIntroductions());
         resPortFolioDTO.setCreateAt(portFolio.getCreateAt());
+        resPortFolioDTO.setJobPosition(portFolio.getJobPosition());
 
         // dto 관련 list 변경
         List<Award> awards = pfRepository.awardSelectByPortfolioId(id);

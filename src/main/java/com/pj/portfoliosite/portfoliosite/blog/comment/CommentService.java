@@ -103,5 +103,6 @@ public class CommentService {
 
     public void delete(Long blogsId, Long commentId) {
 
+        commentRepository.delete(blogsId,commentId);
     }
 }
