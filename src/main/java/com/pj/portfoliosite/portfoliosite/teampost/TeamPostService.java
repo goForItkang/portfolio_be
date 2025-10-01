@@ -342,6 +342,15 @@ public class TeamPostService {
         return dto;
     }
 
+    // 메인 페이지용: 일주일간 좋아요를 많이 받은 TeamPost 4개 조회
+    @Transactional(readOnly = true)
+    public List<ResTeamPostDTO> getTop4TeamPostsByLikes() {
+        List<TeamPost> topPosts = teamPostRepository.findTop4ByLikesInLastWeek();
+        return topPosts.stream()
+                .map(this::toResTeamPostDTO)
+                .toList();
+    }
+
     private User findUserByEmailSafely(String email) {
         try {
             try {

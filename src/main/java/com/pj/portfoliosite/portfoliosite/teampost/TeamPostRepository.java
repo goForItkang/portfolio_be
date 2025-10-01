@@ -8,6 +8,7 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -75,6 +76,23 @@ public class TeamPostRepository {
                 .getResultList();
 
         return drafts.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    // 일주일간 좋아요를 많이 받은 TeamPost 4개 조회 (메인 페이지용)
+    public List<TeamPost> findTop4ByLikesInLastWeek() {
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
+        
+        return entityManager.createQuery(
+                "SELECT tp FROM TeamPost tp " +
+                "LEFT JOIN tp.likes l " +
+                "WHERE tp.saveStatus = false " +
+                "AND (l.createdAt >= :oneWeekAgo OR l.createdAt IS NULL) " +
+                "GROUP BY tp.id " +
+                "ORDER BY COUNT(l.id) DESC, tp.createdAt DESC",
+                TeamPost.class)
+                .setParameter("oneWeekAgo", oneWeekAgo)
+                .setMaxResults(4)
+                .getResultList();
     }
 
     // TeamPost를 ResTeamPostDTO로 변환하는 헬퍼 메서드

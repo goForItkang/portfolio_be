@@ -37,13 +37,23 @@ public class TeamPostController {
     }
 
     @GetMapping("/teamposts")
-    @Operation(summary = "팀원 구하기 목록", description = "페이지네이션 적용된 팀원 구하기 목록 (비로그인 가능)")
+    @Operation(summary = "팀원 구하기 목록", description = "페이지네이션 적용된 팀원 구하기 목록 - 최신순 12개씩 (비로그인 가능)")
     public ResponseEntity<DataResponse> getTeamPosts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size) {
+            @RequestParam(defaultValue = "0") int page) {
         DataResponse dataResponse = new DataResponse();
-        PageDTO<ResTeamPostDTO> teamPosts = teamPostService.getTeamPosts(page, size);
+        // 페이지당 12개로 고정
+        PageDTO<ResTeamPostDTO> teamPosts = teamPostService.getTeamPosts(page, 12);
         dataResponse.setData(teamPosts);
+        return ResponseEntity.ok(dataResponse);
+    }
+
+    @GetMapping("/teamposts/top4")
+    @Operation(summary = "메인 페이지용 팀원 구하기 TOP 4", description = "일주일간 좋아요를 많이 받은 팀원 구하기 게시글 4개 (비로그인 가능)")
+    public ResponseEntity<DataResponse> getTop4TeamPosts() {
+        DataResponse dataResponse = new DataResponse();
+        List<ResTeamPostDTO> top4Posts = teamPostService.getTop4TeamPostsByLikes();
+        dataResponse.setData(top4Posts);
+        dataResponse.setMessage("일주일간 인기 팀원 구하기 게시글 조회 성공");
         return ResponseEntity.ok(dataResponse);
     }
 
