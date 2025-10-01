@@ -142,6 +142,9 @@ public class ProjectService {
         dto.setDemonstrationVideoUrl(project.getDemonstrationVideo());
         dto.setDescription(project.getDescription());
         dto.setCreatedAt(project.getCreatedAt());
+        dto.setWriteName(
+                aesUtil.decode(project.getUser().getNickname())
+        );
 
         // 4. 댓글 리스트 변환
         List<ProjectComment> comments = projectCommentRepository.findByProjectId(id);
