@@ -56,7 +56,9 @@ public class ProjectService {
             resProjectRecommendDto.setId(project.getId());
             resProjectRecommendDto.setTitle(project.getTitle());
             resProjectRecommendDto.setDescription(project.getDescription());
-            resProjectRecommendDto.setWriteName(project.getUser().getName());
+            resProjectRecommendDto.setWriteName(
+                    aesUtil.decode(project.getUser().getNickname())
+            );
             resProjectRecommendDto.setThumbnailURL(project.getThumbnailURL());
             result.add(resProjectRecommendDto);
         }
