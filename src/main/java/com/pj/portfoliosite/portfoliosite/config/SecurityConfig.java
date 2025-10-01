@@ -54,7 +54,8 @@ public class SecurityConfig {
                                 "/api/skills",
                                 "/api/portfolios/all",
                                 "api/portfolio/**",
-                                "/api/blogs/**"
+                                "/api/blogs/**",
+                                "/api/project/**"
                         ).permitAll()
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.GET,

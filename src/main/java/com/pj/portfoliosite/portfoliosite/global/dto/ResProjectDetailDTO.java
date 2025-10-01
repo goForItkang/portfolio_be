@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -28,5 +29,6 @@ public class ResProjectDetailDTO {
     private Long likeCount; // 좋아요 갯수
     private Long bookMarkCount;// 북 마크 갯수
     List<ResCommentListDTO> resCommentsDTOList;
+    private LocalDateTime createdAt;
 
 }

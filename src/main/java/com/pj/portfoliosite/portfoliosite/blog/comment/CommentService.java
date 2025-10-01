@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import javax.xml.stream.events.Comment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -102,7 +103,7 @@ public class CommentService {
 
 
     public void delete(Long blogsId, Long commentId) {
-
-        commentRepository.delete(blogsId,commentId);
+        BlogComment comment = commentRepository.selectById(commentId);
+        commentRepository.delete(comment);
     }
 }

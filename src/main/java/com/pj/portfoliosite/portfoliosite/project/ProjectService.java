@@ -140,6 +140,8 @@ public class ProjectService {
         dto.setEndDate(project.getEndDate());
         dto.setRole(project.getRole());
         dto.setDemonstrationVideoUrl(project.getDemonstrationVideo());
+        dto.setDescription(project.getDescription());
+        dto.setCreatedAt(project.getCreatedAt());
 
         // 4. 댓글 리스트 변환
         List<ProjectComment> comments = projectCommentRepository.findByProjectId(id);

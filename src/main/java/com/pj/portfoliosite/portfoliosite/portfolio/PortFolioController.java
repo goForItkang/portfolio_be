@@ -49,7 +49,7 @@ public class PortFolioController {
     public ResponseEntity<DataResponse> portfolioGetById(
         @RequestParam Long id
     ){
-        log.warn("portpolio get id : " + id);
+        log.info("portfolio {}",id);
         DataResponse dataResponse = new DataResponse();
         dataResponse.setData(portfolioService.getPortFolio(id));
 

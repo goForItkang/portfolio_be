@@ -6,6 +6,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import javax.xml.stream.events.Comment;
 import java.util.List;
 
 @Repository
@@ -32,5 +33,10 @@ public class CommentRepository {
 
     public void delete(Long blogsId, Long commentId) {
         em.remove(em.find(BlogComment.class, commentId));
+    }
+
+
+    public void delete(BlogComment comment) {
+        em.remove(comment);
     }
 }
