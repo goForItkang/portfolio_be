@@ -18,6 +18,7 @@ public class ResProjectDetailDTO {
     private String description;
     private LocalDate startDate; //프로젝트 시작 기간
     private LocalDate endDate; // 프로젝트 끝난 기간
+    private String people;
     private String role; // 담당 역활
 //  private List<Skil> // skill
     private String skill; //skill 처리를 어떻게 애할지안정함
