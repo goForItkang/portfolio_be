@@ -81,5 +81,9 @@ public class User {
     public void addTeamPost(TeamPost teamPost) {
         teamPosts.add(teamPost);
     }
+
+    public void addProfile(String profile) {
+        this.profile = profile;
+    }
 }
 

@@ -8,11 +8,13 @@ import com.pj.portfoliosite.portfoliosite.global.exception.CustomException;
 import com.pj.portfoliosite.portfoliosite.global.errocode.UserErrorCode;
 import com.pj.portfoliosite.portfoliosite.user.dto.ReqLoginDTO;
 import com.pj.portfoliosite.portfoliosite.util.OAuthUtil;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import com.pj.portfoliosite.portfoliosite.util.EmailUtil; // 추가
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +22,10 @@ import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetRequestDto;
 import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetDto;
 import jakarta.validation.Valid;
 import com.pj.portfoliosite.portfoliosite.user.dto.UserDeleteDto;
+import org.springframework.web.multipart.MultipartFile;
 
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
@@ -329,5 +333,15 @@ public class UserController {
             log.error("회원탈퇴 컨트롤러 오류: {}", e.getMessage());
             return new DataResponse<>(500, "회원탈퇴 처리 중 오류가 발생했습니다.", null);
         }
+    }
+    @PatchMapping(value = "/profile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DataResponse> updateProfile(
+            MultipartFile profile
+    ) throws IOException {
+        DataResponse response = new DataResponse();
+        response.setStatus(200);
+        response.setMessage("success");
+        userService.profileUpdate(profile);
+        return ResponseEntity.ok(response);
     }
 }

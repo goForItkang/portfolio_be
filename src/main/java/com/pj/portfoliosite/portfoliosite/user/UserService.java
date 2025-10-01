@@ -5,17 +5,19 @@ import com.pj.portfoliosite.portfoliosite.global.dto.LoginRequestDto;
 import com.pj.portfoliosite.portfoliosite.global.dto.LoginResponseDto;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.user.dto.ReqLoginDTO;
-import com.pj.portfoliosite.portfoliosite.util.PersonalDataUtil;
-import com.pj.portfoliosite.portfoliosite.util.EmailUtil;
-import com.pj.portfoliosite.portfoliosite.util.OAuthUtil;
+import com.pj.portfoliosite.portfoliosite.util.*;
 import com.pj.portfoliosite.portfoliosite.global.exception.CustomException;
 import com.pj.portfoliosite.portfoliosite.global.errocode.UserErrorCode;
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -38,6 +41,10 @@ public class UserService {
 
     @Autowired
     private OAuthUtil oAuthUtil;
+    @Autowired
+    private ImgUtil imgUtil;
+    @Autowired
+    private AESUtil aesUtil;
 
     /**
      * 로그인 처리 (단순화 및 안정화)
@@ -467,5 +474,12 @@ public class UserService {
             log.error("회원탈퇴 실패: {}", e.getMessage(), e);
             return new DataResponse<>(500, "회원탈퇴 처리 중 오류가 발생했습니다.", null);
         }
+    }
+    @Transactional
+    public void profileUpdate(MultipartFile profile) throws IOException {
+        String imgUrl =imgUtil.imgUpload(profile);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
+        user.get().addProfile(imgUrl);
     }
 }
