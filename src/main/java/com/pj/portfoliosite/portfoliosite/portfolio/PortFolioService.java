@@ -339,7 +339,9 @@ public class PortFolioService {
             List<ResPortFolioDTO> resPortfolioDTOS = new ArrayList<>();
             for (PortFolio portfolio : portfolios) {
                 ResPortFolioDTO resPortfolioDTO = new ResPortFolioDTO();
-                resPortfolioDTO.setFile(portfolio.getThumbnailURL());
+                resPortfolioDTO.setFile(
+                        portfolio.getThumbnailURL() != null ? portfolio.getThumbnailURL() : "card1.png"
+                );
                 resPortfolioDTO.setId(portfolio.getId()); // id
                 resPortfolioDTO.setEmail(portfolio.getEmail()); //이메일
                 resPortfolioDTO.setWriteName(aesUtil.decode(portfolio.getUser().getNickname()));
