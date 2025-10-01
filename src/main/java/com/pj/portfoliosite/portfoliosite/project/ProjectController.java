@@ -69,7 +69,7 @@ public class ProjectController {
             description = "아직 미구현 곧 구현 할꺼에용~"
     )
     public ResponseEntity<DataResponse> getProject(
-            @RequestPart Long id
+            @RequestParam Long id
     ){
         DataResponse dataResponse = new DataResponse();
         ResProjectDetailDTO projectDetailDTO = projectService.projectGetById(id);
