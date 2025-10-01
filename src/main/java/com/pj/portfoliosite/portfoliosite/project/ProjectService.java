@@ -59,7 +59,7 @@ public class ProjectService {
             resProjectRecommendDto.setWriteName(
                     aesUtil.decode(project.getUser().getNickname())
             );
-            resProjectRecommendDto.setThumbnailURL(project.getThumbnailURL());
+            resProjectRecommendDto.setThumbnailURL(project.getThumbnailURL() != null ? project.getThumbnailURL() : "card.png");
             result.add(resProjectRecommendDto);
         }
         return result;
