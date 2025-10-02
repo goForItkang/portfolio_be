@@ -85,12 +85,22 @@ public class TeamPostService {
 
     // 팀원 구하기 목록
     @Transactional(readOnly = true)
-    public PageDTO<ResTeamPostDTO> getTeamPosts(int page, int size) {
+    public PageDTO<ResTeamPostDTO> getTeamPosts(int page, int size, String category) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 50);
 
-        List<TeamPost> rows = teamPostRepository.selectByCreateAtDesc(safePage, safeSize);
-        long total = teamPostRepository.selectAllCount();
+        List<TeamPost> rows;
+        long total;
+
+        if (category == null || category.isEmpty() || "ALL".equalsIgnoreCase(category)) {
+            // 카테고리 필터링 없음
+            rows = teamPostRepository.selectByCreateAtDesc(safePage, safeSize);
+            total = teamPostRepository.selectAllCount();
+        } else {
+            // 카테고리로 필터링
+            rows = teamPostRepository.selectByCreateAtDescWithCategory(safePage, safeSize, category);
+            total = teamPostRepository.selectCountByCategory(category);
+        }
 
         List<ResTeamPostDTO> content = rows.stream()
                 .map(this::toResTeamPostDTO)

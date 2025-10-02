@@ -52,6 +52,37 @@ public class TeamPostRepository {
                 .getSingleResult();
     }
 
+    // 카테고리별 최신 게시글 조회
+    public List<TeamPost> selectByCreateAtDescWithCategory(int page, int size, String category) {
+        return entityManager.createQuery(
+                        "select distinct tp " +
+                                "from TeamPost tp " +
+                                "left join fetch tp.user u " +
+                                "left join tp.recruitRoles rr " +
+                                "where tp.saveStatus = false " +
+                                "and rr.role = :category " +
+                                "order by tp.createdAt desc, tp.id desc",
+                        TeamPost.class)
+                .setParameter("category", category)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .setHint("org.hibernate.readOnly", true)
+                .getResultList();
+    }
+
+    // 카테고리별 게시글 수 조회
+    public Long selectCountByCategory(String category) {
+        return entityManager.createQuery(
+                        "select count(distinct tp) " +
+                                "from TeamPost tp " +
+                                "left join tp.recruitRoles rr " +
+                                "where tp.saveStatus = false " +
+                                "and rr.role = :category",
+                        Long.class)
+                .setParameter("category", category)
+                .getSingleResult();
+    }
+
     public void updateTeamPost(TeamPost teamPost) {
         entityManager.merge(teamPost);
     }
