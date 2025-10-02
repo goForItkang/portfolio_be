@@ -46,9 +46,6 @@ public class SecurityConfig {
                                 "/api/user/password-reset",
                                 "/api/user/oauth/*/url",
                                 "/api/user/oauth/*/callback",
-                                "/api/teamposts",
-                                "/api/teamposts/top4",
-                                "/api/teampost/**",
                                 "/api/admin/migration/**",
                                 "/api/portfolio/recommend",
                                 "/api/projects/recommend",
@@ -58,6 +55,7 @@ public class SecurityConfig {
                                 "/api/blogs/**",
                                 "/api/project/**"
                         ).permitAll()
+                        // TeamPost GET 요청은 비로그인 허용
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.GET,
                                 "/api/teamposts",
@@ -65,6 +63,7 @@ public class SecurityConfig {
                                 "/api/teampost/*",
                                 "/api/teampost/*/details"
                         ).permitAll()
+                        // TeamPost POST/PUT/DELETE는 인증 필요
                         .requestMatchers(
                                 "/api/teampost/**"
                         ).hasRole("USER")
