@@ -37,12 +37,13 @@ public class TeamPostController {
     }
 
     @GetMapping("/teamposts")
-    @Operation(summary = "팀원 구하기 목록", description = "페이지네이션 적용된 팀원 구하기 목록 - 최신순 12개씩 (비로그인 가능)")
+    @Operation(summary = "팀원 구하기 목록", description = "페이지네이션 적용된 팀원 구하기 목록 - 최신순 12개씩, 카테고리 필터링 가능 (비로그인 가능)")
     public ResponseEntity<DataResponse> getTeamPosts(
-            @RequestParam(defaultValue = "0") int page) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String category) {
         DataResponse dataResponse = new DataResponse();
         // 페이지당 12개로 고정
-        PageDTO<ResTeamPostDTO> teamPosts = teamPostService.getTeamPosts(page, 12);
+        PageDTO<ResTeamPostDTO> teamPosts = teamPostService.getTeamPosts(page, 12, category);
         dataResponse.setData(teamPosts);
         return ResponseEntity.ok(dataResponse);
     }

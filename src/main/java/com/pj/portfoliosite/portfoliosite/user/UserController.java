@@ -8,7 +8,11 @@ import com.pj.portfoliosite.portfoliosite.global.exception.CustomException;
 import com.pj.portfoliosite.portfoliosite.global.errocode.UserErrorCode;
 import com.pj.portfoliosite.portfoliosite.user.dto.ReqLoginDTO;
 import com.pj.portfoliosite.portfoliosite.util.OAuthUtil;
+
 import lombok.Data;
+
+import io.swagger.v3.oas.annotations.Operation;
+
 import lombok.extern.slf4j.Slf4j;
 import com.pj.portfoliosite.portfoliosite.util.EmailUtil; // 추가
 
@@ -50,6 +54,7 @@ public class UserController {
      * 로그인 (강화된 디버깅 버전)
      */
     @PostMapping("/login")
+    @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인 (비로그인 가능)")
 
     public DataResponse<LoginResponseDto> login(@RequestBody ReqLoginDTO requestDto) {
         try {
@@ -90,6 +95,7 @@ public class UserController {
      * 로그아웃
      */
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "JWT 토큰 필요")
     public DataResponse<String> logout(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return new DataResponse<>(401, "로그인이 필요합니다.", null);
@@ -103,6 +109,7 @@ public class UserController {
      * 사용자 이메일 복호화 (개발/디버깅용)
      */
     @GetMapping("/email/{id}")
+    @Operation(summary = "사용자 이메일 복호화", description = "개발/디버깅용")
     public DataResponse<String> getDecryptedEmail(@PathVariable Long id) {
         try {
             String decryptedEmail = userService.getDecryptedEmail(id);
@@ -117,6 +124,7 @@ public class UserController {
      * 회원가입
      */
     @PostMapping("/register")
+    @Operation(summary = "회원가입", description = "새로운 계정 생성 (비로그인 가능)")
     public DataResponse<String> register(@RequestBody LoginRequestDto requestDto) {
         try {
             return userService.register(requestDto);
@@ -130,6 +138,7 @@ public class UserController {
      * 이메일 인증 코드 발송 (별칭 엔드포인트)
      */
     @PostMapping("/send-verification-email")
+    @Operation(summary = "이메일 인증 코드 발송", description = "회원가입 시 이메일 인증용 (비로그인 가능)")
     public DataResponse<String> sendVerificationEmailAlias(@RequestBody Map<String, String> request) {
         log.info("=== 이메일 인증 코드 발송 요청 수신 (Alias) ===");
         return sendVerificationEmail(request); // 기존 메서드 재사용
@@ -139,6 +148,7 @@ public class UserController {
      * 이메일 인증 코드 발송
      */
     @PostMapping("/send-verification")
+    @Operation(summary = "이메일 인증 코드 발송", description = "회원가입 시 이메일 인증용 (비로그인 가능)")
     public DataResponse<String> sendVerificationEmail(@RequestBody Map<String, String> request) {
         try {
             log.info("=== 이메일 인증 코드 발송 요청 수신 ===");
@@ -161,6 +171,7 @@ public class UserController {
         }
     }
     @PostMapping("/verify-email")
+    @Operation(summary = "이메일 인증 확인", description = "인증 코드로 이메일 확인 (비로그인 가능)")
     public DataResponse<String> verifyEmail(@RequestBody Map<String, String> request) {
         try {
             String email = request.get("email");
@@ -181,6 +192,7 @@ public class UserController {
      * OAuth 인증 URL 생성
      */
     @GetMapping("/oauth/{provider}/url")
+    @Operation(summary = "OAuth 인증 URL 생성", description = "GitHub, Google OAuth 로그인 URL 발급 (비로그인 가능)")
     public DataResponse<String> getOAuthUrl(@PathVariable String provider) {
         try {
             String authUrl;
@@ -205,6 +217,7 @@ public class UserController {
      * OAuth 콜백 처리
      */
     @GetMapping("/oauth/{provider}/callback")
+    @Operation(summary = "OAuth 콜백 처리", description = "OAuth 인증 후 리다이렉트 처리 (비로그인 가능)")
     public ResponseEntity<String> handleOAuthCallback(
             @PathVariable String provider,
             @RequestParam String code) {
@@ -231,6 +244,7 @@ public class UserController {
      * 현재 사용자 정보 조회
      */
     @GetMapping("/me")
+    @Operation(summary = "현재 사용자 정보 조회", description = "JWT 토큰 필요")
     public DataResponse<User> getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new CustomException(UserErrorCode.USER_NOT_FOUND);
@@ -251,6 +265,7 @@ public class UserController {
      * 비밀번호 재설정 요청 (1단계)
      */
     @PostMapping("/password-reset-request")
+    @Operation(summary = "비밀번호 재설정 요청", description = "비밀번호 재설정 인증 코드 발송 (비로그인 가능)")
     public DataResponse<String> requestPasswordReset(@RequestBody PasswordResetRequestDto request) {
         try {
             return userService.sendPasswordResetEmail(request.getEmail());
@@ -264,6 +279,7 @@ public class UserController {
      * 비밀번호 재설정 실행 (2단계)
      */
     @PostMapping("/password-reset")
+    @Operation(summary = "비밀번호 재설정 실행", description = "인증 코드로 비밀번호 변경 (비로그인 가능)")
     public DataResponse<String> resetPassword(@Valid @RequestBody PasswordResetDto request) {
         try {
             return userService.resetPassword(request.getEmail(), request.getNewPassword(), request.getVerificationCode());
@@ -277,6 +293,7 @@ public class UserController {
      * 회원탈퇴용 이메일 인증 코드 발송
      */
     @PostMapping("/send-delete-verification")
+    @Operation(summary = "회원탈퇴 인증 코드 발송", description = "JWT 토큰 필요")
     public DataResponse<String> sendDeleteAccountVerification(@RequestBody Map<String, String> request) {
         try {
             log.info("=== 회원탈퇴 인증 이메일 발송 요청 수신 ===");
@@ -304,6 +321,7 @@ public class UserController {
      * 디버깅용: 저장된 인증 코드 확인
      */
     @GetMapping("/debug/verification-code/{email}")
+    @Operation(summary = "인증 코드 확인", description = "디버깅용")
     public DataResponse<String> getStoredVerificationCode(@PathVariable String email) {
         try {
             String storedCode = emailUtil.getStoredVerificationCode(email);
@@ -321,6 +339,7 @@ public class UserController {
      * 회원탈퇴
      */
     @DeleteMapping("/delete")
+    @Operation(summary = "회원탈퇴", description = "JWT 토큰 필요")
     public DataResponse<String> deleteUser(@RequestBody UserDeleteDto request, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return new DataResponse<>(401, "로그인이 필요합니다.", null);
