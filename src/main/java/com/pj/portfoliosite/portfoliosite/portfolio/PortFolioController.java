@@ -47,6 +47,7 @@ public class PortFolioController {
             description = "id 기준으로 포트 폴리오가져오기"
     )
     public ResponseEntity<DataResponse> portfolioGetById(
+
         @RequestParam Long id
     ){
         log.info("portfolio {}",id);
