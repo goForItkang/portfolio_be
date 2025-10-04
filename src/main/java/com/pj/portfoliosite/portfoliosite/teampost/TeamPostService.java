@@ -322,6 +322,7 @@ public class TeamPostService {
         dto.setWriterName(teamPost.getUser() != null ? teamPost.getUser().getName() : null);
         dto.setProjectType(teamPost.getProjectType());
         dto.setCreatedAt(teamPost.getCreatedAt());
+        dto.setRecruitDeadline(teamPost.getRecruitDeadline());
         dto.setRecruitStatus(teamPost.getRecruitStatus().toString());
         dto.setViewCount(teamPost.getViewCount());
         dto.setLikeCount(teamPost.getLikes().size());

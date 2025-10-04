@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,4 +21,5 @@ public class ResTeamPostDTO {
     private int viewCount;
     private int likeCount;
     private List<String> requiredRoles;
+    private LocalDate recruitDeadline;
 }
