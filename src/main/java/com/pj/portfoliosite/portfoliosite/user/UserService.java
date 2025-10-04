@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -481,5 +482,14 @@ public class UserService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
         user.get().addProfile(imgUrl);
+    }
+
+    public String getToken() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String encodeEmail = aesUtil.encode(email);
+        Optional<User> user = userRepository.findByEmail(encodeEmail);
+
+        return jwtTokenProvider.createToken(user.get());
+
     }
 }

@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetRequestDto;
 import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetDto;
@@ -361,6 +362,14 @@ public class UserController {
         response.setStatus(200);
         response.setMessage("success");
         userService.profileUpdate(profile);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/token")
+    public ResponseEntity<DataResponse> token() {
+        DataResponse response = new DataResponse();
+        response.setStatus(200);
+        response.setMessage("success");
+        response.setData(userService.getToken());
         return ResponseEntity.ok(response);
     }
 }
