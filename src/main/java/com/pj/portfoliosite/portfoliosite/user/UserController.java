@@ -369,7 +369,9 @@ public class UserController {
         DataResponse response = new DataResponse();
         response.setStatus(200);
         response.setMessage("success");
-        response.setData(userService.getToken());
+        String token = userService.getToken();
+        log.info("token: {}", token);
+        response.setData(token);
         return ResponseEntity.ok(response);
     }
     @GetMapping("/duplicate/nickname/{nickname}")
