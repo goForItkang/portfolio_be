@@ -378,6 +378,14 @@ public class UserController {
     ){
         DataResponse response = new DataResponse();
         boolean result = userService.getDuplicateNickname(nickname);
-        return ResponseEntity.ok(response);
+        if(result){
+            response.setMessage("중복 된 닉네임 입니다.");
+            response.setStatus(409);
+            return ResponseEntity.ok(response);
+        }else{
+            response.setMessage("사용 가능한 닉네임 입니다.");
+            return ResponseEntity.ok(response);
+        }
+
     }
 }
