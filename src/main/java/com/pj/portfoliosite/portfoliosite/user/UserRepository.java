@@ -43,4 +43,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * ID로 사용자 검색 (기본 메서드)
      */
     Optional<User> findById(Long id);
+
+    boolean existsByNickname(String nickname);
 }

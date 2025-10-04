@@ -372,4 +372,12 @@ public class UserController {
         response.setData(userService.getToken());
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/duplicate/nickname/{nickname}")
+    public ResponseEntity<DataResponse> duplicationNickname(
+            @PathVariable String nickname
+    ){
+        DataResponse response = new DataResponse();
+        boolean result = userService.getDuplicateNickname(nickname);
+        return ResponseEntity.ok(response);
+    }
 }

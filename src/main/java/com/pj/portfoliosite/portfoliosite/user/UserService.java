@@ -492,4 +492,10 @@ public class UserService {
         return jwtTokenProvider.createToken(user.get());
 
     }
+
+    public boolean getDuplicateNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
+    }
+
+
 }
