@@ -12,8 +12,6 @@ import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +20,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.List;
@@ -478,11 +475,17 @@ public class UserService {
         }
     }
     @Transactional
-    public void profileUpdate(MultipartFile profile) throws IOException {
+    public void profileUpdate(MultipartFile profile, String nickname, String job) throws IOException {
         String imgUrl =imgUtil.imgUpload(profile);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
-        user.get().addProfile(imgUrl);
+        if(profile != null) {
+            user.get().addProfile(imgUrl);
+        }else if(nickname != null) {
+            user.get().setNickname(aesUtil.encode(nickname));
+        }else if(job != null) {
+            user.get().setJob(aesUtil.encode(job));
+        }
     }
 
     public String getToken() {

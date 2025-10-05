@@ -356,12 +356,15 @@ public class UserController {
     }
     @PatchMapping(value = "/profile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DataResponse> updateProfile(
-            MultipartFile profile
+            MultipartFile profile,
+            String nickname,
+            String job
     ) throws IOException {
         DataResponse response = new DataResponse();
+        log.info("nickname: {}, job: {}", nickname, job);
         response.setStatus(200);
         response.setMessage("success");
-        userService.profileUpdate(profile);
+        userService.profileUpdate(profile,nickname,job);
         return ResponseEntity.ok(response);
     }
     @GetMapping("/token")
