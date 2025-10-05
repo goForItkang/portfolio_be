@@ -54,7 +54,8 @@ public class SecurityConfig {
                                 "api/portfolio/**",
                                 "/api/blogs/**",
                                 "/api/project/**",
-                                "/api/projects"
+                                "/api/projects",
+                                "/api/user/duplicate/nickname/**"
                         ).permitAll()
                         // TeamPost GET 요청은 비로그인 허용
                         .requestMatchers(

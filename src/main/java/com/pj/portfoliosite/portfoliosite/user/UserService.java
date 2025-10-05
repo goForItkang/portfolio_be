@@ -494,7 +494,8 @@ public class UserService {
     }
 
     public boolean getDuplicateNickname(String nickname) {
-        return userRepository.existsByNickname(nickname);
+        String encodeNickname = aesUtil.encode(nickname);
+        return userRepository.existsByNickname(encodeNickname);
     }
 
 
