@@ -68,6 +68,7 @@ public class JwtTokenProvider {
                 .claim("name",
                         aesUtil.decode(user.getName()))
                 .claim("profileUrl",aesUtil.decode(user.getProfile()))
+                .claim("job",aesUtil.decode(user.getJob()))
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
