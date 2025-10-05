@@ -390,4 +390,27 @@ public class UserController {
         }
 
     }
+    @PutMapping("/nickname")
+    public ResponseEntity<DataResponse> updateNickname(
+            @RequestBody String nickname
+    ){
+
+        log.info("nickname: {}", nickname);
+        return ResponseEntity.ok(userService.nicknameUpdate(nickname));
+
+    }
+    @PutMapping("/job")
+    public ResponseEntity<DataResponse> updateJob(
+            @RequestBody String job
+    ){
+        log.info("job: {}", job);
+        return ResponseEntity.ok(userService.jobUpdate(job));
+    }
+    @PutMapping("/introduction")
+    public ResponseEntity<DataResponse> updateIntroduction(
+            @RequestBody String introduction
+    ){
+        log.info("introduction: {}", introduction);
+        return ResponseEntity.ok(userService.introductionUpdate(introduction));
+    }
 }

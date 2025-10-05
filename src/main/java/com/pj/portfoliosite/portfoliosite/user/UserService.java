@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.List;
@@ -498,5 +499,52 @@ public class UserService {
         return userRepository.existsByNickname(encodeNickname);
     }
 
-
+    @Transactional
+    public DataResponse nicknameUpdate(String nickname) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(email == null) {
+            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+        }else{
+            User user = userRepository.findByEmail(aesUtil.encode(email)).get();
+            user.setNickname(
+                    aesUtil.encode(nickname)
+            );
+            DataResponse dataResponse = new DataResponse();
+            dataResponse.setStatus(200);
+            dataResponse.setMessage("닉네임이 성공적으로 변경했습니다.");
+            return dataResponse;
+        }
+    }
+    @Transactional
+    public DataResponse jobUpdate(String job) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(email == null) {
+            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+        }else{
+            User user = userRepository.findByEmail(aesUtil.encode(email)).get();
+            user.setJob(
+                    aesUtil.encode(job)
+            );
+            DataResponse dataResponse = new DataResponse();
+            dataResponse.setStatus(200);
+            dataResponse.setMessage("job 변경되었습니다.");
+            return dataResponse;
+        }
+    }
+    @Transactional
+    public DataResponse introductionUpdate(String introduction) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email == null){
+            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+        }else{
+            User user = userRepository.findByEmail(aesUtil.encode(email)).get();
+            user.setIntroduce(
+                    aesUtil.encode(introduction)
+            );
+            DataResponse dataResponse = new DataResponse();
+            dataResponse.setStatus(200);
+            dataResponse.setMessage("introduction 변경되었습니다.");
+            return dataResponse;
+        }
+    }
 }
