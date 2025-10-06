@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetRequestDto;
 import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetDto;
+import com.pj.portfoliosite.portfoliosite.user.dto.PasswordChangeDto;
 import jakarta.validation.Valid;
 import com.pj.portfoliosite.portfoliosite.user.dto.UserDeleteDto;
 import org.springframework.web.multipart.MultipartFile;
@@ -362,5 +363,32 @@ public class UserController {
         response.setMessage("success");
         userService.profileUpdate(profile);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 비밀번호 변경 (로그인한 사용자)
+     */
+    @PatchMapping("/change-password")
+    @Operation(summary = "비밀번호 변경", description = "JWT 토큰 필요 - 로그인한 사용자가 현재 비밀번호로 비밀번호를 변경")
+    public DataResponse<String> changePassword(
+            @Valid @RequestBody PasswordChangeDto request,
+            Authentication authentication) {
+        
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new DataResponse<>(401, "로그인이 필요합니다.", null);
+        }
+
+        try {
+            String email = authentication.getName();
+            return userService.changePassword(
+                email,
+                request.getCurrentPassword(),
+                request.getNewPassword(),
+                request.getNewPasswordConfirm()
+            );
+        } catch (Exception e) {
+            log.error("비밀번호 변경 컨트롤러 오류: {}", e.getMessage());
+            return new DataResponse<>(500, "비밀번호 변경 처리 중 오류가 발생했습니다.", null);
+        }
     }
 }
