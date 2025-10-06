@@ -38,6 +38,9 @@ public class Blog {
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BlogLike> blogLikes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BlogComment> comments = new ArrayList<>();
+
     public void addUser(User user) {
         this.user = user;
     }

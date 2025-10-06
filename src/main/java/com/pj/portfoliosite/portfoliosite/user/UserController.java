@@ -6,6 +6,7 @@ import com.pj.portfoliosite.portfoliosite.global.dto.LoginResponseDto;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.global.exception.CustomException;
 import com.pj.portfoliosite.portfoliosite.global.errocode.UserErrorCode;
+import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqProfileDTO;
 import com.pj.portfoliosite.portfoliosite.user.dto.ReqLoginDTO;
 import com.pj.portfoliosite.portfoliosite.util.OAuthUtil;
 
@@ -357,15 +358,13 @@ public class UserController {
     }
     @PatchMapping(value = "/profile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DataResponse> updateProfile(
-            MultipartFile profile,
-            String nickname,
-            String job
+            ReqProfileDTO  req
     ) throws IOException {
         DataResponse response = new DataResponse();
-        log.info("nickname: {}, job: {}", nickname, job);
+        log.info("req: {}", req);
         response.setStatus(200);
         response.setMessage("success");
-        userService.profileUpdate(profile,nickname,job);
+        userService.profileUpdate(req.getProfile(),req.getNickname(),req.getJob());
         return ResponseEntity.ok(response);
     }
     @GetMapping("/token")

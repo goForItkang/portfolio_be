@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
                 @UniqueConstraint(columnNames = {"user_id", "project_id"})
         }
 )
-public class ProjectLike {
+public class
+ProjectLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
