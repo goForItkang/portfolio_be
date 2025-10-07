@@ -67,7 +67,8 @@ public class ExceptionController {
         response.setStatus(500);
         response.setMessage("서버 내부 오류가 발생했습니다.");
         response.setData(null);
-        
+
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
