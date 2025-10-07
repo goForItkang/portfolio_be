@@ -476,10 +476,11 @@ public class UserService {
     }
     @Transactional
     public void profileUpdate(MultipartFile profile, String nickname, String job) throws IOException {
-        String imgUrl =imgUtil.imgUpload(profile);
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
         if(profile != null) {
+            String imgUrl =imgUtil.imgUpload(profile);
             user.get().addProfile(imgUrl);
         }else if(nickname != null) {
             user.get().setNickname(aesUtil.encode(nickname));
