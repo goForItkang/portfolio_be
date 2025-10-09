@@ -30,7 +30,10 @@ public class Skill {
     // TeamPostSkill과의 연관관계
     @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamPostSkill> teamPostSkills = new ArrayList<>();
-    
+
+    @OneToMany(mappedBy = "skill",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectSkill> projectSkills = new ArrayList<>();
+
     // 편의 생성자
     public Skill(String name) {
         this.name = name;
