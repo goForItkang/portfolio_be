@@ -129,6 +129,9 @@ public class ProjectService {
             Long userId = user.get().getId();
             dto.setLikeCheck(projectLikeRepository.existLike(id, userId));
             dto.setBookMarkCheck(projectBookMarkRepository.existBookMark(id, userId));
+            if(project.getUser().getId().equals(userId)){
+                dto.setOwner(true);
+            }
         } else {
             dto.setLikeCheck(false);
             dto.setBookMarkCheck(false);
