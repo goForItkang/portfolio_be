@@ -77,4 +77,10 @@ public class Project {
     public void addLike(ProjectLike like) {
         this.likes.add(like);
     }
+    public void addSkill(List<ProjectSkill> projectSkills) {
+        for (ProjectSkill projectSkill : projectSkills) {
+            this.projectSkills.add(projectSkill);
+            projectSkill.setProject(this);
+        }
+    }
 }

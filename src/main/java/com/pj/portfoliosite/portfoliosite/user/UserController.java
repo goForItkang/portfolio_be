@@ -68,7 +68,7 @@ public class UserController {
 
             if (requestDto == null) {
                 log.error("로그인 요청 데이터가 null");
-                return new DataResponse<>(400, "요청 데이터가 비어있습니다", null);
+                return new DataResponse<>(402, "요청 데이터가 비어있습니다", null);
             }
 
             log.info("서비스 로그인 메서드 호출 시작...");
@@ -76,7 +76,7 @@ public class UserController {
 
             if (responseDto == null) {
                 log.error("서비스에서 null 응답 반환");
-                return new DataResponse<>(500, "로그인 처리 중 오류가 발생했습니다", null);
+                return new DataResponse<>(510, "로그인 처리 중 오류가 발생했습니다", null);
             }
 
             log.info("서비스 응답: success={}, message={}, token={}",

@@ -1,14 +1,12 @@
 package com.pj.portfoliosite.portfoliosite.project;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.*;
-import com.pj.portfoliosite.portfoliosite.global.entity.Project;
-import com.pj.portfoliosite.portfoliosite.global.entity.ProjectBookMark;
-import com.pj.portfoliosite.portfoliosite.global.entity.ProjectComment;
-import com.pj.portfoliosite.portfoliosite.global.entity.User;
+import com.pj.portfoliosite.portfoliosite.global.entity.*;
 import com.pj.portfoliosite.portfoliosite.project.bookmark.ProjectBookMarkRepository;
 import com.pj.portfoliosite.portfoliosite.project.comment.ProjectCommentRepository;
 import com.pj.portfoliosite.portfoliosite.project.like.ProjectLikeRepository;
 import com.pj.portfoliosite.portfoliosite.project.like.ProjectLikeService;
+import com.pj.portfoliosite.portfoliosite.skill.SkillRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserService;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
@@ -40,6 +38,7 @@ public class ProjectService {
     private final ProjectLikeRepository projectLikeRepository;
     private final ProjectBookMarkRepository projectBookMarkRepository;
     private final AESUtil aesUtil;
+    private final SkillRepository skillRepository;
 
     //추천 프로젝트 로직 오늘 부터 일주일 동안 가장 많은 좋아요 갯수
     public List<ResProjectRecommendDto> getRecommend() {
@@ -100,6 +99,27 @@ public class ProjectService {
                 Project project = new Project();
                 project.setUser(user.get()); // 사입하고
                 project.setProject(reqProject);
+                List<String> skillIds = reqProject.getSkillIds();
+
+                if(skillIds != null && !skillIds.isEmpty()) {
+                    List<ProjectSkill> projectSkills = new ArrayList<>();
+                    for (String skillIdString : skillIds) {
+                        try{
+                            Long skillId = Long.parseLong(skillIdString);
+                            Skill skillReference = skillRepository.getReferenceById(skillId);
+
+                            ProjectSkill projectSkill = new ProjectSkill();
+                            projectSkill.setSkill(skillReference);
+                            projectSkills.add(projectSkill);
+                        } catch (NumberFormatException e) {
+                            // 만약 skillIdString이 숫자로 변환될 수 없는 값이라면, 이 예외가 발생합니다.
+                            // 해당 스킬은 무시하고 계속 진행하거나, 로그를 남길 수 있습니다.
+                            log.warn("숫자로 변환할 수 없는 Skill ID를 건너뜁니다: {}", skillIdString);
+                        }
+
+                    }
+                    project.addSkill(projectSkills);
+                }
                 if(reqProject.getThumbnailImg() != null){
                     String imgUrl = imgUtil.imgUpload(reqProject.getThumbnailImg());
                     project.setThumbnailURL(imgUrl);
