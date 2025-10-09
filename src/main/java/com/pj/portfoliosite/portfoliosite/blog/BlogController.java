@@ -88,6 +88,8 @@ public class BlogController {
             @PathVariable Long id,
             ReqBlogDTO reqBlogDTO
     ) throws IOException {
+        log.info("id = {}", id);
+        log.info("reqBlogDTO = {}", reqBlogDTO);
         blogService.update(id,reqBlogDTO);
         DataResponse dataResponse = new DataResponse();
         dataResponse.setMessage("정상적으로 수정 되었습니다.");
