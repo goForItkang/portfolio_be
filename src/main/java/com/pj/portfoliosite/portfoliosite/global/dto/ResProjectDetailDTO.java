@@ -1,5 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.global.dto;
 
+import com.pj.portfoliosite.portfoliosite.skill.ResSkill;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ public class ResProjectDetailDTO {
     private String role; // 담당 역활
     private boolean isOwner;
     private boolean distribution;
-//  private List<Skil> // skill
+    private List<ResSkill> skills;
     private String skill; //skill 처리를 어떻게 애할지안정함
     private String demonstrationVideoUrl;
     private String writeName;

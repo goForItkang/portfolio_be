@@ -103,6 +103,7 @@ public class PortFolioController {
             @PathVariable Long id,
             ReqPortfolioDTO reqPortfolioDTO
     ) throws IOException {
+        log.info("reqPortfolioDTO : " + reqPortfolioDTO);
         DataResponse dataResponse = new DataResponse();
 
         boolean result =portfolioService.update(id,reqPortfolioDTO);
