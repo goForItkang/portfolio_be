@@ -6,6 +6,7 @@ import com.pj.portfoliosite.portfoliosite.project.bookmark.ProjectBookMarkReposi
 import com.pj.portfoliosite.portfoliosite.project.comment.ProjectCommentRepository;
 import com.pj.portfoliosite.portfoliosite.project.like.ProjectLikeRepository;
 import com.pj.portfoliosite.portfoliosite.project.like.ProjectLikeService;
+import com.pj.portfoliosite.portfoliosite.skill.ResSkill;
 import com.pj.portfoliosite.portfoliosite.skill.SkillRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserService;
@@ -146,6 +147,8 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public ResProjectDetailDTO projectGetById(Long id) {
         Project project = projectRepository.findById(id);
+
+
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         if(userEmail.equals("anonymousUser")){
             log.info("확인 할 수 없는 사용자");
@@ -155,7 +158,9 @@ public class ProjectService {
         Optional<User> user = userRepository.findByEmail(aesUtil.encode(userEmail));
 
         ResProjectDetailDTO dto = new ResProjectDetailDTO();
-
+        List<Skill> projectSkills = skillRepository.selectByProjectId(id);
+        ResSkill resSkill = new ResSkill();
+        dto.setSkills(resSkill.toResSkillList(projectSkills));
         // 1. 좋아요/북마크 갯수
         dto.setLikeCount(projectLikeRepository.countById(id));
         dto.setBookMarkCount(projectBookMarkRepository.countById(id));

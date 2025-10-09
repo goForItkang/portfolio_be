@@ -29,4 +29,6 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
         WHERE ps.portfolio.id = :portfolioId
     """)
     List<Skill> selectByPortfolioId(@Param("portfolioId") Long id);
+
+    List<Skill> selectByProjectId(@Param("projectId") Long id);
 }
