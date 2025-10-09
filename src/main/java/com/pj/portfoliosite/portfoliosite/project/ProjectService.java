@@ -62,6 +62,22 @@ public class ProjectService {
             resProjectRecommendDto.setThumbnailURL(project.getThumbnailURL() != null ? project.getThumbnailURL() : "card.png");
             result.add(resProjectRecommendDto);
         }
+        if(result.size() < 4) {
+            int size = 4 - result.size();
+            List<Project> projects2 = projectRepository.findByLikeDecs(size);
+            for (Project project : projects2) {
+                ResProjectRecommendDto resProjectRecommendDto = new ResProjectRecommendDto();
+                resProjectRecommendDto.setId(project.getId());
+                resProjectRecommendDto.setTitle(project.getTitle());
+                resProjectRecommendDto.setDescription(project.getDescription());
+                resProjectRecommendDto.setWriteName(
+                        aesUtil.decode(project.getUser().getNickname())
+                );
+                resProjectRecommendDto.setThumbnailURL(project.getThumbnailURL() != null ? project.getThumbnailURL() : "card.png");
+                result.add(resProjectRecommendDto);
+            }
+
+        }
         return result;
     }
     @Transactional
@@ -232,5 +248,9 @@ public class ProjectService {
                 p.getUser() != null ? p.getUser().getName() : null,
                 p.getThumbnailURL()
         );
+    }
+
+    public void delete(Long id) {
+        projectRepository.deleteByid(id);
     }
 }

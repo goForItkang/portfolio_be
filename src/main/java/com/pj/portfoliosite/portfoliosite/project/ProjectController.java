@@ -2,6 +2,7 @@ package com.pj.portfoliosite.portfoliosite.project;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -77,5 +78,15 @@ public class ProjectController {
         return ResponseEntity.ok(
                 dataResponse
         );
+    }
+    @DeleteMapping("/projects/{id}")
+    public ResponseEntity<DataResponse> deleteProject(
+            @PathVariable Long id
+    ){
+        DataResponse dataResponse = new DataResponse();
+        dataResponse.setStatus(200);
+        dataResponse.setMessage("삭제가 완료 되었습니다.");
+        projectService.delete(id);
+        return ResponseEntity.ok(dataResponse);
     }
 }

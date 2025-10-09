@@ -80,4 +80,20 @@ public class ProjectRepository {
         return entityManager.find(Project.class, projectId);
     }
 
+    public List<Project> findByLikeDecs(int size) {
+        return entityManager.createQuery(
+                        """
+                        select p
+                        from Project p
+                        left join p.likes l
+                        group by p
+                        order by count(l) desc
+                        """, Project.class)
+                .setMaxResults(size)
+                .getResultList();
+    }
+
+    public void deleteByid(Long id) {
+        entityManager.remove(entityManager.getReference(Project.class, id));
+    }
 }
