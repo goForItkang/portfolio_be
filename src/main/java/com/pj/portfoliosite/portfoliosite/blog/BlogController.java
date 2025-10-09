@@ -83,7 +83,7 @@ public class BlogController {
 
     }
 //    테스트완료
-    @PatchMapping(value = "/blogs/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/blogs/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DataResponse> updateBlog(
             @PathVariable Long id,
             ReqBlogDTO reqBlogDTO
