@@ -30,9 +30,6 @@ public class PortFolioLikeService {
 
         String testLogin = SecurityContextHolder.getContext().getAuthentication().getName();
         log.warn(testLogin);
-        if(testLogin == null){
-            throw new RuntimeException("로그인이 필요합니다. ");
-        }
         String encodeEmail = aesUtil.encode(testLogin);
         Optional<User> user = userRepository.findByEmail(encodeEmail);
         if(user.isPresent()){

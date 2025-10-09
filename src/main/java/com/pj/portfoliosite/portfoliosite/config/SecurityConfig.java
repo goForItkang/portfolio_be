@@ -52,6 +52,7 @@ public class SecurityConfig {
                                 "/api/skills",
                                 "/api/portfolios/all",
                                 "api/portfolio/**",
+                                "/api/portfolios/**",
                                 "/api/blogs/**",
                                 "/api/project/**",
                                 "/api/projects",

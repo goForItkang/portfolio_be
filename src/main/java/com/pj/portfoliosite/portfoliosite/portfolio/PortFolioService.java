@@ -302,15 +302,8 @@ public class PortFolioService {
     }
 
     public ResPortfolioDetailDTO getPortFolioDetails(Long id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        String userEmail;
-        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
-            userEmail = authentication.getName();
-        } else {
-            throw new RuntimeException("로그인이 필요합니다.");
-        }
-        String encodeEmail = aesUtil.encode(userEmail);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String encodeEmail = aesUtil.encode(email);
         Optional<User> user = userRepository.findByEmail(encodeEmail);
         ResPortfolioDetailDTO resPortfolioDetailDTO = new ResPortfolioDetailDTO();
         if(user.isPresent()){

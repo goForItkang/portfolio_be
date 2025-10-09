@@ -23,6 +23,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 import java.util.List;
+import java.util.Random;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -232,7 +234,9 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName());
         user.setNickname(request.getNickname());
-
+        Random random = new Random();
+        random.setSeed(System.currentTimeMillis());
+        user.setProfile("color"+random.nextInt(5)+1+".png");
 
         if (request.getBirthDate() != null && !request.getBirthDate().isEmpty()) {
             try {
