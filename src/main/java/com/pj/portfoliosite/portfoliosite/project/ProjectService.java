@@ -167,7 +167,7 @@ public class ProjectService {
                 aesUtil.decode(project.getUser().getNickname())
         );
         dto.setPeople(project.getPeople());
-
+        dto.setDescription(project.getDescription());
         // 4. 댓글 리스트 변환
         List<ProjectComment> comments = projectCommentRepository.findByProjectId(id);
         List<ResCommentListDTO> commentDTOs = new ArrayList<>();

@@ -21,6 +21,7 @@ public class ResProjectDetailDTO {
     private String people;
     private String role; // 담당 역활
     private boolean isOwner;
+    private boolean distribution;
 //  private List<Skil> // skill
     private String skill; //skill 처리를 어떻게 애할지안정함
     private String demonstrationVideoUrl;
