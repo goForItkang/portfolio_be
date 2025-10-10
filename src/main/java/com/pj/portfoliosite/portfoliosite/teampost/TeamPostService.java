@@ -53,7 +53,6 @@ public class TeamPostService {
             teamPost.setUser(user);
             teamPost.setTitle(reqTeamPostDTO.getTitle());
             teamPost.setContent(reqTeamPostDTO.getContent());
-            teamPost.setProjectType(reqTeamPostDTO.getProjectType());
             teamPost.setRecruitDeadline(reqTeamPostDTO.getRecruitDeadline());
             teamPost.setContactMethod(reqTeamPostDTO.getContactMethod());
             teamPost.setSaveStatus(reqTeamPostDTO.isSaveStatus());
@@ -64,6 +63,7 @@ public class TeamPostService {
                     RecruitRole recruitRole = new RecruitRole();
                     recruitRole.setRole(roleDto.getRole());
                     recruitRole.setCount(roleDto.getCount());
+                    recruitRole.setSkills(roleDto.getSkills());  // 스킬 설정 추가
                     teamPost.addRecruitRole(recruitRole);
                 }
             }
@@ -144,7 +144,6 @@ public class TeamPostService {
         dto.setTitle(teamPost.getTitle());
         dto.setContent(teamPost.getContent());
         dto.setWriterName(teamPost.getUser().getName());
-        dto.setProjectType(teamPost.getProjectType());
         dto.setCreatedAt(teamPost.getCreatedAt());
         dto.setRecruitDeadline(teamPost.getRecruitDeadline());
         dto.setContactMethod(teamPost.getContactMethod());
@@ -178,6 +177,8 @@ public class TeamPostService {
             RecruitRoleDto roleDto = new RecruitRoleDto();
             roleDto.setRole(role.getRole());
             roleDto.setCount(role.getCount());
+            roleDto.setPeople(role.getPeople());
+            roleDto.setSkills(role.getSkills());  // 스킬 목록 추가
             roleDTOs.add(roleDto);
         }
         dto.setRecruitRoles(roleDTOs);
@@ -296,7 +297,6 @@ public class TeamPostService {
 
         teamPost.setTitle(reqTeamPostDTO.getTitle());
         teamPost.setContent(reqTeamPostDTO.getContent());
-        teamPost.setProjectType(reqTeamPostDTO.getProjectType());
         teamPost.setRecruitDeadline(reqTeamPostDTO.getRecruitDeadline());
         teamPost.setContactMethod(reqTeamPostDTO.getContactMethod());
         teamPost.setSaveStatus(reqTeamPostDTO.isSaveStatus());
@@ -320,16 +320,20 @@ public class TeamPostService {
         dto.setId(teamPost.getId());
         dto.setTitle(teamPost.getTitle());
         dto.setWriterName(teamPost.getUser() != null ? teamPost.getUser().getName() : null);
-        dto.setProjectType(teamPost.getProjectType());
         dto.setCreatedAt(teamPost.getCreatedAt());
         dto.setRecruitDeadline(teamPost.getRecruitDeadline());
         dto.setRecruitStatus(teamPost.getRecruitStatus().toString());
         dto.setViewCount(teamPost.getViewCount());
         dto.setLikeCount(teamPost.getLikes().size());
 
-        List<String> requiredRoles = new ArrayList<>();
+        List<RecruitRoleDto> requiredRoles = new ArrayList<>();
         for (RecruitRole role : teamPost.getRecruitRoles()) {
-            requiredRoles.add(role.getRole());
+            RecruitRoleDto roleDto = new RecruitRoleDto();
+            roleDto.setRole(role.getRole());
+            roleDto.setCount(role.getCount());
+            roleDto.setPeople(role.getPeople());
+            roleDto.setSkills(role.getSkills());
+            requiredRoles.add(roleDto);
         }
         dto.setRequiredRoles(requiredRoles);
 

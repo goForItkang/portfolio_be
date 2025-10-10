@@ -10,7 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeamPostFilterDTO {
-    private String projectType;
     private List<String> skills;
     private String recruitStatus;
     private String sortBy; // 최신순, 인기순, 마감순
