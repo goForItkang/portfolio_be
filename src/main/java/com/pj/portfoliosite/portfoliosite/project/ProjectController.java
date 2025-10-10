@@ -4,6 +4,7 @@ import com.pj.portfoliosite.portfoliosite.global.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -103,5 +105,13 @@ public class ProjectController {
 
         return ResponseEntity.ok(dataResponse);
     }
-//    @PutMapping("/project/{id}")
+    @PutMapping(value = "/project/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DataResponse> projectUpdate(
+            @PathVariable Long id,
+            ReqProject reqProject
+    ){
+        log.info("프로젝트 업데이트 id : " + id);
+
+        return ResponseEntity.ok(null);
+    }
 }
