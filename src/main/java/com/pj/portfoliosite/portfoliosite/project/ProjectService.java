@@ -4,6 +4,7 @@ import com.pj.portfoliosite.portfoliosite.global.dto.*;
 import com.pj.portfoliosite.portfoliosite.global.entity.*;
 import com.pj.portfoliosite.portfoliosite.project.bookmark.ProjectBookMarkRepository;
 import com.pj.portfoliosite.portfoliosite.project.comment.ProjectCommentRepository;
+import com.pj.portfoliosite.portfoliosite.project.dto.ResProjectDetailDto;
 import com.pj.portfoliosite.portfoliosite.project.like.ProjectLikeRepository;
 import com.pj.portfoliosite.portfoliosite.project.like.ProjectLikeService;
 import com.pj.portfoliosite.portfoliosite.skill.ResSkill;
@@ -127,7 +128,7 @@ public class ProjectService {
                 }else{
                     project.setThumbnailURL(null);
                 }
-                if(project.getThumbnailURL() == null){
+                if(reqProject.getDemonstrationVideo() == null){
                     project.setDemonstrationVideo(null);
                 }else{
                     String demonstrationURL = imgUtil.imgUpload(reqProject.getDemonstrationVideo());
@@ -277,5 +278,17 @@ public class ProjectService {
 
     public void delete(Long id) {
         projectRepository.deleteByid(id);
+    }
+    // 오류 해결 해야함
+    public ResProjectDetailDto projectDetailsById(Long id) {
+        ResProjectDetailDto dto = new ResProjectDetailDto();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
+        if(user.isPresent()){
+
+        }
+
+
+        return dto;
     }
 }

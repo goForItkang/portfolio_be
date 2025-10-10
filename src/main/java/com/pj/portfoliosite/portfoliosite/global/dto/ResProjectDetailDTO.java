@@ -24,7 +24,6 @@ public class ResProjectDetailDTO {
     private boolean isOwner;
     private boolean distribution;
     private List<ResSkill> skills;
-    private String skill; //skill 처리를 어떻게 애할지안정함
     private String demonstrationVideoUrl;
     private String writeName;
     // 댓글

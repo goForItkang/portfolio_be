@@ -89,4 +89,19 @@ public class ProjectController {
         projectService.delete(id);
         return ResponseEntity.ok(dataResponse);
     }
+    @GetMapping("/project/{id}/details")
+    @Operation(
+            summary = "포트폴리오 세부정보(좋아요 및 북마크 상태)",
+            description = "id로 세부 정보"
+    )
+    public ResponseEntity<DataResponse> projectGetDetails(
+            @PathVariable Long id
+    ){
+        DataResponse dataResponse = new DataResponse();
+        dataResponse.setStatus(200);
+        dataResponse.setData(projectService.projectDetailsById(id));
+
+        return ResponseEntity.ok(dataResponse);
+    }
+//    @PutMapping("/project/{id}")
 }
