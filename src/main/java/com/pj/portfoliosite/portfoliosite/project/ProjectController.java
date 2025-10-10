@@ -111,7 +111,7 @@ public class ProjectController {
             ReqProject reqProject
     ){
         log.info("프로젝트 업데이트 id : " + id);
-
+        projectService.update(id,reqProject);
         return ResponseEntity.ok(null);
     }
 }

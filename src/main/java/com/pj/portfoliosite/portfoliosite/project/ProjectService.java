@@ -61,6 +61,7 @@ public class ProjectService {
                     aesUtil.decode(project.getUser().getNickname())
             );
             resProjectRecommendDto.setThumbnailURL(project.getThumbnailURL() != null ? project.getThumbnailURL() : "card.png");
+            resProjectRecommendDto.setRole(project.getRole());
             result.add(resProjectRecommendDto);
         }
         if(result.size() < 4) {
@@ -75,6 +76,7 @@ public class ProjectService {
                         aesUtil.decode(project.getUser().getNickname())
                 );
                 resProjectRecommendDto.setThumbnailURL(project.getThumbnailURL() != null ? project.getThumbnailURL() : "card.png");
+                resProjectRecommendDto.setRole(project.getRole());
                 result.add(resProjectRecommendDto);
             }
 
@@ -290,5 +292,12 @@ public class ProjectService {
 
 
         return dto;
+    }
+
+    public void update(Long id, ReqProject reqProject) {
+        Project project = projectRepository.findById(id);
+        if(reqProject.getTitle() != null){
+
+        }
     }
 }
