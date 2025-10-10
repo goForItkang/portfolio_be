@@ -273,6 +273,7 @@ public class ProjectService {
                 p.getId(),
                 p.getTitle(),
                 p.getDescription(),
+                p.getRole(),
                 p.getUser() != null ? p.getUser().getName() : null,
                 p.getThumbnailURL()
         );
