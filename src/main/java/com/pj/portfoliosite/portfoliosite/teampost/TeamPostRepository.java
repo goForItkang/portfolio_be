@@ -2,6 +2,7 @@ package com.pj.portfoliosite.portfoliosite.teampost;
 
 import com.pj.portfoliosite.portfoliosite.global.entity.TeamPost;
 import com.pj.portfoliosite.portfoliosite.global.entity.RecruitRole;
+import com.pj.portfoliosite.portfoliosite.global.dto.RecruitRoleDto;
 import com.pj.portfoliosite.portfoliosite.teampost.dto.ResTeamPostDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -132,16 +133,20 @@ public class TeamPostRepository {
         dto.setId(teamPost.getId());
         dto.setTitle(teamPost.getTitle());
         dto.setWriterName(teamPost.getUser() != null ? teamPost.getUser().getName() : null);
-        dto.setProjectType(teamPost.getProjectType());
         dto.setCreatedAt(teamPost.getCreatedAt());
         dto.setRecruitStatus(teamPost.getRecruitStatus().toString());
         dto.setViewCount(teamPost.getViewCount());
         dto.setLikeCount(teamPost.getLikes() != null ? teamPost.getLikes().size() : 0);
 
-        List<String> requiredRoles = new ArrayList<>();
+        List<RecruitRoleDto> requiredRoles = new ArrayList<>();
         if (teamPost.getRecruitRoles() != null) {
             for (RecruitRole role : teamPost.getRecruitRoles()) {
-                requiredRoles.add(role.getRole());
+                RecruitRoleDto roleDto = new RecruitRoleDto();
+                roleDto.setRole(role.getRole());
+                roleDto.setCount(role.getCount());
+                roleDto.setPeople(role.getPeople());
+                roleDto.setSkills(role.getSkills());
+                requiredRoles.add(roleDto);
             }
         }
         dto.setRequiredRoles(requiredRoles);

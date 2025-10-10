@@ -25,8 +25,6 @@ public class TeamPost {
 
     @Lob
     private String content;                  // 내용
-
-    private String projectType;              // 프로젝트 유형 (웹, 앱, 게임 등)
     
     // Skills 연관관계 (중간 엔티티를 통해 관리)
     @OneToMany(mappedBy = "teamPost", cascade = CascadeType.ALL, orphanRemoval = true)

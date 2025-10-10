@@ -20,7 +20,6 @@ public class ResTeamPostDetailDTO {
     private String title;
     private String content;
     private String writerName;
-    private String projectType;
     private LocalDateTime createdAt;
     
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")

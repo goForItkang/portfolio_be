@@ -17,7 +17,6 @@ import java.util.List;
 public class ReqTeamPostDTO {
     private String title;                        // 제목
     private String content;                      // 내용
-    private String projectType;                  // 프로젝트 유형 (웹, 앱, 게임 등)
     
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     @JsonDeserialize(using = FlexibleLocalDateDeserializer.class)
