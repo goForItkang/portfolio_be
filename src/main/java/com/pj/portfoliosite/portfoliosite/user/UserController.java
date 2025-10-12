@@ -80,12 +80,12 @@ public class UserController {
                 return new DataResponse<>(510, "로그인 처리 중 오류가 발생했습니다", null);
             }
 
-            log.info("서비스 응답: success={}, message={}, token={}",
-                    responseDto.isSuccess(),
+            log.info("서비스 응답: status={}, message={}, token={}",
+                    responseDto.getStatus(),
                     responseDto.getMessage(),
                     responseDto.getToken() != null ? "[토큰 있음]" : "null");
 
-            int statusCode = responseDto.isSuccess() ? 200 : 401;
+            int statusCode = responseDto.getStatus();
             return new DataResponse<>(statusCode, "Login processed", responseDto);
 
         } catch (Exception e) {

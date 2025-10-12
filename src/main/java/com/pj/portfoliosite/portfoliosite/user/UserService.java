@@ -58,22 +58,22 @@ public class UserService {
         try {
             // 입력값 검증
             if (inputEmail == null || inputEmail.trim().isEmpty()) {
-                return new LoginResponseDto(false, "이메일을 입력해주세요", null);
+                return new LoginResponseDto(400, "이메일을 입력해주세요", null);
             }
 
             if (inputPassword == null || inputPassword.trim().isEmpty()) {
-                return new LoginResponseDto(false, "비밀번호를 입력해주세요", null);
+                return new LoginResponseDto(400, "비밀번호를 입력해주세요", null);
             }
 
             User user = findUserByEmailSafely(inputEmail);
 
             if (user == null) {
-                return new LoginResponseDto(false, "이메일 또는 비밀번호가 올바르지 않습니다", null);
+                return new LoginResponseDto(401, "이메일 또는 비밀번호가 올바르지 않습니다", null);
             }
 
             // 비밀번호 검증
             if (!passwordEncoder.matches(inputPassword, user.getPassword())) {
-                return new LoginResponseDto(false, "이메일 또는 비밀번호가 올바르지 않습니다", null);
+                return new LoginResponseDto(401, "이메일 또는 비밀번호가 올바르지 않습니다", null);
             }
 
 
@@ -86,11 +86,11 @@ public class UserService {
             user.setRefreshTokenExpiry(LocalDateTime.now().plusDays(7));
             userRepository.save(user);
 
-            return new LoginResponseDto(true, "로그인 성공", token);
+            return new LoginResponseDto(200, "로그인 성공", token);
 
         } catch (Exception e) {
             log.error("로그인 처리 중 오류: {}", e.getMessage());
-            return new LoginResponseDto(false, "로그인 처리 중 오류가 발생했습니다", null);
+            return new LoginResponseDto(500, "로그인 처리 중 오류가 발생했습니다", null);
         }
     }
 
@@ -298,7 +298,7 @@ public class UserService {
             user.setRefreshTokenExpiry(LocalDateTime.now().plusDays(7));
             userRepository.save(user);
 
-            LoginResponseDto responseDto = new LoginResponseDto(true, "OAuth 로그인 성공", jwtToken);
+            LoginResponseDto responseDto = new LoginResponseDto(200, "OAuth 로그인 성공", jwtToken);
             return new DataResponse<>(200, "OAuth 로그인 성공", responseDto);
 
         } catch (CustomException e) {

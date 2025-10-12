@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class RecruitRoleDto {
     private String role;
     private int count;
-    private int people;         
+    private int people;
     private java.util.List<String> skills;  // 필요 스킬 목록
 }
