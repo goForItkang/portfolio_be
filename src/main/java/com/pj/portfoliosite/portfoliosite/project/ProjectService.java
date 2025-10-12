@@ -240,9 +240,17 @@ public class ProjectService {
         long total = projectRepository.selectAllCount();
 
         // 3) 엔티티 -> DTO
-        List<ResProjectDto> content = rows.stream()
-                .map(this::toResProjectDto)
-                .toList();
+
+        List<ResProjectDto> content = new ArrayList<>();
+        for (Project row : rows) {
+            ResProjectDto dto = new ResProjectDto();
+            dto.setId(row.getId());
+            dto.setTitle(row.getTitle());
+            dto.setRole(row.getRole());
+            dto.setThumbnailURL(row.getThumbnailURL());
+            dto.setWriteName(aesUtil.decode(row.getUser().getNickname()));
+            content.add(dto);
+        }
 
         // 4) 페이지 메타 계산
         int totalPages = (int) Math.ceil(total / (double) safeSize);
@@ -289,16 +297,46 @@ public class ProjectService {
         Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
         if(user.isPresent()){
 
+        }else{
+
         }
-
-
         return dto;
     }
-
-    public void update(Long id, ReqProject reqProject) {
+    @Transactional
+    public void update(Long id, ReqProject reqProject) throws IOException {
         Project project = projectRepository.findById(id);
-        if(reqProject.getTitle() != null){
-
+        project.updateProject(reqProject);
+        if(reqProject.getThumbnailImg() != null){
+            project.setThumbnailURL(imgUtil.imgUpload(reqProject.getThumbnailImg()));
         }
+        if(reqProject.getDemonstrationVideo() != null){
+            project.setDemonstrationVideo(imgUtil.imgUpload(reqProject.getDemonstrationVideo()));
+        }
+        if(reqProject.getSkillIds() != null){
+            List<ProjectSkill> projectSkills = new ArrayList<>();
+
+            }
+        List<String> skillIds = reqProject.getSkillIds();
+        if(skillIds != null && !skillIds.isEmpty()) {
+            List<ProjectSkill> projectSkills = new ArrayList<>();
+            for (String skillIdString : skillIds) {
+                try{
+                    Long skillId = Long.parseLong(skillIdString);
+                    Skill skillReference = skillRepository.getReferenceById(skillId);
+
+                    ProjectSkill projectSkill = new ProjectSkill();
+                    projectSkill.setSkill(skillReference);
+                    projectSkills.add(projectSkill);
+                } catch (NumberFormatException e) {
+                    // 만약 skillIdString이 숫자로 변환될 수 없는 값이라면, 이 예외가 발생합니다.
+                    // 해당 스킬은 무시하고 계속 진행하거나, 로그를 남길 수 있습니다.
+                    log.warn("숫자로 변환할 수 없는 Skill ID를 건너뜁니다: {}", skillIdString);
+                }
+
+            }
+            project.addSkill(projectSkills);
+        }
+
+
     }
 }

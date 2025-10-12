@@ -83,4 +83,25 @@ public class Project {
             projectSkill.setProject(this);
         }
     }
+    public void updateProject(ReqProject reqProject) {
+        if (reqProject.getTitle() != null) {
+            this.title = reqProject.getTitle();
+        }
+        if (reqProject.getDescription() != null) {
+            this.description = reqProject.getDescription();
+        }
+        if (reqProject.getStartDate() != null) {
+            this.startDate = reqProject.getStartDate();
+        }
+        if (reqProject.getEndDate() != null) {
+            this.endDate = reqProject.getEndDate();
+        }
+        this.distribution = reqProject.isDistribution();
+        if (reqProject.getRole() != null) {
+            this.role = reqProject.getRole();
+        }
+        if (reqProject.getPeople() != null) {
+            this.people = reqProject.getPeople();
+        }
+    }
 }
