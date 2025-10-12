@@ -58,4 +58,27 @@ public class ProjectCommentRepository {
         entityManager.remove(projectComment);
     }
 
+    public List<ProjectComment> selectByProjectIdAll(Long projectId) {
+        return entityManager.createQuery(
+                """
+    select pc from ProjectComment  pc where pc.project.id =:projectId
+""",ProjectComment.class)
+                .setParameter("projectId",projectId)
+                .getResultList();
+    }
+
+    public List<ProjectComment> findByProjectIdAndParentIsNull(Long projectId) {
+        return entityManager.createQuery(
+                        """
+                        select pc
+                        from ProjectComment pc
+                        where pc.project.id = :projectId
+                          and pc.parent is null
+                        order by pc.createdAt asc
+                        """,
+                        ProjectComment.class
+                )
+                .setParameter("projectId", projectId)
+                .getResultList();
+    }
 }

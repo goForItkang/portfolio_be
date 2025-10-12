@@ -2,10 +2,14 @@ package com.pj.portfoliosite.portfoliosite.project.comment;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.global.dto.ReqCommentDTO;
+import com.pj.portfoliosite.portfoliosite.global.dto.ResCommentListDTO;
+import com.pj.portfoliosite.portfoliosite.global.dto.ResCommentsDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,6 +57,15 @@ public class ProjectCommentController {
             return ResponseEntity.ok(dataResponse);
         }
         dataResponse.setMessage("댓글찾지 못하거나 수정 실패");
+        return ResponseEntity.ok(dataResponse);
+    }
+    @GetMapping("/project/{projectId}/comment")
+    public ResponseEntity<DataResponse> getComment(
+            @PathVariable Long projectId
+    ){
+        List<ResCommentListDTO> resCommentListDTO = projectCommentService.getComment(projectId);
+        DataResponse dataResponse = new DataResponse();
+        dataResponse.setData(resCommentListDTO);
         return ResponseEntity.ok(dataResponse);
     }
 
