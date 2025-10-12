@@ -169,4 +169,51 @@ public class TeamPostCommentService {
             return null;
         }
     }
+
+    // 특정 게시글의 모든 댓글 조회
+    @Transactional(readOnly = true)
+    public List<com.pj.portfoliosite.portfoliosite.teampost.dto.ResTeamCommentListDTO> getComments(Long teamPostId) {
+        List<TeamPostComment> comments = teamPostCommentRepository.findByTeamPostId(teamPostId);
+        
+        // 현재 로그인한 사용자 확인 (옵션)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = null;
+        User currentUser = null;
+        
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
+            userEmail = authentication.getName();
+            currentUser = findUserByEmailSafely(userEmail);
+        }
+        
+        final User finalCurrentUser = currentUser;
+        
+        return comments.stream()
+                .map(comment -> toCommentDTO(comment, finalCurrentUser))
+                .toList();
+    }
+    
+    // 댓글 DTO 변환 (작성자 확인 포함)
+    private com.pj.portfoliosite.portfoliosite.teampost.dto.ResTeamCommentListDTO toCommentDTO(TeamPostComment comment, User currentUser) {
+        com.pj.portfoliosite.portfoliosite.teampost.dto.ResTeamCommentListDTO dto = 
+            new com.pj.portfoliosite.portfoliosite.teampost.dto.ResTeamCommentListDTO();
+        
+        dto.setId(comment.getId());
+        dto.setComment(comment.getComment());
+        dto.setUserId(comment.getUser().getId());
+        dto.setUserProfileURL(comment.getUser().getProfile());
+        dto.setUserWriteName(comment.getUser().getName());
+        dto.setParentId(comment.getParent() != null ? comment.getParent().getId() : null);
+        
+        // 현재 사용자가 댓글 작성자인지 확인
+        dto.setOwner(currentUser != null && comment.getUser().getId().equals(currentUser.getId()));
+        
+        // 대댓글 변환
+        List<com.pj.portfoliosite.portfoliosite.teampost.dto.ResTeamCommentListDTO> replies = 
+            comment.getReplies().stream()
+                .map(reply -> toCommentDTO(reply, currentUser))
+                .toList();
+        dto.setReplies(replies);
+        
+        return dto;
+    }
 }

@@ -2,6 +2,7 @@ package com.pj.portfoliosite.portfoliosite.teampost.comment;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.teampost.dto.ReqTeamCommentDTO;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,17 @@ import org.springframework.web.bind.annotation.*;
 public class TeamPostCommentController {
     private final TeamPostCommentService teamPostCommentService;
 
+    @GetMapping("/teampost/{teamPostId}/comments")
+    @Operation(summary = "댓글 조회", description = "특정 게시글의 모든 댓글 조회 (비로그인 가능)")
+    public ResponseEntity<DataResponse> getComments(@PathVariable Long teamPostId) {
+        DataResponse dataResponse = new DataResponse();
+        dataResponse.setData(teamPostCommentService.getComments(teamPostId));
+        dataResponse.setMessage("댓글 조회 성공");
+        return ResponseEntity.ok(dataResponse);
+    }
+
     @PostMapping("/teampost/{teamPostId}/comments")
+    @Operation(summary = "댓글 작성", description = "header에 JWT 토큰 필요")
     public ResponseEntity<DataResponse> addComment(
             @PathVariable Long teamPostId,
             @RequestBody ReqTeamCommentDTO reqTeamCommentDTO) {
@@ -23,6 +34,7 @@ public class TeamPostCommentController {
     }
 
     @DeleteMapping("/teampost/{teamPostId}/comments/{commentId}")
+    @Operation(summary = "댓글 삭제", description = "header에 JWT 토큰 필요 (본인 댓글만 삭제 가능)")
     public ResponseEntity<DataResponse> deleteComment(
             @PathVariable Long teamPostId,
             @PathVariable Long commentId) {
@@ -37,6 +49,7 @@ public class TeamPostCommentController {
     }
 
     @PatchMapping("/teampost/{teamPostId}/comments/{commentId}")
+    @Operation(summary = "댓글 수정", description = "header에 JWT 토큰 필요 (본인 댓글만 수정 가능)")
     public ResponseEntity<DataResponse> updateComment(
             @PathVariable Long teamPostId,
             @PathVariable Long commentId,
