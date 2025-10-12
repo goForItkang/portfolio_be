@@ -22,6 +22,10 @@ public class MyPageController {
     public ResponseEntity<DataResponse> getBlogs() {
         return ResponseEntity.ok(myPageService.getBlog());
     }
+//    @GetMapping("/project")
+//    public ResponseEntity<DataResponse> getProject(){
+//        return new ResponseEntity.ok(myPageService.getProject());
+//    }
 
 
 }

@@ -6,10 +6,12 @@ import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogDTO;
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.global.entity.Blog;
 import com.pj.portfoliosite.portfoliosite.global.entity.PortFolio;
+import com.pj.portfoliosite.portfoliosite.global.entity.Project;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioRepository;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioService;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortFolioDTO;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortfolioDetailDTO;
+import com.pj.portfoliosite.portfoliosite.project.ProjectRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserService;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +34,7 @@ public class MyPageService {
     private final AESUtil aesUtil;
     private final BlogRepository blogRepository;
     private final BlogService blogService;
+    private final ProjectRepository projectRepository;
     public DataResponse getPortfolio() {
         DataResponse dataResponse = new DataResponse(); //객체 생성
         String email =  SecurityContextHolder.getContext().getAuthentication().getName();
@@ -78,5 +82,16 @@ public class MyPageService {
         dataResponse.setStatus(401);
         dataResponse.setMessage("로그인이 필요합니다.");
         return dataResponse;
+    }
+
+    public Objects getProject() {
+        DataResponse dataResponse = new DataResponse();
+        String email =  SecurityContextHolder.getContext().getAuthentication().getName();
+        String endoceEamil = aesUtil.encode(email);
+        if(userRepository.findByEmail(endoceEamil).isPresent()){
+            List<Project> projects = projectRepository.findByUserEmail(endoceEamil);
+
+        }
+        return null;
     }
 }

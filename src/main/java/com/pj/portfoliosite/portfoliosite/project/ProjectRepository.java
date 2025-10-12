@@ -96,4 +96,12 @@ public class ProjectRepository {
     public void deleteByid(Long id) {
         entityManager.remove(entityManager.getReference(Project.class, id));
     }
+
+    public List<Project> findByUserEmail(String endoceEamil) {
+        return entityManager.createQuery(
+                """
+    select p from Project p where p.user.email =: encodeEamil
+""",Project.class
+        ).setParameter(endoceEamil,endoceEamil).getResultList();
+    }
 }
