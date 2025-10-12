@@ -147,7 +147,7 @@ public class TeamPostService {
         dto.setCreatedAt(teamPost.getCreatedAt());
         dto.setRecruitDeadline(teamPost.getRecruitDeadline());
         dto.setContactMethod(teamPost.getContactMethod());
-        dto.setSkills(teamPost.getSkillNames()); // 중간 엔티티를 통해 스킬 이름 가져오기
+        dto.setSkills(teamPost.getResSkills()); // 중간 엔티티를 통해 ResSkill(스킬 id와 name) 가져오기
         dto.setRecruitStatus(teamPost.getRecruitStatus().toString());
         dto.setViewCount(teamPost.getViewCount());
 
@@ -300,6 +300,22 @@ public class TeamPostService {
         teamPost.setRecruitDeadline(reqTeamPostDTO.getRecruitDeadline());
         teamPost.setContactMethod(reqTeamPostDTO.getContactMethod());
         teamPost.setSaveStatus(reqTeamPostDTO.isSaveStatus());
+        
+        // 기존 recruitRoles 삭제
+        teamPost.getRecruitRoles().clear();
+        
+        // 새로운 recruitRoles 추가
+        if (reqTeamPostDTO.getRecruitRoles() != null) {
+            for (RecruitRoleDto roleDto : reqTeamPostDTO.getRecruitRoles()) {
+                RecruitRole recruitRole = new RecruitRole();
+                recruitRole.setRole(roleDto.getRole());
+                recruitRole.setCount(roleDto.getCount());
+                recruitRole.setPeople(roleDto.getPeople());
+                recruitRole.setSkills(roleDto.getSkills());  // 스킬 설정 추가
+                teamPost.addRecruitRole(recruitRole);
+            }
+        }
+        
         // 스킬 업데이트
         if (reqTeamPostDTO.getSkills() != null) {
             teamPostSkillService.updateTeamPostSkills(teamPost, reqTeamPostDTO.getSkills());

@@ -101,6 +101,16 @@ public class TeamPost {
                 .toList();
     }
 
+    // ResSkill 리스트 가져오기 편의 메서드 (id와 name 포함)
+    public List<com.pj.portfoliosite.portfoliosite.skill.ResSkill> getResSkills() {
+        return this.teamPostSkills.stream()
+                .map(teamPostSkill -> new com.pj.portfoliosite.portfoliosite.skill.ResSkill(
+                        teamPostSkill.getSkill().getId(),
+                        teamPostSkill.getSkill().getName()
+                ))
+                .toList();
+    }
+
     // 조회수 증가
     public void increaseViewCount() {
         this.viewCount++;

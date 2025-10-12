@@ -1,6 +1,7 @@
 package com.pj.portfoliosite.portfoliosite.teampost.dto;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.RecruitRoleDto;
+import com.pj.portfoliosite.portfoliosite.skill.ResSkill;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.pj.portfoliosite.portfoliosite.teampost.dto.FlexibleLocalDateDeserializer;
@@ -27,7 +28,7 @@ public class ResTeamPostDetailDTO {
     private LocalDate recruitDeadline;
     
     private String contactMethod;
-    private List<String> skills;
+    private List<ResSkill> skills;
     private String recruitStatus;
     private int viewCount;
 

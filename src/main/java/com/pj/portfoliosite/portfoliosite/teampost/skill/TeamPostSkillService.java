@@ -53,6 +53,18 @@ public class TeamPostSkillService {
                 .toList();
     }
     
+    // TeamPost의 ResSkill 리스트 조회 (id와 name 포함)
+    @Transactional(readOnly = true)
+    public List<com.pj.portfoliosite.portfoliosite.skill.ResSkill> getTeamPostResSkills(Long teamPostId) {
+        return teamPostSkillRepository.findByTeamPostId(teamPostId)
+                .stream()
+                .map(teamPostSkill -> new com.pj.portfoliosite.portfoliosite.skill.ResSkill(
+                        teamPostSkill.getSkill().getId(),
+                        teamPostSkill.getSkill().getName()
+                ))
+                .toList();
+    }
+    
     // TeamPost의 모든 스킬 삭제
     public void deleteAllTeamPostSkills(Long teamPostId) {
         teamPostSkillRepository.deleteByTeamPostId(teamPostId);
