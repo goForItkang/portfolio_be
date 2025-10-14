@@ -119,4 +119,21 @@ select b from Blog b where b.user.email =:email
                 .setParameter("email",endoceEamil)
                 .getResultList();
     }
+
+    public List<Blog> findTopByLikeDescExcludeIds(List<Long> existingIds, int diff) {
+        String jpql = """
+        select b 
+        from Blog b
+        left join b.blogLikes bl
+        where (:idsEmpty = true or b.id not in :ids)
+        group by b
+        order by count(bl) desc
+        """;
+
+        return em.createQuery(jpql, Blog.class)
+                .setParameter("idsEmpty", existingIds == null || existingIds.isEmpty())
+                .setParameter("ids", existingIds == null || existingIds.isEmpty() ? List.of(-1L) : existingIds)
+                .setMaxResults(diff)
+                .getResultList();
+    }
 }

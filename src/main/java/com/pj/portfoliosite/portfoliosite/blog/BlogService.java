@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -145,10 +146,20 @@ public class BlogService {
             LocalDate weekAgo = today.minusWeeks(1);
             List<Blog> blogs = blogRepository.selectByLikeDesc(today,weekAgo);
             //만약 최신 좋아요가 있는 게시물이 4개보다 적은 경우
-            if(blogs.size() < 4){
+            if (blogs.size() < 4) {
                 int diff = 4 - blogs.size();
 
+                // 이미 가져온 ID를 제외하고 중복 방지
+                List<Long> existingIds = blogs.stream()
+                        .map(Blog::getId)
+                        .collect(Collectors.toList());
+
+                List<Blog> additionalBlogs = blogRepository.findTopByLikeDescExcludeIds(existingIds, diff);
+
+                blogs.addAll(additionalBlogs);
             }
+
+
             return blogListToResBlogDTOList(blogs);
         }catch (Exception e){
             e.printStackTrace();
