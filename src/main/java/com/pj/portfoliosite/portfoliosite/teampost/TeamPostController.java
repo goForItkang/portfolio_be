@@ -21,6 +21,7 @@ public class TeamPostController {
     @PostMapping("/teampost")
     @Operation(summary = "팀원 구하기 정식 등록", description = "header에 JWT 토큰 필요")
     public ResponseEntity<DataResponse> createTeamPost(@RequestBody ReqTeamPostDTO reqTeamPostDTO) {
+        log.info("saveDraft: {}", reqTeamPostDTO);
         reqTeamPostDTO.setSaveStatus(false);
         teamPostService.saveTeamPost(reqTeamPostDTO);
         DataResponse dataResponse = new DataResponse();
