@@ -167,6 +167,8 @@ public class BlogService {
             resBlogDTO.setBlogStatus(blog.getAccess()); // 변경 해야함 access에 따라
             resBlogDTOS.add(resBlogDTO);
         }
+
+
         return resBlogDTOS;
 
     }
