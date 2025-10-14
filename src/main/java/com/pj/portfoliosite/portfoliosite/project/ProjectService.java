@@ -1,5 +1,6 @@
 package com.pj.portfoliosite.portfoliosite.project;
 
+import com.pj.portfoliosite.portfoliosite.blog.bookmark.BookmarkService;
 import com.pj.portfoliosite.portfoliosite.global.dto.*;
 import com.pj.portfoliosite.portfoliosite.global.entity.*;
 import com.pj.portfoliosite.portfoliosite.project.bookmark.ProjectBookMarkRepository;
@@ -41,6 +42,7 @@ public class ProjectService {
     private final ProjectBookMarkRepository projectBookMarkRepository;
     private final AESUtil aesUtil;
     private final SkillRepository skillRepository;
+    private final BookmarkService bookmarkService;
 
     //추천 프로젝트 로직 오늘 부터 일주일 동안 가장 많은 좋아요 갯수
     public List<ResProjectRecommendDto> getRecommend() {
@@ -295,10 +297,14 @@ public class ProjectService {
         ResProjectDetailDto dto = new ResProjectDetailDto();
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
+        dto.setBookMarkCount(projectBookMarkRepository.countById(id));
+        dto.setLikeCount(projectLikeRepository.countById(id));
         if(user.isPresent()){
-
+            dto.setLikeCheck(projectBookMarkRepository.existBookMark(id,user.get().getId()));
+            dto.setBookMarkCheck(projectBookMarkRepository.existBookMark(id,user.get().getId()));
         }else{
-
+            dto.setBookMarkCheck(false);
+            dto.setLikeCheck(false);
         }
         return dto;
     }
