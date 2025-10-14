@@ -5,6 +5,7 @@ import com.pj.portfoliosite.portfoliosite.global.dto.PageDTO;
 import com.pj.portfoliosite.portfoliosite.teampost.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Slf4j
 public class TeamPostController {
     private final TeamPostService teamPostService;
 
@@ -29,6 +31,7 @@ public class TeamPostController {
     @PostMapping("/teampost/draft")
     @Operation(summary = "팀원 구하기 임시저장", description = "header에 JWT 토큰 필요")
     public ResponseEntity<DataResponse> saveDraft(@RequestBody ReqTeamPostDTO reqTeamPostDTO) {
+        log.info("saveDraft: {}", reqTeamPostDTO);
         reqTeamPostDTO.setSaveStatus(true);
         teamPostService.saveTeamPost(reqTeamPostDTO);
         DataResponse dataResponse = new DataResponse();
