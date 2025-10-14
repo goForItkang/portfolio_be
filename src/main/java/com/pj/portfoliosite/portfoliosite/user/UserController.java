@@ -130,6 +130,7 @@ public class UserController {
     @PostMapping("/register")
     @Operation(summary = "회원가입", description = "새로운 계정 생성 (비로그인 가능)")
     public DataResponse<String> register(@RequestBody LoginRequestDto requestDto) {
+        log.info(requestDto.toString());
         try {
             return userService.register(requestDto);
         } catch (Exception e) {
