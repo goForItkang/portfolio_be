@@ -143,7 +143,7 @@ public class TeamPostService {
         dto.setId(teamPost.getId());
         dto.setTitle(teamPost.getTitle());
         dto.setContent(teamPost.getContent());
-        dto.setWriterName(teamPost.getUser().getName());
+        dto.setWriterName(teamPost.getUser().getNickname() != null ? teamPost.getUser().getNickname() : teamPost.getUser().getName());
         dto.setCreatedAt(teamPost.getCreatedAt());
         dto.setRecruitDeadline(teamPost.getRecruitDeadline());
         dto.setContactMethod(teamPost.getContactMethod());
@@ -345,7 +345,9 @@ public class TeamPostService {
         ResTeamPostDTO dto = new ResTeamPostDTO();
         dto.setId(teamPost.getId());
         dto.setTitle(teamPost.getTitle());
-        dto.setWriterName(teamPost.getUser() != null ? teamPost.getUser().getName() : null);
+        dto.setWriterName(teamPost.getUser() != null ? 
+            (teamPost.getUser().getNickname() != null ? teamPost.getUser().getNickname() : teamPost.getUser().getName()) 
+            : null);
         dto.setCreatedAt(teamPost.getCreatedAt());
         dto.setRecruitDeadline(teamPost.getRecruitDeadline());
         dto.setRecruitStatus(teamPost.getRecruitStatus().toString());
@@ -372,7 +374,8 @@ public class TeamPostService {
         dto.setComment(comment.getComment());
         dto.setUserId(comment.getUser().getId());
         dto.setUserProfileURL(comment.getUser().getProfile());
-        dto.setUserWriteName(comment.getUser().getName());
+        dto.setUserWriteName(comment.getUser().getNickname() != null ? 
+            comment.getUser().getNickname() : comment.getUser().getName());
 
         List<ResTeamCommentListDTO> replies = new ArrayList<>();
         for (TeamPostComment reply : comment.getReplies()) {
