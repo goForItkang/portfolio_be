@@ -29,7 +29,14 @@ public class TeamPostRepository {
     }
 
     public TeamPost findById(Long id) {
-        return entityManager.find(TeamPost.class, id);
+        return entityManager.createQuery(
+                        "SELECT tp FROM TeamPost tp " +
+                        "LEFT JOIN FETCH tp.user " +
+                        "LEFT JOIN FETCH tp.recruitRoles " +
+                        "WHERE tp.id = :id",
+                        TeamPost.class)
+                .setParameter("id", id)
+                .getSingleResult();
     }
 
     public List<TeamPost> selectByCreateAtDesc(int page, int size) {
@@ -132,7 +139,9 @@ public class TeamPostRepository {
         ResTeamPostDTO dto = new ResTeamPostDTO();
         dto.setId(teamPost.getId());
         dto.setTitle(teamPost.getTitle());
-        dto.setWriterName(teamPost.getUser() != null ? teamPost.getUser().getName() : null);
+        dto.setWriterName(teamPost.getUser() != null ? 
+            (teamPost.getUser().getNickname() != null ? teamPost.getUser().getNickname() : teamPost.getUser().getName()) 
+            : null);
         dto.setCreatedAt(teamPost.getCreatedAt());
         dto.setRecruitStatus(teamPost.getRecruitStatus().toString());
         dto.setViewCount(teamPost.getViewCount());
