@@ -4,6 +4,7 @@ import com.pj.portfoliosite.portfoliosite.blog.BlogRepository;
 import com.pj.portfoliosite.portfoliosite.blog.BlogService;
 import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogDTO;
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
+import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectDto;
 import com.pj.portfoliosite.portfoliosite.global.entity.Blog;
 import com.pj.portfoliosite.portfoliosite.global.entity.PortFolio;
 import com.pj.portfoliosite.portfoliosite.global.entity.Project;
@@ -12,6 +13,7 @@ import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioService;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortFolioDTO;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortfolioDetailDTO;
 import com.pj.portfoliosite.portfoliosite.project.ProjectRepository;
+import com.pj.portfoliosite.portfoliosite.project.ProjectService;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserService;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
@@ -35,6 +37,7 @@ public class MyPageService {
     private final BlogRepository blogRepository;
     private final BlogService blogService;
     private final ProjectRepository projectRepository;
+    private final ProjectService projectService;
     public DataResponse getPortfolio() {
         DataResponse dataResponse = new DataResponse(); //객체 생성
         String email =  SecurityContextHolder.getContext().getAuthentication().getName();
@@ -84,15 +87,37 @@ public class MyPageService {
         return dataResponse;
     }
 
-    public Objects getProject() {
+    public DataResponse getProject() {
         DataResponse dataResponse = new DataResponse();
         String email =  SecurityContextHolder.getContext().getAuthentication().getName();
         String endoceEamil = aesUtil.encode(email);
         if(userRepository.findByEmail(endoceEamil).isPresent()){
             List<Project> projects = projectRepository.findByUserEmail(endoceEamil);
+            if(projects.isEmpty()) {
+                dataResponse.setStatus(404);
+                dataResponse.setMessage("프로젝트가 없습니다.");
+            }else{
+                List<ResProjectDto> resProjectDtos = new ArrayList<>();
+
+                for (Project project : projects) {
+                    ResProjectDto dto = new ResProjectDto();
+                    dto.setId(project.getId());
+                    dto.setTitle(project.getTitle());
+                    dto.setRole(project.getRole());
+                    dto.setThumbnailURL(project.getThumbnailURL());
+                    dto.setWriteName(aesUtil.decode(project.getUser().getNickname()));
+                    resProjectDtos.add(dto);
+                }
+                dataResponse.setData(resProjectDtos);
+                dataResponse.setStatus(200);
+                return dataResponse;
+            }
+
 
 
         }
-        return null;
+        dataResponse.setStatus(404);
+        dataResponse.setMessage("로그인을 해주세요");
+        return dataResponse;
     }
 }
