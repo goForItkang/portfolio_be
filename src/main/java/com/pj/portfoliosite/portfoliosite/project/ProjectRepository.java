@@ -80,15 +80,18 @@ public class ProjectRepository {
         return entityManager.find(Project.class, projectId);
     }
 
-    public List<Project> findByLikeDecs(int size) {
-        return entityManager.createQuery(
-                        """
-                        select p
-                        from Project p
-                        left join p.likes l
-                        group by p
-                        order by count(l) desc
-                        """, Project.class)
+    public List<Project> findTopByLikeDescExcludeIds(List<Long> existingIds, int size) {
+        String jpql = """
+        select p from Project p
+        left join p.likes pl
+        where (:idsEmpty = true or p.id not in :ids)
+        group by p
+        order by count(pl) desc
+        """;
+
+        return entityManager.createQuery(jpql, Project.class)
+                .setParameter("idsEmpty", existingIds == null || existingIds.isEmpty())
+                .setParameter("ids", existingIds == null || existingIds.isEmpty() ? List.of(-1L) : existingIds)
                 .setMaxResults(size)
                 .getResultList();
     }

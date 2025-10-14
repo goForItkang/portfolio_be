@@ -46,43 +46,54 @@ public class ProjectService {
 
     //추천 프로젝트 로직 오늘 부터 일주일 동안 가장 많은 좋아요 갯수
     public List<ResProjectRecommendDto> getRecommend() {
-        //로직 오늘 날짜 부터 7일중 가장 좋아요 많은 프로젝트 12개 선정
-        // 오늘 날짜
+        // 오늘 날짜와 1주일 전 날짜 계산
         LocalDate today = LocalDate.now();
-        // 7일 이후 날짜
         LocalDate weekAgo = today.minusWeeks(1);
 
-        List<Project> projects = projectRepository.findTopProjectsByLikesInPeriod(today,weekAgo);
-        List<ResProjectRecommendDto> result = new ArrayList<>();
-        for(Project project : projects) {
-            ResProjectRecommendDto resProjectRecommendDto = new ResProjectRecommendDto();
-            resProjectRecommendDto.setId(project.getId());
-            resProjectRecommendDto.setTitle(project.getTitle());
-            resProjectRecommendDto.setDescription(project.getDescription());
-            resProjectRecommendDto.setWriteName(
-                    aesUtil.decode(project.getUser().getNickname())
-            );
-            resProjectRecommendDto.setThumbnailURL(project.getThumbnailURL() != null ? project.getThumbnailURL() : "card.png");
-            resProjectRecommendDto.setRole(project.getRole());
-            result.add(resProjectRecommendDto);
-        }
-        if(result.size() < 4) {
-            int size = 4 - result.size();
-            List<Project> projects2 = projectRepository.findByLikeDecs(size);
-            for (Project project : projects2) {
-                ResProjectRecommendDto resProjectRecommendDto = new ResProjectRecommendDto();
-                resProjectRecommendDto.setId(project.getId());
-                resProjectRecommendDto.setTitle(project.getTitle());
-                resProjectRecommendDto.setDescription(project.getDescription());
-                resProjectRecommendDto.setWriteName(
-                        aesUtil.decode(project.getUser().getNickname())
-                );
-                resProjectRecommendDto.setThumbnailURL(project.getThumbnailURL() != null ? project.getThumbnailURL() : "card.png");
-                resProjectRecommendDto.setRole(project.getRole());
-                result.add(resProjectRecommendDto);
-            }
+        // 1️⃣ 최근 일주일 동안 좋아요가 많은 프로젝트 조회
+        List<Project> projects = projectRepository.findTopProjectsByLikesInPeriod(today, weekAgo);
 
+        List<ResProjectRecommendDto> result = new ArrayList<>();
+
+        // 2️⃣ 1차 프로젝트 → DTO 변환
+        for (Project project : projects) {
+            ResProjectRecommendDto dto = new ResProjectRecommendDto();
+            dto.setId(project.getId());
+            dto.setTitle(project.getTitle());
+            dto.setDescription(project.getDescription());
+            dto.setWriteName(aesUtil.decode(project.getUser().getNickname()));
+            dto.setThumbnailURL(project.getThumbnailURL() != null ? project.getThumbnailURL() : "card.png");
+            dto.setRole(project.getRole());
+            result.add(dto);
         }
+
+        // 3️⃣ 4개 미만일 경우, 부족한 만큼 추가 (중복 제거 포함)
+        if (result.size() < 4) {
+            int size = 4 - result.size();
+
+            // 이미 포함된 ID는 제외
+            List<Long> existingIds = projects.stream()
+                    .map(Project::getId)
+                    .toList();
+
+            // 좋아요 순으로 추가 조회 (기존 ID 제외)
+            List<Project> projects2 = projectRepository.findTopByLikeDescExcludeIds(existingIds, size);
+
+            for (Project project : projects2) {
+                // 혹시라도 중복 방지
+                if (existingIds.contains(project.getId())) continue;
+
+                ResProjectRecommendDto dto = new ResProjectRecommendDto();
+                dto.setId(project.getId());
+                dto.setTitle(project.getTitle());
+                dto.setDescription(project.getDescription());
+                dto.setWriteName(aesUtil.decode(project.getUser().getNickname()));
+                dto.setThumbnailURL(project.getThumbnailURL() != null ? project.getThumbnailURL() : "card.png");
+                dto.setRole(project.getRole());
+                result.add(dto);
+            }
+        }
+
         return result;
     }
     @Transactional
