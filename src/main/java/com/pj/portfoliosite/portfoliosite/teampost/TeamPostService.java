@@ -156,10 +156,20 @@ public class TeamPostService {
 
         if (user != null) {
             Long userId = user.getId();
+            Long postOwnerId = teamPost.getUser().getId();
+            
+            // 디버깅 로그 추가
+            System.out.println("=== Owner Check Debug ===");
+            System.out.println("Current User ID: " + userId);
+            System.out.println("Post Owner ID: " + postOwnerId);
+            System.out.println("Are they equal? " + userId.equals(postOwnerId));
+            
             dto.setLiked(teamPostLikeRepository.existLike(id, userId));
             dto.setBookmarked(teamPostBookMarkRepository.existBookMark(id, userId));
-            dto.setOwner(teamPost.getUser().getId().equals(userId));
+            dto.setOwner(userId.equals(postOwnerId));
         } else {
+            System.out.println("=== Owner Check Debug ===");
+            System.out.println("User is null - not logged in or user not found");
             dto.setLiked(false);
             dto.setBookmarked(false);
             dto.setOwner(false);
@@ -383,34 +393,45 @@ public class TeamPostService {
     }
 
     private User findUserByEmailSafely(String email) {
+        System.out.println("=== findUserByEmailSafely Debug ===");
+        System.out.println("Looking for email: " + email);
+        
         try {
             try {
                 String encryptedEmail = personalDataUtil.encryptPersonalData(email);
+                System.out.println("Encrypted email: " + encryptedEmail);
                 Optional<User> userOpt = userRepository.findByEmail(encryptedEmail);
                 if (userOpt.isPresent()) {
+                    System.out.println("Found user with encrypted email. User ID: " + userOpt.get().getId());
                     return userOpt.get();
                 }
             } catch (Exception e) {
-                // 암호화된 이메일 검색 실패 시 다음 단계로
+                System.out.println("암호화된 이메일 검색 실패: " + e.getMessage());
             }
 
             Optional<User> userOpt = userRepository.findByEmail(email);
             if (userOpt.isPresent()) {
+                System.out.println("Found user with plain email. User ID: " + userOpt.get().getId());
                 return userOpt.get();
             }
 
+            System.out.println("전체 사용자 검색 시작...");
             List<User> allUsers = userRepository.findAllForMigration();
+            System.out.println("Total users in DB: " + allUsers.size());
+            
             for (User user : allUsers) {
                 try {
                     String userEmail = user.getEmail();
                     if (userEmail != null) {
                         if (email.equals(userEmail)) {
+                            System.out.println("Found user with plain match. User ID: " + user.getId());
                             return user;
                         }
                         
                         try {
                             String decryptedEmail = personalDataUtil.decryptPersonalData(userEmail);
                             if (email.equals(decryptedEmail)) {
+                                System.out.println("Found user with decrypted email. User ID: " + user.getId());
                                 return user;
                             }
                         } catch (Exception decryptError) {
@@ -422,9 +443,11 @@ public class TeamPostService {
                 }
             }
             
+            System.out.println("사용자를 찾을 수 없음");
             return null;
             
         } catch (Exception e) {
+            System.out.println("오류 발생: " + e.getMessage());
             return null;
         }
     }
