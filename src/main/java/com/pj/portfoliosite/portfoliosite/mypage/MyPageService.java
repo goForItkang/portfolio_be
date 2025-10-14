@@ -91,6 +91,7 @@ public class MyPageService {
         if(userRepository.findByEmail(endoceEamil).isPresent()){
             List<Project> projects = projectRepository.findByUserEmail(endoceEamil);
 
+
         }
         return null;
     }
