@@ -1,13 +1,13 @@
 package com.pj.portfoliosite.portfoliosite.global.dto;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
-@Getter
+@Data
 @NoArgsConstructor
-@Setter
 public class LoginRequestDto {
     private String email;
     private String password;
