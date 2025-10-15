@@ -2,15 +2,26 @@ package com.pj.portfoliosite.portfoliosite.teampost.comment;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.teampost.dto.ReqTeamCommentDTO;
+import com.pj.portfoliosite.portfoliosite.teampost.dto.ResTeamCommentListDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class TeamPostCommentController {
     private final TeamPostCommentService teamPostCommentService;
+
+    @GetMapping("/teampost/{teamPostId}/comments")
+    public ResponseEntity<DataResponse> getComments(@PathVariable Long teamPostId) {
+        List<ResTeamCommentListDTO> comments = teamPostCommentService.getComments(teamPostId);
+        DataResponse dataResponse = new DataResponse();
+        dataResponse.setData(comments);
+        return ResponseEntity.ok(dataResponse);
+    }
 
     @PostMapping("/teampost/{teamPostId}/comments")
     public ResponseEntity<DataResponse> addComment(
