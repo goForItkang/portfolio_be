@@ -392,6 +392,45 @@ public class TeamPostService {
                 .toList();
     }
 
+    // 마이페이지용: 전체 팀포스트 목록 조회 (페이지네이션)
+    @Transactional(readOnly = true)
+    public PageDTO<ResTeamPostDTO> getAllTeamPosts(int page, int size) {
+        // 1) 입력 값 검증 및 기본값 설정
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 50);
+
+        // 2) Repository에서 데이터 목록과 전체 개수 조회
+        List<TeamPost> rows = teamPostRepository.selectAllTeamPosts(safePage, safeSize);
+        long totalElements = teamPostRepository.selectAllTeamPostsCount();
+
+        // 3) 조회된 엔티티 목록을 DTO 목록으로 변환
+        List<ResTeamPostDTO> content = rows.stream()
+                .map(this::toResTeamPostDTO)
+                .toList();
+
+        // 4) 페이지네이션 메타 데이터 계산
+        int totalPages = (int) Math.ceil((double) totalElements / safeSize);
+        boolean first = safePage == 0;
+        boolean last = (totalPages == 0) || (safePage >= totalPages - 1);
+        boolean hasNext = !last;
+        boolean hasPrevious = !first;
+        int count = content.size();
+
+        // 5) 최종 PageDTO 객체를 생성하여 반환
+        return new PageDTO<>(
+                content,
+                safePage,
+                safeSize,
+                totalElements,
+                totalPages,
+                first,
+                last,
+                hasNext,
+                hasPrevious,
+                count
+        );
+    }
+
     private User findUserByEmailSafely(String email) {
         System.out.println("=== findUserByEmailSafely Debug ===");
         System.out.println("Looking for email: " + email);

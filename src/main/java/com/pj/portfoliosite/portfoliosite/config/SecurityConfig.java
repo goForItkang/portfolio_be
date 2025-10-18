@@ -62,9 +62,11 @@ public class SecurityConfig {
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.GET,
                                 "/api/teamposts",
+                                "/api/teamposts/all",
                                 "/api/teamposts/top4",
                                 "/api/teampost/*",
-                                "/api/teampost/*/details"
+                                "/api/teampost/*/details",
+                                "/api/teampost/*/comments"
                         ).permitAll()
                         // TeamPost POST/PUT/DELETE는 인증 필요
                         .requestMatchers(
