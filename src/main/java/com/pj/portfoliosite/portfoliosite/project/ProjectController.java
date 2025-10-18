@@ -93,7 +93,7 @@ public class ProjectController {
     }
     @GetMapping("/project/{id}/details")
     @Operation(
-            summary = "포트폴리오 세부정보(좋아요 및 북마크 상태)",
+            summary = "프로젝트 세부정보(좋아요 및 북마크 상태)",
             description = "id로 세부 정보"
     )
     public ResponseEntity<DataResponse> projectGetDetails(

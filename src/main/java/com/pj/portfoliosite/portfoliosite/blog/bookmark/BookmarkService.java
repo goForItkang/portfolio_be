@@ -40,7 +40,7 @@ public class BookmarkService {
         if(user.isPresent()){
             bookmarkRepository.delete(id,user.get().getId());
         }else{
-
+            return;
         }
     }
 

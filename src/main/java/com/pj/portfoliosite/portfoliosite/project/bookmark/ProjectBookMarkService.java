@@ -5,6 +5,7 @@ import com.pj.portfoliosite.portfoliosite.global.entity.ProjectBookMark;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.project.ProjectRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
+import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,18 +20,12 @@ public class ProjectBookMarkService {
     private final ProjectBookMarkRepository projectBookMarkRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+    private final AESUtil aesUtil;
     // 프로젝트 북 마크를 한 경우
     @Transactional
     public void bookMarkProject(Long id) {
-        try{
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userEmail;
-            if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
-                userEmail = authentication.getName();
-            } else {
-                throw new RuntimeException("로그인이 필요합니다.");
-            }
-            Optional<User> user = userRepository.findByEmail(userEmail);
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
             if(user.isPresent()) {
                 Project project = projectRepository.findById(id);
                 ProjectBookMark projectBookMark = new ProjectBookMark();
@@ -38,24 +33,14 @@ public class ProjectBookMarkService {
                 projectBookMark.addUser(user.get());
                 projectBookMarkRepository.insertBookMark(projectBookMark);
                 project.addBookMark(projectBookMark);
-                // Exception 터트림
             }
-        }catch (Exception e){
-        }
+
     }
     //ㅍ로젝트 북 마크 취송한 경우
     public void bookMarkDeleteProject(Long id) {
         try{
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            String userEmail;
-            if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
-                userEmail = authentication.getName();
-            } else {
-                throw new RuntimeException("로그인이 필요합니다.");
-            }
-
-            Optional<User> user = userRepository.findByEmail(userEmail);
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
             Project project = projectRepository.findById(id);
             if(user.isPresent()) {
 
