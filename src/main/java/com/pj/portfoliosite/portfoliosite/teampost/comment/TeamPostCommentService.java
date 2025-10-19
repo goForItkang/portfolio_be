@@ -201,8 +201,7 @@ public class TeamPostCommentService {
         dto.setComment(comment.getComment());
         dto.setUserId(comment.getUser().getId());
         dto.setUserProfileURL(comment.getUser().getProfile());
-        dto.setUserWriteName(comment.getUser().getNickname() != null ? 
-            comment.getUser().getNickname() : comment.getUser().getName());
+        dto.setUserWriteName(getDecryptedWriterName(comment.getUser()));
         dto.setParentId(comment.getParent() != null ? comment.getParent().getId() : null);
         
         // 현재 사용자가 댓글 작성자인지 확인
@@ -216,5 +215,49 @@ public class TeamPostCommentService {
         dto.setReplies(replies);
         
         return dto;
+    }
+
+    // User의 nickname 또는 name을 복호화하여 반환
+    private String getDecryptedWriterName(User user) {
+        if (user == null) {
+            return null;
+        }
+        
+        try {
+            // nickname 우선 시도
+            String nickname = user.getNickname();
+            if (nickname != null && !nickname.isEmpty()) {
+                try {
+                    String decryptedNickname = personalDataUtil.decryptPersonalData(nickname);
+                    // 복호화가 성공하고 결과가 다르면 복호화된 값 사용
+                    if (!decryptedNickname.equals(nickname)) {
+                        return decryptedNickname;
+                    }
+                    // 복호화 결과가 같으면 이미 평문
+                    return nickname;
+                } catch (Exception e) {
+                    // 복호화 실패 시 평문으로 간주
+                    return nickname;
+                }
+            }
+            
+            // nickname이 없으면 name 사용
+            String name = user.getName();
+            if (name != null && !name.isEmpty()) {
+                try {
+                    String decryptedName = personalDataUtil.decryptPersonalData(name);
+                    if (!decryptedName.equals(name)) {
+                        return decryptedName;
+                    }
+                    return name;
+                } catch (Exception e) {
+                    return name;
+                }
+            }
+            
+            return "Unknown";
+        } catch (Exception e) {
+            return "Unknown";
+        }
     }
 }

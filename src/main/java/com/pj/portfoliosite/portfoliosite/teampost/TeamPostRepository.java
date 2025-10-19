@@ -134,6 +134,29 @@ public class TeamPostRepository {
                 .getResultList();
     }
 
+    // 전체 팀포스트 목록 조회 (페이지네이션, 임시저장 제외)
+    public List<TeamPost> selectAllTeamPosts(int page, int size) {
+        return entityManager.createQuery(
+                        "select tp " +
+                                "from TeamPost tp " +
+                                "left join fetch tp.user u " +
+                                "where tp.saveStatus = false " +
+                                "order by tp.createdAt desc, tp.id desc",
+                        TeamPost.class)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .setHint("org.hibernate.readOnly", true)
+                .getResultList();
+    }
+
+    // 전체 팀포스트 개수 조회 (임시저장 제외)
+    public Long selectAllTeamPostsCount() {
+        return entityManager.createQuery(
+                        "select count(tp) from TeamPost tp where tp.saveStatus = false",
+                        Long.class)
+                .getSingleResult();
+    }
+
     // TeamPost를 ResTeamPostDTO로 변환하는 헬퍼 메서드
     private ResTeamPostDTO convertToDTO(TeamPost teamPost) {
         ResTeamPostDTO dto = new ResTeamPostDTO();

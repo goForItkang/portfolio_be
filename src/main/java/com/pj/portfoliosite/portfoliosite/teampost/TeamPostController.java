@@ -52,6 +52,14 @@ public class TeamPostController {
         return ResponseEntity.ok(dataResponse);
     }
 
+    @GetMapping("/teamposts/all")
+    @Operation(summary = "마이페이지용 전체 팀포스트 목록", description = "페이지네이션 적용된 전체 팀포스트 목록 (비로그인 가능)")
+    public ResponseEntity<PageDTO<ResTeamPostDTO>> getAllTeamPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ResponseEntity.ok(teamPostService.getAllTeamPosts(page, size));
+    }
+
     @GetMapping("/teamposts/top4")
     @Operation(summary = "메인 페이지용 팀원 구하기 TOP 4", description = "일주일간 좋아요를 많이 받은 팀원 구하기 게시글 4개 (비로그인 가능)")
     public ResponseEntity<DataResponse> getTop4TeamPosts() {

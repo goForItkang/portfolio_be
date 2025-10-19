@@ -143,7 +143,7 @@ public class TeamPostService {
         dto.setId(teamPost.getId());
         dto.setTitle(teamPost.getTitle());
         dto.setContent(teamPost.getContent());
-        dto.setWriterName(teamPost.getUser().getNickname() != null ? teamPost.getUser().getNickname() : teamPost.getUser().getName());
+        dto.setWriterName(getDecryptedWriterName(teamPost.getUser()));
         dto.setCreatedAt(teamPost.getCreatedAt());
         dto.setRecruitDeadline(teamPost.getRecruitDeadline());
         dto.setContactMethod(teamPost.getContactMethod());
@@ -345,9 +345,7 @@ public class TeamPostService {
         ResTeamPostDTO dto = new ResTeamPostDTO();
         dto.setId(teamPost.getId());
         dto.setTitle(teamPost.getTitle());
-        dto.setWriterName(teamPost.getUser() != null ? 
-            (teamPost.getUser().getNickname() != null ? teamPost.getUser().getNickname() : teamPost.getUser().getName()) 
-            : null);
+        dto.setWriterName(getDecryptedWriterName(teamPost.getUser()));
         dto.setCreatedAt(teamPost.getCreatedAt());
         dto.setRecruitDeadline(teamPost.getRecruitDeadline());
         dto.setRecruitStatus(teamPost.getRecruitStatus().toString());
@@ -374,8 +372,7 @@ public class TeamPostService {
         dto.setComment(comment.getComment());
         dto.setUserId(comment.getUser().getId());
         dto.setUserProfileURL(comment.getUser().getProfile());
-        dto.setUserWriteName(comment.getUser().getNickname() != null ? 
-            comment.getUser().getNickname() : comment.getUser().getName());
+        dto.setUserWriteName(getDecryptedWriterName(comment.getUser()));
 
         List<ResTeamCommentListDTO> replies = new ArrayList<>();
         for (TeamPostComment reply : comment.getReplies()) {
@@ -393,6 +390,45 @@ public class TeamPostService {
         return topPosts.stream()
                 .map(this::toResTeamPostDTO)
                 .toList();
+    }
+
+    // 마이페이지용: 전체 팀포스트 목록 조회 (페이지네이션)
+    @Transactional(readOnly = true)
+    public PageDTO<ResTeamPostDTO> getAllTeamPosts(int page, int size) {
+        // 1) 입력 값 검증 및 기본값 설정
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 50);
+
+        // 2) Repository에서 데이터 목록과 전체 개수 조회
+        List<TeamPost> rows = teamPostRepository.selectAllTeamPosts(safePage, safeSize);
+        long totalElements = teamPostRepository.selectAllTeamPostsCount();
+
+        // 3) 조회된 엔티티 목록을 DTO 목록으로 변환
+        List<ResTeamPostDTO> content = rows.stream()
+                .map(this::toResTeamPostDTO)
+                .toList();
+
+        // 4) 페이지네이션 메타 데이터 계산
+        int totalPages = (int) Math.ceil((double) totalElements / safeSize);
+        boolean first = safePage == 0;
+        boolean last = (totalPages == 0) || (safePage >= totalPages - 1);
+        boolean hasNext = !last;
+        boolean hasPrevious = !first;
+        int count = content.size();
+
+        // 5) 최종 PageDTO 객체를 생성하여 반환
+        return new PageDTO<>(
+                content,
+                safePage,
+                safeSize,
+                totalElements,
+                totalPages,
+                first,
+                last,
+                hasNext,
+                hasPrevious,
+                count
+        );
     }
 
     private User findUserByEmailSafely(String email) {
@@ -452,6 +488,50 @@ public class TeamPostService {
         } catch (Exception e) {
             System.out.println("오류 발생: " + e.getMessage());
             return null;
+        }
+    }
+
+    // User의 nickname 또는 name을 복호화하여 반환
+    private String getDecryptedWriterName(User user) {
+        if (user == null) {
+            return null;
+        }
+        
+        try {
+            // nickname 우선 시도
+            String nickname = user.getNickname();
+            if (nickname != null && !nickname.isEmpty()) {
+                try {
+                    String decryptedNickname = personalDataUtil.decryptPersonalData(nickname);
+                    // 복호화가 성공하고 결과가 다르면 복호화된 값 사용
+                    if (!decryptedNickname.equals(nickname)) {
+                        return decryptedNickname;
+                    }
+                    // 복호화 결과가 같으면 이미 평문
+                    return nickname;
+                } catch (Exception e) {
+                    // 복호화 실패 시 평문으로 간주
+                    return nickname;
+                }
+            }
+            
+            // nickname이 없으면 name 사용
+            String name = user.getName();
+            if (name != null && !name.isEmpty()) {
+                try {
+                    String decryptedName = personalDataUtil.decryptPersonalData(name);
+                    if (!decryptedName.equals(name)) {
+                        return decryptedName;
+                    }
+                    return name;
+                } catch (Exception e) {
+                    return name;
+                }
+            }
+            
+            return "Unknown";
+        } catch (Exception e) {
+            return "Unknown";
         }
     }
 }
