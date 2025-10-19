@@ -8,6 +8,7 @@ import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectDto;
 import com.pj.portfoliosite.portfoliosite.global.entity.Blog;
 import com.pj.portfoliosite.portfoliosite.global.entity.PortFolio;
 import com.pj.portfoliosite.portfoliosite.global.entity.Project;
+import com.pj.portfoliosite.portfoliosite.mypage.dto.ResBookmark;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioRepository;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioService;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortFolioDTO;
@@ -17,6 +18,7 @@ import com.pj.portfoliosite.portfoliosite.project.ProjectService;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserService;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,7 @@ public class MyPageService {
     private final BlogService blogService;
     private final ProjectRepository projectRepository;
     private final ProjectService projectService;
+
     public DataResponse getPortfolio() {
         DataResponse dataResponse = new DataResponse(); //객체 생성
         String email =  SecurityContextHolder.getContext().getAuthentication().getName();
@@ -118,6 +121,37 @@ public class MyPageService {
         }
         dataResponse.setStatus(404);
         dataResponse.setMessage("로그인을 해주세요");
+        return dataResponse;
+    }
+
+    public DataResponse getBookMark() {
+        String email =  SecurityContextHolder.getContext().getAuthentication().getName();
+        String endoceEamil = aesUtil.encode(email);
+        DataResponse dataResponse = new DataResponse();
+        if(userRepository.findByEmail(endoceEamil).isPresent()){
+            List<Project> projects = projectRepository.findByUserEmail(endoceEamil);
+            List<Blog> blogList = blogRepository.selectByUserEmail(endoceEamil);
+            List<PortFolio> portfolioList = portfolioRepository.selectByUserEmail(endoceEamil);
+            //
+            List<ResProjectDto> resProjectDtos = new ArrayList<>();
+            for (Project project : projects) {
+                ResProjectDto resProjectDto = new ResProjectDto();
+                resProjectDto.setId(project.getId());
+                resProjectDto.setTitle(project.getTitle());
+                resProjectDto.setRole(project.getRole());
+                resProjectDto.setThumbnailURL(project.getThumbnailURL());
+                resProjectDto.setWriteName(aesUtil.decode(project.getUser().getNickname()));
+                resProjectDtos.add(resProjectDto);
+            }
+            List<ResPortFolioDTO> resPortFolio = portfolioService.portfolioDTOTOEntity(portfolioList);
+            List<ResBlogDTO> resBlogs = blogService.blogListToResBlogDTOList(blogList);
+
+            ResBookmark resBookmark = new ResBookmark(resBlogs,resPortFolio,resProjectDtos);
+
+        }else{
+            dataResponse.setStatus(401);
+            dataResponse.setMessage("접근 권한이 없습니다.");
+        }
         return dataResponse;
     }
 }

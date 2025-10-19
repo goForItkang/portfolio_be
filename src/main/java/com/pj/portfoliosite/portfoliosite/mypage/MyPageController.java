@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/mypage/")
+@RequestMapping("/api/mypage")
 public class MyPageController {
     private final MyPageService myPageService;
 
@@ -25,6 +25,10 @@ public class MyPageController {
     @GetMapping("/project")
     public ResponseEntity<DataResponse> getProject(){
         return ResponseEntity.ok(myPageService.getProject());
+    }
+    @GetMapping("/bookmark")
+    public ResponseEntity<DataResponse> getBookmark(){
+        return ResponseEntity.ok(myPageService.getBookMark());
     }
 
 

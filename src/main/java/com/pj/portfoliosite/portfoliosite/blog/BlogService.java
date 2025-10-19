@@ -166,7 +166,7 @@ public class BlogService {
             return null;
         }
     }
-    private List<ResBlogDTO> blogListToResBlogDTOList(List<Blog> blogs) {
+    public List<ResBlogDTO> blogListToResBlogDTOList(List<Blog> blogs) {
         List<ResBlogDTO> resBlogDTOS = new ArrayList<>();
         for (Blog blog : blogs) {
             ResBlogDTO resBlogDTO = new ResBlogDTO();
