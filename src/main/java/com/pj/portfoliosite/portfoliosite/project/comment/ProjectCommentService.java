@@ -38,7 +38,7 @@ public class ProjectCommentService {
             throw new RuntimeException("로그인이 필요합니다.");
         }
 
-        Optional<User> user = userRepository.findByEmail(userEmail);
+        Optional<User> user = userRepository.findByEmail(aesUtil.encode(userEmail));
         // Comment 객체  생성
         ProjectComment projectComment = new ProjectComment(reqCommentDTO.getComment(),user.get(),project);
 
