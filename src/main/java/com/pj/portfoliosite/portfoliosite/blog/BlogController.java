@@ -38,6 +38,7 @@ public class BlogController {
             @RequestParam(defaultValue = "12") int size
     ){
         DataResponse dataResponse = new DataResponse();
+
         PageDTO<ResBlogDTO> blogDTOPageDTO = blogService.getBlog(page,size);
         dataResponse.setData(blogDTOPageDTO);
         return ResponseEntity.ok(dataResponse);
