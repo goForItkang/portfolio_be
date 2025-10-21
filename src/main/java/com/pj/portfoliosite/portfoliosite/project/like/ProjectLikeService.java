@@ -9,6 +9,7 @@ import com.pj.portfoliosite.portfoliosite.user.UserService;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProjectLikeService {
     private final ProjectLikeRepository projectLikeRepository;
     private final UserRepository userRepository;
@@ -35,8 +37,9 @@ public class ProjectLikeService {
                 ProjectLike projectLike = new ProjectLike();
                 projectLike.addProject(project);
                 projectLike.addUser(user.get());
-                projectLikeRepository.insertLike(projectLike);
                 project.addLike(projectLike);
+                projectLikeRepository.insertLike(projectLike);
+
                 // Exception 터트림
             }
         }catch (Exception e){
