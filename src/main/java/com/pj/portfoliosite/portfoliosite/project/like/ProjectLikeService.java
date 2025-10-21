@@ -6,8 +6,10 @@ import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.project.ProjectRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserService;
+import com.pj.portfoliosite.portfoliosite.util.AESUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ public class ProjectLikeService {
     private final ProjectLikeRepository projectLikeRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+    private final AESUtil aesUtil;
     // 프로젝트 좋아요
     @Transactional
     public void likeProject(Long id) {
@@ -26,8 +29,8 @@ public class ProjectLikeService {
 
         // Try catch 로 분기 처리
         try{
-            String testLogin = "portfolio@naver.com";
-            Optional<User> user = userRepository.findByEmail(testLogin);
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            Optional<User> user = userRepository.findByEmail(aesUtil.decode(email));
             Project project = projectRepository.findById(id);
             if(user.isPresent()) {
                 ProjectLike projectLike = new ProjectLike();
@@ -44,8 +47,8 @@ public class ProjectLikeService {
     public void likeDeleteProject(Long id) {
             // Try catch 로 분기 처리
             try{
-                String testLogin = "portfolio@naver.com";
-                Optional<User> user = userRepository.findByEmail(testLogin);
+                String email = SecurityContextHolder.getContext().getAuthentication().getName();
+                Optional<User> user = userRepository.findByEmail(aesUtil.decode(email));
                 if(user.isPresent()) {
                     projectLikeRepository.deleteLike(user.get().getId(),id);
                     // Exception 터트림
