@@ -23,7 +23,6 @@ public class ProjectLikeService {
     private final ProjectRepository projectRepository;
     private final AESUtil aesUtil;
     // 프로젝트 좋아요
-    @Transactional
     public void likeProject(Long id) {
         //
 

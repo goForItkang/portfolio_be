@@ -22,7 +22,7 @@ public class ProjectBookMarkService {
     private final ProjectRepository projectRepository;
     private final AESUtil aesUtil;
     // 프로젝트 북 마크를 한 경우
-    @Transactional
+
     public void bookMarkProject(Long id) {
             String email = SecurityContextHolder.getContext().getAuthentication().getName();
             Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
