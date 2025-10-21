@@ -4,6 +4,7 @@ import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.teampost.dto.ReqTeamCommentDTO;
 import com.pj.portfoliosite.portfoliosite.teampost.dto.ResTeamCommentListDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Slf4j
 public class TeamPostCommentController {
     private final TeamPostCommentService teamPostCommentService;
 
@@ -27,6 +29,7 @@ public class TeamPostCommentController {
     public ResponseEntity<DataResponse> addComment(
             @PathVariable Long teamPostId,
             @RequestBody ReqTeamCommentDTO reqTeamCommentDTO) {
+        log.info("팀포스트 댓글 정보 {}",reqTeamCommentDTO.getParentCommentId());
         teamPostCommentService.addComment(teamPostId, reqTeamCommentDTO);
         DataResponse dataResponse = new DataResponse();
         dataResponse.setMessage("댓글 작성 완료");
