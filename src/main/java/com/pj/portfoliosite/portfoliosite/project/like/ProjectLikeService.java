@@ -32,6 +32,8 @@ public class ProjectLikeService {
         try{
             String email = SecurityContextHolder.getContext().getAuthentication().getName();
             Optional<User> user = userRepository.findByEmail(aesUtil.decode(email));
+            log.info(user.get().getId().toString());
+            log.info(id.toString());
             Project project = projectRepository.findById(id);
             if(user.isPresent()) {
                 ProjectLike projectLike = new ProjectLike();
@@ -39,10 +41,10 @@ public class ProjectLikeService {
                 projectLike.addUser(user.get());
                 project.addLike(projectLike);
                 projectLikeRepository.insertLike(projectLike);
-
                 // Exception 터트림
             }
         }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
