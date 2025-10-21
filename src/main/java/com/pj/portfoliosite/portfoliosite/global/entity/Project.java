@@ -104,4 +104,9 @@ public class Project {
             this.people = reqProject.getPeople();
         }
     }
+    public boolean getDistribution() {
+        return distribution;
+    }
+
+
 }

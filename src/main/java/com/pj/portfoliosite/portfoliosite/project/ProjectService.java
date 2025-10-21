@@ -202,13 +202,13 @@ public class ProjectService {
         dto.setEndDate(project.getEndDate());
         dto.setRole(project.getRole());
         dto.setDemonstrationVideoUrl(project.getDemonstrationVideo());
-        dto.setDescription(project.getDescription());
+        dto.setDistribution(project.getDistribution());
+
         dto.setCreatedAt(project.getCreatedAt());
         dto.setWriteName(
                 aesUtil.decode(project.getUser().getNickname())
         );
         dto.setPeople(project.getPeople());
-        dto.setDescription(project.getDescription());
         // 4. 댓글 리스트 변환
         List<ProjectComment> comments = projectCommentRepository.findByProjectId(id);
         List<ResCommentListDTO> commentDTOs = new ArrayList<>();
@@ -333,6 +333,7 @@ public class ProjectService {
             List<ProjectSkill> projectSkills = new ArrayList<>();
 
             }
+
         List<String> skillIds = reqProject.getSkillIds();
         if(skillIds != null && !skillIds.isEmpty()) {
             List<ProjectSkill> projectSkills = new ArrayList<>();
