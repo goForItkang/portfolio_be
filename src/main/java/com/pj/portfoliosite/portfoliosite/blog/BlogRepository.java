@@ -136,4 +136,18 @@ select b from Blog b where b.user.email =:email
                 .setMaxResults(diff)
                 .getResultList();
     }
+    public List<Blog> findBlogBookmarksByUserEmail(String encodedEmail) {
+        return em.createQuery(
+                        """
+                        SELECT b
+                        FROM BlogBookmark bb
+                        JOIN bb.blog b
+                        WHERE bb.user.email = :email
+                        """,
+                        Blog.class
+                )
+                .setParameter("email", encodedEmail)
+                .getResultList();
+    }
+
 }

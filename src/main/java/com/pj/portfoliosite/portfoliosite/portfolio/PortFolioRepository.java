@@ -124,4 +124,18 @@ public class PortFolioRepository {
                 "select count(p) from PortFolio p"
         ,Long.class).getSingleResult();
     }
+    public List<PortFolio> findPortfolioBookmarksByUserEmail(String encodedEmail) {
+        return entityManager.createQuery(
+                        """
+                        SELECT p
+                        FROM PortFolioBookMark pb
+                        JOIN pb.portfolio p
+                        WHERE pb.user.email = :email
+                        """,
+                        PortFolio.class
+                )
+                .setParameter("email", encodedEmail)
+                .getResultList();
+    }
+
 }

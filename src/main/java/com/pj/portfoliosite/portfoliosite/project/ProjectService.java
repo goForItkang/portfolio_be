@@ -311,7 +311,7 @@ public class ProjectService {
         dto.setBookMarkCount(projectBookMarkRepository.countById(id));
         dto.setLikeCount(projectLikeRepository.countById(id));
         if(user.isPresent()){
-            dto.setLikeCheck(projectBookMarkRepository.existBookMark(id,user.get().getId()));
+            dto.setLikeCheck(projectLikeRepository.existLike(id,user.get().getId()));
             dto.setBookMarkCheck(projectBookMarkRepository.existBookMark(id,user.get().getId()));
         }else{
             dto.setBookMarkCheck(false);

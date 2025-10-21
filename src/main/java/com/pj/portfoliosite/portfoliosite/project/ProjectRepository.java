@@ -107,4 +107,17 @@ public class ProjectRepository {
 """,Project.class
         ).setParameter(endoceEamil,endoceEamil).getResultList();
     }
+    public List<Project> findProjectBookmarksByUserEmail(String encodedEmail){
+        return entityManager.createQuery(
+                        """
+                        SELECT p
+                        FROM ProjectBookMark pb
+                        JOIN pb.project p
+                        WHERE pb.user.email = :email
+                        """,
+                        Project.class
+                )
+                .setParameter("email", encodedEmail)
+                .getResultList();
+    }
 }

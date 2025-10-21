@@ -129,9 +129,9 @@ public class MyPageService {
         String endoceEamil = aesUtil.encode(email);
         DataResponse dataResponse = new DataResponse();
         if(userRepository.findByEmail(endoceEamil).isPresent()){
-            List<Project> projects = projectRepository.findByUserEmail(endoceEamil);
-            List<Blog> blogList = blogRepository.selectByUserEmail(endoceEamil);
-            List<PortFolio> portfolioList = portfolioRepository.selectByUserEmail(endoceEamil);
+            List<Project> projects = projectRepository.findProjectBookmarksByUserEmail(endoceEamil);
+            List<Blog> blogList = blogRepository.findBlogBookmarksByUserEmail(endoceEamil);
+            List<PortFolio> portfolioList = portfolioRepository.findPortfolioBookmarksByUserEmail(endoceEamil);
             //
             List<ResProjectDto> resProjectDtos = new ArrayList<>();
             for (Project project : projects) {
@@ -145,7 +145,10 @@ public class MyPageService {
             }
             List<ResPortFolioDTO> resPortFolio = portfolioService.portfolioDTOTOEntity(portfolioList);
             List<ResBlogDTO> resBlogs = blogService.blogListToResBlogDTOList(blogList);
-
+            if(resProjectDtos.isEmpty()&& resBlogs.isEmpty()&& resPortFolio.isEmpty()){
+                dataResponse.setStatus(404);
+                return  dataResponse;
+            }
             ResBookmark resBookmark = new ResBookmark(resBlogs,resPortFolio,resProjectDtos);
 
         }else{
