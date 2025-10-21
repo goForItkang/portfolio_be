@@ -31,7 +31,7 @@ public class ProjectLikeService {
         // Try catch 로 분기 처리
         try{
             String email = SecurityContextHolder.getContext().getAuthentication().getName();
-            Optional<User> user = userRepository.findByEmail(aesUtil.decode(email));
+            Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
             log.info(user.get().getId().toString());
             log.info(id.toString());
             Project project = projectRepository.findById(id);
