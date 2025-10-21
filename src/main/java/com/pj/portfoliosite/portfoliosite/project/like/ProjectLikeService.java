@@ -52,7 +52,7 @@ public class ProjectLikeService {
             // Try catch 로 분기 처리
             try{
                 String email = SecurityContextHolder.getContext().getAuthentication().getName();
-                Optional<User> user = userRepository.findByEmail(aesUtil.decode(email));
+                Optional<User> user = userRepository.findByEmail(aesUtil.encode(email));
                 if(user.isPresent()) {
                     projectLikeRepository.deleteLike(user.get().getId(),id);
                     // Exception 터트림
