@@ -111,6 +111,7 @@ public class ProjectController {
             ReqProject reqProject
     ) throws IOException {
         log.info("프로젝트 업데이트 id : " + id);
+        log.info("project : {}",reqProject);
         projectService.update(id,reqProject);
         return ResponseEntity.ok(null);
     }
