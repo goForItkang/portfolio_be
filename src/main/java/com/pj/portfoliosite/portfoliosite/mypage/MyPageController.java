@@ -30,10 +30,12 @@ public class MyPageController {
     public ResponseEntity<DataResponse> getBookmark(){
         return ResponseEntity.ok(myPageService.getBookMark());
     }
-    @GetMapping("/work")
+    @GetMapping("/activity/like")
     public ResponseEntity<DataResponse> getWork(){
-
-
+        return ResponseEntity.notFound().build();
+    }
+    @GetMapping("/activity/comment")
+    public ResponseEntity<DataResponse> getComment(){
         return ResponseEntity.notFound().build();
     }
 
