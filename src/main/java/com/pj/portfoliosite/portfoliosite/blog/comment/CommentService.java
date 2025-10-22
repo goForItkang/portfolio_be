@@ -43,6 +43,7 @@ public class CommentService {
             BlogComment blogComment = commentRepository.selectById(id);
             // 대 댓글 작성부분
             BlogComment blogCommentReply = new BlogComment();
+            blogCommentReply.commentSave(req.getComment());
             blogCommentReply.addUser(user.get());
             blogCommentReply.addBlog(blog);
             blogCommentReply.setParent(blogComment);

@@ -77,6 +77,9 @@ public class BlogController {
             @RequestParam Long id
     ){
         ResBlogDTO resBlogDTO =  blogService.getId(id);
+        if(resBlogDTO == null){
+            return ResponseEntity.notFound().build();
+        }
         DataResponse dataResponse = new DataResponse();
         dataResponse.setStatus(200);
         dataResponse.setData(resBlogDTO);

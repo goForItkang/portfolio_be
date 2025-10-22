@@ -74,6 +74,9 @@ public class BlogService {
     // 블로그 가벼오기 (id)
     public ResBlogDTO getId(Long id) {
         Blog blog = blogRepository.selectById(id);
+        if(blog == null){
+            return null;
+        }
         ResBlogDTO resBlogDTO = new ResBlogDTO();
 
         String testLogin = SecurityContextHolder.getContext().getAuthentication().getName();
