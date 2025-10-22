@@ -123,7 +123,7 @@ public class MyPageService {
         dataResponse.setMessage("로그인을 해주세요");
         return dataResponse;
     }
-
+    // 사용자 사용자 북마크한
     public DataResponse getBookMark() {
         String email =  SecurityContextHolder.getContext().getAuthentication().getName();
         String endoceEamil = aesUtil.encode(email);

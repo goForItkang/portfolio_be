@@ -236,7 +236,7 @@ public class UserService {
         user.setNickname(request.getNickname());
         Random random = new Random();
         random.setSeed(System.currentTimeMillis());
-        user.setProfile("color"+random.nextInt(5)+1+".png");
+        user.setProfile("color"+random.nextInt((5)+1)+".png");
 
         if (request.getBirthDate() != null && !request.getBirthDate().isEmpty()) {
             try {
