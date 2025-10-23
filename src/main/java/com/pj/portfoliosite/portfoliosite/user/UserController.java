@@ -267,6 +267,34 @@ public class UserController {
     }
 
     /**
+     * 비밀번호 재설정 인증 코드 발송 (1단계) - 중복 체크 없음
+     */
+    @PostMapping("/send-password-reset-verification")
+    @Operation(summary = "비밀번호 재설정 인증 코드 발송", description = "비밀번호 재설정을 위한 인증 이메일 발송 - 중복 체크 제외 (비로그인 가능)")
+    public DataResponse<String> sendPasswordResetVerificationEmail(@RequestBody Map<String, String> request) {
+        try {
+            log.info("=== 비밀번호 재설정 인증 이메일 발송 요청 수신 ===");
+            String email = request.get("email");
+            log.info("요청 데이터: email={}", email != null ? email.substring(0, Math.min(3, email.length())) + "***" : "null");
+            
+            if (email == null || email.trim().isEmpty()) {
+                log.warn("비밀번호 재설정 인증 요청 - 이메일 누락");
+                return new DataResponse<>(400, "이메일 주소가 필요합니다.", null);
+            }
+
+            log.info("서비스 메서드 호출 시작: sendPasswordResetVerificationEmail");
+            DataResponse<String> result = userService.sendPasswordResetVerificationEmail(email);
+
+            log.info("서비스 응답: status={}, message={}", result.getStatus(), result.getMessage());
+
+            return result;
+        } catch (Exception e) {
+            log.error("비밀번호 재설정 인증 이메일 발송 컨트롤러 오류: {}", e.getMessage());
+            return new DataResponse<>(500, "비밀번호 재설정 인증 이메일 발송 중 오류가 발생했습니다.", null);
+        }
+    }
+
+    /**
      * 비밀번호 재설정 요청 (1단계)
      */
     @PostMapping("/password-reset-request")

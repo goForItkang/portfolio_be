@@ -155,7 +155,7 @@ public class UserService {
     }
 
     /**
-     * 이메일 인증 발송
+     * 이메일 인증 발송 (회원가입용)
      */
     public DataResponse<String> sendVerificationEmail(String email) {
         try {
@@ -172,6 +172,24 @@ public class UserService {
             }
         } catch (Exception e) {
             log.error("이메일 인증 발송 실패: {}", e.getMessage());
+            return new DataResponse<>(500, "이메일 발송에 실패했습니다.", null);
+        }
+    }
+
+    /**
+     * 이메일 인증 발송 (비밀번호 재설정용 - 중복 체크 안함)
+     */
+    public DataResponse<String> sendPasswordResetVerificationEmail(String email) {
+        try {
+            boolean success = emailUtil.sendVerificationEmail(email);
+
+            if (success) {
+                return new DataResponse<>(200, "인증 이메일이 발송되었습니다.", null);
+            } else {
+                return new DataResponse<>(500, "이메일 발송에 실패했습니다.", null);
+            }
+        } catch (Exception e) {
+            log.error("비밀번호 재설정 이메일 인증 발송 실패: {}", e.getMessage());
             return new DataResponse<>(500, "이메일 발송에 실패했습니다.", null);
         }
     }
