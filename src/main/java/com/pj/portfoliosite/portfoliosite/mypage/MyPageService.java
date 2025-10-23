@@ -5,10 +5,9 @@ import com.pj.portfoliosite.portfoliosite.blog.BlogService;
 import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogDTO;
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectDto;
-import com.pj.portfoliosite.portfoliosite.global.entity.Blog;
-import com.pj.portfoliosite.portfoliosite.global.entity.PortFolio;
-import com.pj.portfoliosite.portfoliosite.global.entity.Project;
+import com.pj.portfoliosite.portfoliosite.global.entity.*;
 import com.pj.portfoliosite.portfoliosite.mypage.dto.ResBookmark;
+import com.pj.portfoliosite.portfoliosite.mypage.dto.ResWorkLikeDTO;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioRepository;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioService;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortFolioDTO;
@@ -23,10 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +36,7 @@ public class MyPageService {
     private final BlogService blogService;
     private final ProjectRepository projectRepository;
     private final ProjectService projectService;
+    private final MyPageRepository myPageRepository;
 
     public DataResponse getPortfolio() {
         DataResponse dataResponse = new DataResponse(); //객체 생성
@@ -156,5 +153,65 @@ public class MyPageService {
             dataResponse.setMessage("접근 권한이 없습니다.");
         }
         return dataResponse;
+    }
+
+    public ResWorkLikeDTO getComment() {
+        //사용자 정보
+        return null;
+    }
+
+    public List<ResWorkLikeDTO> getLike() {
+        //사용자 정보
+        String email =  SecurityContextHolder.getContext().getAuthentication().getName();
+        String endoceEamil = aesUtil.encode(email);
+        Optional<User> user = userRepository.findByEmail(endoceEamil);
+        List<ResWorkLikeDTO> resWorkLikeDTOs = new ArrayList<>();
+        if(user.isPresent()){
+            // 사용자가 있는경우
+            // project 게시물에 좋아요 있는 user_id 쿼리문
+            List<Project> project = myPageRepository.selectProjectByLikeUserId(user.get().getId());
+            // portfolio 게시물에 좋아요 있는 user_id 쿼리문
+            List<PortFolio> portFolio = myPageRepository.selectPortfolioByLikeUserId(user.get().getId());
+            // blog
+            List<Blog> blogs = myPageRepository.selectBlogByLikeUserId(user.get().getId());
+            // teamProject
+            List<TeamPost> teamPosts = myPageRepository.selectTeamPostByLikeUserId(user.get().getId());
+            for (TeamPost teamPost : teamPosts) {
+                ResWorkLikeDTO resWorkLikeDTO = new ResWorkLikeDTO();
+                resWorkLikeDTO.setId(teamPost.getId());
+                resWorkLikeDTO.setTitle(teamPost.getTitle());
+                resWorkLikeDTO.setType("teampost");
+                resWorkLikeDTO.setCreateTime(teamPost.getCreatedAt());
+                resWorkLikeDTOs.add(resWorkLikeDTO);
+            }
+            for (Blog blog : blogs) {
+                ResWorkLikeDTO resWorkLikeDTO = new ResWorkLikeDTO();
+                resWorkLikeDTO.setId(blog.getId());
+                resWorkLikeDTO.setTitle(blog.getTitle());
+                resWorkLikeDTO.setType("blog");
+                resWorkLikeDTO.setCreateTime(blog.getCreatedAt());
+                resWorkLikeDTOs.add(resWorkLikeDTO);
+            }
+            for (PortFolio folio : portFolio) {
+                ResWorkLikeDTO resWorkLikeDTO = new ResWorkLikeDTO();
+                resWorkLikeDTO.setId(folio.getId());
+                resWorkLikeDTO.setTitle(folio.getTitle());
+                resWorkLikeDTO.setType("portfolio");
+                resWorkLikeDTO.setCreateTime(folio.getCreateAt());
+                resWorkLikeDTOs.add(resWorkLikeDTO);
+            }
+            for (Project project1 : project) {
+                ResWorkLikeDTO resWorkLikeDTO = new ResWorkLikeDTO();
+                resWorkLikeDTO.setId(project1.getId());
+                resWorkLikeDTO.setTitle(project1.getTitle());
+                resWorkLikeDTO.setType("project");
+                resWorkLikeDTO.setCreateTime(project1.getCreatedAt());
+                resWorkLikeDTOs.add(resWorkLikeDTO);
+            }
+            return resWorkLikeDTOs;
+        }else{
+
+        }
+        return null;
     }
 }

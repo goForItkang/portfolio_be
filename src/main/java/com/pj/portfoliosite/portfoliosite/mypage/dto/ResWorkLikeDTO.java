@@ -12,7 +12,6 @@ public class ResWorkLikeDTO {
     private Long id;
     private String title;
     private LocalDateTime createTime;
-    private String type;
-    private String description;
+    private String type;// 내용
 
 }
