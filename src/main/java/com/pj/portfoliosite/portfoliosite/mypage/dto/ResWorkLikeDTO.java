@@ -14,5 +14,6 @@ public class ResWorkLikeDTO {
     private LocalDateTime createTime;
     private String type;
     private String description;
+    private String thumbnailURL;
 
 }

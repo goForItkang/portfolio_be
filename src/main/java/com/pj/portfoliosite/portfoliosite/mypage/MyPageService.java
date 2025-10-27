@@ -157,4 +157,55 @@ public class MyPageService {
         }
         return dataResponse;
     }
+
+    // 사용자가 좋아요한 게시글, 블로그, 포트폴리오
+    public DataResponse getActivityLike() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String encodedEmail = aesUtil.encode(email);
+        DataResponse dataResponse = new DataResponse();
+        
+        if (userRepository.findByEmail(encodedEmail).isPresent()) {
+            List<Project> likedProjects = projectRepository.findProjectLikesByUserEmail(encodedEmail);
+            List<Blog> likedBlogs = blogRepository.findBlogLikesByUserEmail(encodedEmail);
+            
+            List<com.pj.portfoliosite.portfoliosite.mypage.dto.ResWorkLikeDTO> workLikeDTOList = new ArrayList<>();
+            
+            // 프로젝트 좋아요 추가
+            for (Project project : likedProjects) {
+                com.pj.portfoliosite.portfoliosite.mypage.dto.ResWorkLikeDTO dto = new com.pj.portfoliosite.portfoliosite.mypage.dto.ResWorkLikeDTO();
+                dto.setId(project.getId());
+                dto.setTitle(project.getTitle());
+                dto.setCreateTime(project.getCreatedAt());
+                dto.setType("PROJECT");
+                dto.setDescription(project.getDescription());
+                dto.setThumbnailURL(project.getThumbnailURL());
+                workLikeDTOList.add(dto);
+            }
+            
+            // 블로그 좋아요 추가
+            for (Blog blog : likedBlogs) {
+                com.pj.portfoliosite.portfoliosite.mypage.dto.ResWorkLikeDTO dto = new com.pj.portfoliosite.portfoliosite.mypage.dto.ResWorkLikeDTO();
+                dto.setId(blog.getId());
+                dto.setTitle(blog.getTitle());
+                dto.setCreateTime(blog.getCreatedAt());
+                dto.setType("BLOG");
+                dto.setDescription(blog.getContent() != null ? blog.getContent().substring(0, Math.min(100, blog.getContent().length())) : "");
+                dto.setThumbnailURL(blog.getThumbnailURL());
+                workLikeDTOList.add(dto);
+            }
+            
+            if (workLikeDTOList.isEmpty()) {
+                dataResponse.setStatus(404);
+                dataResponse.setMessage("좋아요한 게시글이 없습니다.");
+            } else {
+                dataResponse.setData(workLikeDTOList);
+                dataResponse.setStatus(200);
+            }
+        } else {
+            dataResponse.setStatus(401);
+            dataResponse.setMessage("접근 권한이 없습니다.");
+        }
+        
+        return dataResponse;
+    }
 }

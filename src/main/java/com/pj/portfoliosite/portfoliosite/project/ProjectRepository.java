@@ -120,4 +120,18 @@ public class ProjectRepository {
                 .setParameter("email", encodedEmail)
                 .getResultList();
     }
+
+    public List<Project> findProjectLikesByUserEmail(String encodedEmail){
+        return entityManager.createQuery(
+                        """
+                        SELECT p
+                        FROM ProjectLike pl
+                        JOIN pl.project p
+                        WHERE pl.user.email = :email
+                        """,
+                        Project.class
+                )
+                .setParameter("email", encodedEmail)
+                .getResultList();
+    }
 }

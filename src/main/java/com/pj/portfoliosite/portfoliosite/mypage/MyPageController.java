@@ -32,7 +32,7 @@ public class MyPageController {
     }
     @GetMapping("/activity/like")
     public ResponseEntity<DataResponse> getWork(){
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(myPageService.getActivityLike());
     }
     @GetMapping("/activity/comment")
     public ResponseEntity<DataResponse> getComment(){
