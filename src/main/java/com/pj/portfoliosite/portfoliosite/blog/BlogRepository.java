@@ -150,4 +150,18 @@ select b from Blog b where b.user.email =:email
                 .getResultList();
     }
 
+    public List<Blog> findBlogLikesByUserEmail(String encodedEmail) {
+        return em.createQuery(
+                        """
+                        SELECT b
+                        FROM BlogLike bl
+                        JOIN bl.blog b
+                        WHERE bl.user.email = :email
+                        """,
+                        Blog.class
+                )
+                .setParameter("email", encodedEmail)
+                .getResultList();
+    }
+
 }

@@ -57,6 +57,7 @@ public class MyPageController {
     }
     @GetMapping("/activity/like")
     public ResponseEntity<DataResponse> getWork(){
+
         List<ResWorkLikeDTO> resWorkLikeDTO = myPageService.getLike();
         DataResponse dataResponse = new DataResponse();
         dataResponse.setData(resWorkLikeDTO);
