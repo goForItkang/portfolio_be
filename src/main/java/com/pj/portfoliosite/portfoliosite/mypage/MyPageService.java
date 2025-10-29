@@ -7,6 +7,7 @@ import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectDto;
 import com.pj.portfoliosite.portfoliosite.global.entity.*;
 import com.pj.portfoliosite.portfoliosite.mypage.dto.ResBookmark;
+import com.pj.portfoliosite.portfoliosite.mypage.dto.ResCommentActivityDTO;
 import com.pj.portfoliosite.portfoliosite.mypage.dto.ResWorkLikeDTO;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioRepository;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioService;
@@ -113,9 +114,6 @@ public class MyPageService {
                 dataResponse.setStatus(200);
                 return dataResponse;
             }
-
-
-
         }
         dataResponse.setStatus(401);
         dataResponse.setMessage("로그인을 해주세요");
@@ -161,10 +159,48 @@ public class MyPageService {
     }
 
     public DataResponse getComment() {
-        //사용자 정보
+        String email =  SecurityContextHolder.getContext().getAuthentication().getName();
+        String encodedEmail = aesUtil.encode(email);
         DataResponse dataResponse = new DataResponse();
-        dataResponse.setStatus(404);
-        dataResponse.setMessage("구현 예정");
+        
+        Optional<User> user = userRepository.findByEmail(encodedEmail);
+        if(!user.isPresent()) {
+            dataResponse.setStatus(401);
+            dataResponse.setMessage("로그인이 필요합니다.");
+            return dataResponse;
+        }
+        
+        Long userId = user.get().getId();
+        
+        // 사용자가 작성한 모든 댓글 조회
+        List<ResCommentActivityDTO> allComments = new ArrayList<>();
+        
+        // 프로젝트 댓글
+        List<ResCommentActivityDTO> projectComments = 
+            myPageRepository.selectProjectCommentsByUserId(userId);
+        allComments.addAll(projectComments);
+        
+        // 포트폴리오 댓글
+        List<ResCommentActivityDTO> portfolioComments = 
+            myPageRepository.selectPortfolioCommentsByUserId(userId);
+        allComments.addAll(portfolioComments);
+        
+        // 팀구하기 댓글
+        List<ResCommentActivityDTO> teamPostComments = 
+            myPageRepository.selectTeamPostCommentsByUserId(userId);
+        allComments.addAll(teamPostComments);
+        
+        if(allComments.isEmpty()) {
+            dataResponse.setStatus(404);
+            dataResponse.setMessage("작성한 댓글이 없습니다.");
+            return dataResponse;
+        }
+        
+        // 최신순으로 정렬
+        allComments.sort((c1, c2) -> c2.getCreatedAt().compareTo(c1.getCreatedAt()));
+        
+        dataResponse.setData(allComments);
+        dataResponse.setStatus(200);
         return dataResponse;
     }
 
