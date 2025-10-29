@@ -61,7 +61,7 @@ public class MyPageService {
                 return dataResponse;
             }
         }
-        return null;
+        return dataResponse;
     }
 
     public DataResponse getBlog() {
@@ -96,6 +96,7 @@ public class MyPageService {
             if(projects.isEmpty()) {
                 dataResponse.setStatus(404);
                 dataResponse.setMessage("프로젝트가 없습니다.");
+                return dataResponse;
             }else{
                 List<ResProjectDto> resProjectDtos = new ArrayList<>();
 
@@ -116,7 +117,7 @@ public class MyPageService {
 
 
         }
-        dataResponse.setStatus(404);
+        dataResponse.setStatus(401);
         dataResponse.setMessage("로그인을 해주세요");
         return dataResponse;
     }
@@ -144,27 +145,35 @@ public class MyPageService {
             List<ResBlogDTO> resBlogs = blogService.blogListToResBlogDTOList(blogList);
             if(resProjectDtos.isEmpty()&& resBlogs.isEmpty()&& resPortFolio.isEmpty()){
                 dataResponse.setStatus(404);
-                return  dataResponse;
+                dataResponse.setMessage("북마크한 항목이 없습니다.");
+                return dataResponse;
             }
             ResBookmark resBookmark = new ResBookmark(resBlogs,resPortFolio,resProjectDtos);
+            dataResponse.setData(resBookmark);
+            dataResponse.setStatus(200);
+            return dataResponse;
 
         }else{
             dataResponse.setStatus(401);
             dataResponse.setMessage("접근 권한이 없습니다.");
+            return dataResponse;
         }
+    }
+
+    public DataResponse getComment() {
+        //사용자 정보
+        DataResponse dataResponse = new DataResponse();
+        dataResponse.setStatus(404);
+        dataResponse.setMessage("구현 예정");
         return dataResponse;
     }
 
-    public ResWorkLikeDTO getComment() {
-        //사용자 정보
-        return null;
-    }
-
-    public List<ResWorkLikeDTO> getLike() {
+    public DataResponse getLike() {
         //사용자 정보
         String email =  SecurityContextHolder.getContext().getAuthentication().getName();
         String endoceEamil = aesUtil.encode(email);
         Optional<User> user = userRepository.findByEmail(endoceEamil);
+        DataResponse dataResponse = new DataResponse();
         List<ResWorkLikeDTO> resWorkLikeDTOs = new ArrayList<>();
         if(user.isPresent()){
             // 사용자가 있는경우
@@ -208,11 +217,21 @@ public class MyPageService {
                 resWorkLikeDTO.setCreateTime(project1.getCreatedAt());
                 resWorkLikeDTOs.add(resWorkLikeDTO);
             }
-            return resWorkLikeDTOs;
+            
+            if(resWorkLikeDTOs.isEmpty()) {
+                dataResponse.setStatus(404);
+                dataResponse.setMessage("좋아요한 항목이 없습니다.");
+                return dataResponse;
+            }
+            
+            dataResponse.setData(resWorkLikeDTOs);
+            dataResponse.setStatus(200);
+            return dataResponse;
         }else{
-
+            dataResponse.setStatus(401);
+            dataResponse.setMessage("로그인이 필요합니다.");
+            return dataResponse;
         }
-        return null;
 
     // 사용자가 좋아요한 게시글, 블로그, 포트폴리오
 //    public DataResponse getActivityLike() {

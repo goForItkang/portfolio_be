@@ -19,61 +19,69 @@ public class MyPageController {
 
     @GetMapping("/portfolio")
     public ResponseEntity<DataResponse> getPortfolio() {
-        Object obj = myPageService.getPortfolio();
-        if(obj == null) {
-            return ResponseEntity.notFound().build();
+        DataResponse dataResponse = myPageService.getPortfolio();
+        if(dataResponse.getStatus() == 401) {
+            return ResponseEntity.status(401).body(dataResponse);
         }
-        else{
-            return ResponseEntity.ok((DataResponse) obj);
+        else if(dataResponse.getStatus() == 404) {
+            return ResponseEntity.status(404).body(dataResponse);
         }
+        return ResponseEntity.ok(dataResponse);
     }
     @GetMapping("/blogs")
     public ResponseEntity<DataResponse> getBlogs() {
-        Object object = myPageService.getBlog();
-        if(object == null) {
-            return ResponseEntity.notFound().build();
+        DataResponse dataResponse = myPageService.getBlog();
+        if(dataResponse.getStatus() == 401) {
+            return ResponseEntity.status(401).body(dataResponse);
         }
-        return ResponseEntity.ok((DataResponse) object);
+        else if(dataResponse.getStatus() == 404) {
+            return ResponseEntity.status(404).body(dataResponse);
+        }
+        return ResponseEntity.ok(dataResponse);
     }
     @GetMapping("/project")
     public ResponseEntity<DataResponse> getProject(){
-
-        Object object = myPageService.getProject();
-        if(object != null){
-            return ResponseEntity.ok((DataResponse) object);
-        }else{
-            return ResponseEntity.notFound().build();
+        DataResponse dataResponse = myPageService.getProject();
+        if(dataResponse.getStatus() == 401) {
+            return ResponseEntity.status(401).body(dataResponse);
         }
-
+        else if(dataResponse.getStatus() == 404) {
+            return ResponseEntity.status(404).body(dataResponse);
+        }
+        return ResponseEntity.ok(dataResponse);
     }
     @GetMapping("/bookmark")
     public ResponseEntity<DataResponse> getBookmark(){
-        Object object = myPageService.getBookMark();
-        if(object != null){
-            return ResponseEntity.ok((DataResponse) object);
-        }else{
-            return ResponseEntity.notFound().build();
+        DataResponse dataResponse = myPageService.getBookMark();
+        if(dataResponse.getStatus() == 401) {
+            return ResponseEntity.status(401).body(dataResponse);
         }
+        else if(dataResponse.getStatus() == 404) {
+            return ResponseEntity.status(404).body(dataResponse);
+        }
+        return ResponseEntity.ok(dataResponse);
     }
     @GetMapping("/activity/like")
     public ResponseEntity<DataResponse> getWork(){
-
-        List<ResWorkLikeDTO> resWorkLikeDTO = myPageService.getLike();
-        DataResponse dataResponse = new DataResponse();
-        dataResponse.setData(resWorkLikeDTO);
-        if(resWorkLikeDTO.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }else{
-            return ResponseEntity.ok(dataResponse);
+        DataResponse dataResponse = myPageService.getLike();
+        if(dataResponse.getStatus() == 401) {
+            return ResponseEntity.status(401).body(dataResponse);
         }
+        else if(dataResponse.getStatus() == 404) {
+            return ResponseEntity.status(404).body(dataResponse);
+        }
+        return ResponseEntity.ok(dataResponse);
     }
     @GetMapping("/activity/comment")
     public ResponseEntity<DataResponse> getComment(){
-        ResWorkLikeDTO resWorkLikeDTO = myPageService.getComment();
-        if(resWorkLikeDTO == null){
-            return ResponseEntity.notFound().build();
+        DataResponse dataResponse = myPageService.getComment();
+        if(dataResponse.getStatus() == 401) {
+            return ResponseEntity.status(401).body(dataResponse);
         }
-        return ResponseEntity.notFound().build();
+        else if(dataResponse.getStatus() == 404) {
+            return ResponseEntity.status(404).body(dataResponse);
+        }
+        return ResponseEntity.ok(dataResponse);
     }
 
 
