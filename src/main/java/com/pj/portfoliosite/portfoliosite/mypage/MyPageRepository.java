@@ -109,4 +109,36 @@ public class MyPageRepository {
                 .setParameter("userId", userId)
                 .getResultList();
     }
+
+    // 사용자가 작성한 블로그 댓글 조회
+    public List<ResCommentActivityDTO> selectBlogCommentsByUserId(Long userId) {
+        return em.createQuery("""
+        select new com.pj.portfoliosite.portfoliosite.mypage.dto.ResCommentActivityDTO(
+            bc.id,
+            bc.comment,
+            bc.createdAt,
+            b.id,
+            b.title,
+            'blog'
+        )
+        from BlogComment bc
+        join bc.blog b
+        where bc.user.id = :userId
+        order by bc.createdAt desc
+        """, ResCommentActivityDTO.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
+
+    // 사용자가 북마크한 TeamPost 조회
+    public List<TeamPost> selectTeamPostBookmarksByUserId(Long userId) {
+        return em.createQuery("""
+        select tb.teamPost
+        from TeamPostBookMark tb
+        where tb.user.id = :userId
+        order by tb.createdAt desc
+        """, TeamPost.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
 }

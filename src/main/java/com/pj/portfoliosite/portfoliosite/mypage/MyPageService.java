@@ -2,23 +2,20 @@ package com.pj.portfoliosite.portfoliosite.mypage;
 
 import com.pj.portfoliosite.portfoliosite.blog.BlogRepository;
 import com.pj.portfoliosite.portfoliosite.blog.BlogService;
-import com.pj.portfoliosite.portfoliosite.blog.dto.ResBlogDTO;
 import com.pj.portfoliosite.portfoliosite.global.dto.DataResponse;
 import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectDto;
 import com.pj.portfoliosite.portfoliosite.global.entity.*;
-import com.pj.portfoliosite.portfoliosite.mypage.dto.ResBookmark;
 import com.pj.portfoliosite.portfoliosite.mypage.dto.ResCommentActivityDTO;
+import com.pj.portfoliosite.portfoliosite.mypage.dto.ResWorkBookmarkDTO;
 import com.pj.portfoliosite.portfoliosite.mypage.dto.ResWorkLikeDTO;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioRepository;
 import com.pj.portfoliosite.portfoliosite.portfolio.PortFolioService;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortFolioDTO;
-import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortfolioDetailDTO;
 import com.pj.portfoliosite.portfoliosite.project.ProjectRepository;
 import com.pj.portfoliosite.portfoliosite.project.ProjectService;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.user.UserService;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -119,43 +116,83 @@ public class MyPageService {
         dataResponse.setMessage("로그인을 해주세요");
         return dataResponse;
     }
-    // 사용자 사용자 북마크한
+    // 사용자 북마크 - 통합 배열 방식
     public DataResponse getBookMark() {
         String email =  SecurityContextHolder.getContext().getAuthentication().getName();
         String endoceEamil = aesUtil.encode(email);
         DataResponse dataResponse = new DataResponse();
-        if(userRepository.findByEmail(endoceEamil).isPresent()){
-            List<Project> projects = projectRepository.findProjectBookmarksByUserEmail(endoceEamil);
-            List<Blog> blogList = blogRepository.findBlogBookmarksByUserEmail(endoceEamil);
-            List<PortFolio> portfolioList = portfolioRepository.findPortfolioBookmarksByUserEmail(endoceEamil);
-            //
-            List<ResProjectDto> resProjectDtos = new ArrayList<>();
-            for (Project project : projects) {
-                ResProjectDto resProjectDto = new ResProjectDto();
-                resProjectDto.setId(project.getId());
-                resProjectDto.setTitle(project.getTitle());
-                resProjectDto.setRole(project.getRole());
-                resProjectDto.setThumbnailURL(project.getThumbnailURL());
-                resProjectDto.setWriteName(aesUtil.decode(project.getUser().getNickname()));
-                resProjectDtos.add(resProjectDto);
-            }
-            List<ResPortFolioDTO> resPortFolio = portfolioService.portfolioDTOTOEntity(portfolioList);
-            List<ResBlogDTO> resBlogs = blogService.blogListToResBlogDTOList(blogList);
-            if(resProjectDtos.isEmpty()&& resBlogs.isEmpty()&& resPortFolio.isEmpty()){
-                dataResponse.setStatus(404);
-                dataResponse.setMessage("북마크한 항목이 없습니다.");
-                return dataResponse;
-            }
-            ResBookmark resBookmark = new ResBookmark(resBlogs,resPortFolio,resProjectDtos);
-            dataResponse.setData(resBookmark);
-            dataResponse.setStatus(200);
-            return dataResponse;
-
-        }else{
+        Optional<User> user = userRepository.findByEmail(endoceEamil);
+        
+        if(!user.isPresent()) {
             dataResponse.setStatus(401);
             dataResponse.setMessage("접근 권한이 없습니다.");
             return dataResponse;
         }
+        
+        Long userId = user.get().getId();
+        List<ResWorkBookmarkDTO> resWorkBookmarkDTOs = new ArrayList<>();
+        
+        // 프로젝트 북마크
+        List<Project> projects = projectRepository.findProjectBookmarksByUserEmail(endoceEamil);
+        for (Project project : projects) {
+            ResWorkBookmarkDTO resWorkBookmarkDTO = new ResWorkBookmarkDTO();
+            resWorkBookmarkDTO.setId(project.getId());
+            resWorkBookmarkDTO.setTitle(project.getTitle());
+            resWorkBookmarkDTO.setType("project");
+            resWorkBookmarkDTO.setCreateTime(project.getCreatedAt());
+            resWorkBookmarkDTO.setDescription(project.getDescription());
+            resWorkBookmarkDTO.setThumbnailURL(project.getThumbnailURL());
+            resWorkBookmarkDTOs.add(resWorkBookmarkDTO);
+        }
+        
+        // 블로그 북마크
+        List<Blog> blogList = blogRepository.findBlogBookmarksByUserEmail(endoceEamil);
+        for (Blog blog : blogList) {
+            ResWorkBookmarkDTO resWorkBookmarkDTO = new ResWorkBookmarkDTO();
+            resWorkBookmarkDTO.setId(blog.getId());
+            resWorkBookmarkDTO.setTitle(blog.getTitle());
+            resWorkBookmarkDTO.setType("blog");
+            resWorkBookmarkDTO.setCreateTime(blog.getCreatedAt());
+            resWorkBookmarkDTO.setDescription(blog.getContent() != null ? blog.getContent().substring(0, Math.min(100, blog.getContent().length())) : null);
+            resWorkBookmarkDTO.setThumbnailURL(blog.getThumbnailURL());
+            resWorkBookmarkDTOs.add(resWorkBookmarkDTO);
+        }
+        
+        // 포트폴리오 북마크
+        List<PortFolio> portfolioList = portfolioRepository.findPortfolioBookmarksByUserEmail(endoceEamil);
+        for (PortFolio folio : portfolioList) {
+            ResWorkBookmarkDTO resWorkBookmarkDTO = new ResWorkBookmarkDTO();
+            resWorkBookmarkDTO.setId(folio.getId());
+            resWorkBookmarkDTO.setTitle(folio.getTitle());
+            resWorkBookmarkDTO.setType("portfolio");
+            resWorkBookmarkDTO.setCreateTime(folio.getCreateAt());
+            resWorkBookmarkDTO.setDescription(folio.getIntroductions() != null ? folio.getIntroductions().substring(0, Math.min(100, folio.getIntroductions().length())) : null);
+            resWorkBookmarkDTO.setThumbnailURL(folio.getThumbnailURL());
+            resWorkBookmarkDTOs.add(resWorkBookmarkDTO);
+        }
+        
+        // TeamPost 북마크
+        List<TeamPost> teamPostList = myPageRepository.selectTeamPostBookmarksByUserId(userId);
+        for (TeamPost teamPost : teamPostList) {
+            ResWorkBookmarkDTO resWorkBookmarkDTO = new ResWorkBookmarkDTO();
+            resWorkBookmarkDTO.setId(teamPost.getId());
+            resWorkBookmarkDTO.setTitle(teamPost.getTitle());
+            resWorkBookmarkDTO.setType("teampost");
+            resWorkBookmarkDTO.setCreateTime(teamPost.getCreatedAt());
+            resWorkBookmarkDTO.setDescription(teamPost.getContent() != null ? teamPost.getContent().substring(0, Math.min(100, teamPost.getContent().length())) : null);
+            resWorkBookmarkDTOs.add(resWorkBookmarkDTO);
+        }
+        
+        // 모든 북마크가 비어있는지 확인
+        if(resWorkBookmarkDTOs.isEmpty()) {
+            dataResponse.setStatus(404);
+            dataResponse.setMessage("북마크한 항목이 없습니다.");
+            return dataResponse;
+        }
+        
+        dataResponse.setData(resWorkBookmarkDTOs);
+        dataResponse.setStatus(200);
+        return dataResponse;
     }
 
     public DataResponse getComment() {
@@ -179,6 +216,11 @@ public class MyPageService {
         List<ResCommentActivityDTO> projectComments = 
             myPageRepository.selectProjectCommentsByUserId(userId);
         allComments.addAll(projectComments);
+        
+        // 블로그 댓글
+        List<ResCommentActivityDTO> blogComments = 
+            myPageRepository.selectBlogCommentsByUserId(userId);
+        allComments.addAll(blogComments);
         
         // 포트폴리오 댓글
         List<ResCommentActivityDTO> portfolioComments = 

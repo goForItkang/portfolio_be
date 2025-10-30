@@ -5,12 +5,16 @@ import com.pj.portfoliosite.portfoliosite.global.dto.ResProjectDto;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ResPortFolioDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class ResBookmark {
     List<ResBlogDTO> resBlogDTOList;
     List<ResPortFolioDTO> resPortFolioDTOList;
     List<ResProjectDto> resProjectDtoList;
+    List<ResTeamPostBookmarkDTO> resTeamPostDtoList;
 }
