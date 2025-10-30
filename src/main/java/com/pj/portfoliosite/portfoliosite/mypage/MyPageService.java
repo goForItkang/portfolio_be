@@ -227,6 +227,7 @@ public class MyPageService {
                 resWorkLikeDTO.setTitle(teamPost.getTitle());
                 resWorkLikeDTO.setType("teampost");
                 resWorkLikeDTO.setCreateTime(teamPost.getCreatedAt());
+                resWorkLikeDTO.setDescription(teamPost.getContent() != null ? teamPost.getContent().substring(0, Math.min(100, teamPost.getContent().length())) : null);
                 resWorkLikeDTOs.add(resWorkLikeDTO);
             }
             for (Blog blog : blogs) {
@@ -235,6 +236,8 @@ public class MyPageService {
                 resWorkLikeDTO.setTitle(blog.getTitle());
                 resWorkLikeDTO.setType("blog");
                 resWorkLikeDTO.setCreateTime(blog.getCreatedAt());
+                resWorkLikeDTO.setDescription(blog.getContent() != null ? blog.getContent().substring(0, Math.min(100, blog.getContent().length())) : null);
+                resWorkLikeDTO.setThumbnailURL(blog.getThumbnailURL());
                 resWorkLikeDTOs.add(resWorkLikeDTO);
             }
             for (PortFolio folio : portFolio) {
@@ -243,6 +246,8 @@ public class MyPageService {
                 resWorkLikeDTO.setTitle(folio.getTitle());
                 resWorkLikeDTO.setType("portfolio");
                 resWorkLikeDTO.setCreateTime(folio.getCreateAt());
+                resWorkLikeDTO.setDescription(folio.getIntroductions() != null ? folio.getIntroductions().substring(0, Math.min(100, folio.getIntroductions().length())) : null);
+                resWorkLikeDTO.setThumbnailURL(folio.getThumbnailURL());
                 resWorkLikeDTOs.add(resWorkLikeDTO);
             }
             for (Project project1 : project) {
@@ -251,6 +256,8 @@ public class MyPageService {
                 resWorkLikeDTO.setTitle(project1.getTitle());
                 resWorkLikeDTO.setType("project");
                 resWorkLikeDTO.setCreateTime(project1.getCreatedAt());
+                resWorkLikeDTO.setDescription(project1.getDescription());
+                resWorkLikeDTO.setThumbnailURL(project1.getThumbnailURL());
                 resWorkLikeDTOs.add(resWorkLikeDTO);
             }
             
