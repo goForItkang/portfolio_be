@@ -51,7 +51,8 @@ public class CommentController {
             @RequestBody ReqBlogCommentDTO req
    ){
         DataResponse dataResponse = new DataResponse();
-        dataResponse.setMessage("성공적으로 변경하겠습니다");
+        dataResponse.setMessage("성공적으로 변경했습니다");
+        dataResponse.setStatus(200);
         commentService.update(id,req);
         return ResponseEntity.ok(dataResponse);
    }
