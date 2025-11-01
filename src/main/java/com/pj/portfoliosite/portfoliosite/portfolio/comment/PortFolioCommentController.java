@@ -65,12 +65,12 @@ public class PortFolioCommentController {
     public ResponseEntity<DataResponse> updateComment(
             @PathVariable Long id,
             @PathVariable Long commentId,
-            String comment
+            @RequestBody ReqCommentDTO comment
     ) {
         log.info("comment : " + comment);
         log.info("id : " + id);
         log.info("commentId : " + commentId);
-        boolean result = portfolioCommentService.updateComment(id, commentId, comment);
+        boolean result = portfolioCommentService.updateComment(id, commentId, comment.getComment());
         DataResponse resp = new DataResponse();
         if (result) {
             resp.setMessage("정상적으로 수정됨");
