@@ -27,6 +27,9 @@ import org.springframework.web.bind.annotation.*;
 import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetRequestDto;
 import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetDto;
 import com.pj.portfoliosite.portfoliosite.user.dto.PasswordChangeDto;
+import com.pj.portfoliosite.portfoliosite.user.dto.VerifyPasswordResetCodeDto;
+import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetTokenResponseDto;
+import com.pj.portfoliosite.portfoliosite.user.dto.ResetPasswordWithTokenDto;
 import jakarta.validation.Valid;
 import com.pj.portfoliosite.portfoliosite.user.dto.UserDeleteDto;
 import org.springframework.web.multipart.MultipartFile;
@@ -309,13 +312,27 @@ public class UserController {
     }
 
     /**
-     * 비밀번호 재설정 실행 (2단계)
+     * 비밀번호 재설정 인증 코드 검증 (2단계) - 토큰 발급
      */
-    @PostMapping("/password-reset")
-    @Operation(summary = "비밀번호 재설정 실행", description = "인증 코드로 비밀번호 변경 (비로그인 가능)")
-    public DataResponse<String> resetPassword(@Valid @RequestBody PasswordResetDto request) {
+    @PostMapping("/verify-password-reset-code")
+    @Operation(summary = "비밀번호 재설정 인증 코드 검증", description = "인증 코드를 검증하고 리셋 토큰 발급 (비로그인 가능)")
+    public DataResponse<PasswordResetTokenResponseDto> verifyPasswordResetCode(@Valid @RequestBody VerifyPasswordResetCodeDto request) {
         try {
-            return userService.resetPassword(request.getEmail(), request.getNewPassword(), request.getVerificationCode());
+            return userService.verifyPasswordResetCode(request.getEmail(), request.getVerificationCode());
+        } catch (Exception e) {
+            log.error("비밀번호 재설정 인증 코드 검증 컨트롤러 오류: {}", e.getMessage());
+            return new DataResponse<>(500, "인증 코드 검증 처리 중 오류가 발생했습니다.", null);
+        }
+    }
+
+    /**
+     * 비밀번호 재설정 실행 (3단계) - 토큰 기반
+     */
+    @PostMapping("/password-reset-with-token")
+    @Operation(summary = "비밀번호 재설정 실행 (토큰 기반)", description = "리셋 토큰으로 비밀번호 변경 (비로그인 가능)")
+    public DataResponse<String> resetPasswordWithToken(@Valid @RequestBody ResetPasswordWithTokenDto request) {
+        try {
+            return userService.resetPasswordWithToken(request.getResetToken(), request.getNewPassword());
         } catch (Exception e) {
             log.error("비밀번호 재설정 컨트롤러 오류: {}", e.getMessage());
             return new DataResponse<>(500, "비밀번호 재설정 처리 중 오류가 발생했습니다.", null);

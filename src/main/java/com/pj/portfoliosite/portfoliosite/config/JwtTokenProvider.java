@@ -123,4 +123,70 @@ public class JwtTokenProvider {
             return null;
         }
     }
+
+    /**
+     * ===============================================
+     * 비밀번호 재설정용 토큰 메서드
+     * ===============================================
+     */
+
+    /**
+     * 비밀번호 재설정용 토큰 생성
+     * 
+     * @param email 사용자 이메일
+     * @param expirationSeconds 토큰 유효 기간 (초 단위)
+     * @return 리셋 토큰
+     */
+    public String createResetToken(String email, long expirationSeconds) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("이메일은 null이거나 빈 값일 수 없습니다.");
+        }
+
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + (expirationSeconds * 1000)); // 초를 밀리초로 변환
+
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("type", "reset") // 토큰 타입 구분
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    /**
+     * 비밀번호 재설정 토큰 검증 및 이메일 추출
+     * 
+     * @param token 리셋 토큰
+     * @return 이메일 (유효한 경우) 또는 null (만료/유효하지 않은 경우)
+     */
+    public String validateResetToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            // 토큰 타입 검증 (reset 토큰인지 확인)
+            String type = claims.get("type", String.class);
+            if (!"reset".equals(type)) {
+                return null;
+            }
+
+            return claims.getSubject();
+        } catch (ExpiredJwtException e) {
+            // 토큰이 만료된 경우
+            return null;
+        } catch (JwtException | IllegalArgumentException e) {
+            // 토큰이 유효하지 않은 경우
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

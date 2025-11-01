@@ -308,4 +308,24 @@ public class EmailUtil {
                 "감사합니다.\n" +
                 "Port Cloud";
     }
+
+    /**
+     * ===============================================
+     * 비밀번호 재설정용 메서드 추가 (Step 3에서 사용)
+     * ===============================================
+     */
+
+    /**
+     * 저장된 인증 코드 삭제
+     * 비밀번호 재설정 완료 후 호출하여 재사용 방지
+     * 
+     * @param email 사용자 이메일
+     */
+    public void clearStoredVerificationCode(String email) {
+        if (verificationMap.remove(email) != null) {
+            log.info("저장된 인증 코드 삭제 완료: {}", maskEmail(email));
+        } else {
+            log.warn("삭제할 인증 코드 없음: {}", maskEmail(email));
+        }
+    }
 }

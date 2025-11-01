@@ -621,4 +621,81 @@ public class UserService {
             return new DataResponse<>(500, "비밀번호 변경 처리 중 오류가 발생했습니다.", null);
         }
     }
+
+    /**
+     * 비밀번호 재설정 인증 코드 검증 (2단계) - 토큰 발급
+     */
+    @Transactional
+    public DataResponse<com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetTokenResponseDto> verifyPasswordResetCode(String email, String verificationCode) {
+        try {
+            log.info("비밀번호 재설정 인증 코드 검증 시작: {}", personalDataUtil.maskEmail(email));
+
+            // 저장된 인증 코드 확인
+            String storedCode = emailUtil.getStoredVerificationCode(email);
+            if (storedCode == null || storedCode.isEmpty()) {
+                log.warn("저장된 인증 코드 없음: {}", personalDataUtil.maskEmail(email));
+                return new DataResponse<>(404, "인증 코드가 만료되었습니다. 다시 요청해주세요.", null);
+            }
+
+            // 인증 코드 검증
+            if (!storedCode.equals(verificationCode)) {
+                log.warn("인증 코드 불일치: {}", personalDataUtil.maskEmail(email));
+                return new DataResponse<>(400, "인증 코드가 일치하지 않습니다.", null);
+            }
+
+            // 리셋 토큰 생성 (10분 유효)
+            long resetTokenExpiry = 600; // 10분 (초 단위)
+            String resetToken = jwtTokenProvider.createResetToken(email, resetTokenExpiry);
+
+            log.info("비밀번호 재설정 토큰 생성 완료: {}", personalDataUtil.maskEmail(email));
+
+            return new DataResponse<>(200, "인증 코드가 확인되었습니다.", 
+                new com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetTokenResponseDto(resetToken, resetTokenExpiry));
+
+        } catch (Exception e) {
+            log.error("비밀번호 재설정 인증 코드 검증 실패: {}", e.getMessage(), e);
+            return new DataResponse<>(500, "인증 코드 검증 처리 중 오류가 발생했습니다.", null);
+        }
+    }
+
+    /**
+     * 비밀번호 재설정 실행 (3단계) - 토큰 기반
+     */
+    @Transactional
+    public DataResponse<String> resetPasswordWithToken(String resetToken, String newPassword) {
+        try {
+            log.info("비밀번호 재설정 시도: 토큰 기반");
+
+            // 리셋 토큰 검증 및 이메일 추출
+            String email = jwtTokenProvider.validateResetToken(resetToken);
+            if (email == null || email.isEmpty()) {
+                log.warn("유효하지 않은 리셋 토큰");
+                return new DataResponse<>(401, "토큰이 유효하지 않거나 만료되었습니다.", null);
+            }
+
+            log.info("토큰에서 추출한 이메일: {}", personalDataUtil.maskEmail(email));
+
+            // 사용자 조회
+            User user = findUserByEmailSafely(email);
+            if (user == null) {
+                log.error("사용자를 찾을 수 없음: {}", personalDataUtil.maskEmail(email));
+                return new DataResponse<>(404, "사용자를 찾을 수 없습니다.", null);
+            }
+
+            // 새 비밀번호 암호화 및 저장
+            String encodedPassword = passwordEncoder.encode(newPassword);
+            user.setPassword(encodedPassword);
+            userRepository.save(user);
+
+            // 저장된 인증 코드 삭제
+            emailUtil.clearStoredVerificationCode(email);
+
+            log.info("비밀번호 재설정 완료: {}", personalDataUtil.maskEmail(email));
+            return new DataResponse<>(200, "비밀번호가 성공적으로 변경되었습니다.", null);
+
+        } catch (Exception e) {
+            log.error("비밀번호 재설정 실패: {}", e.getMessage(), e);
+            return new DataResponse<>(500, "비밀번호 재설정 처리 중 오류가 발생했습니다.", null);
+        }
+    }
 }
