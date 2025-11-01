@@ -8,12 +8,11 @@ import com.pj.portfoliosite.portfoliosite.global.entity.BlogComment;
 import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.util.AESUtil;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.stream.events.Comment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -106,5 +105,10 @@ public class CommentService {
     public void delete(Long blogsId, Long commentId) {
         BlogComment comment = commentRepository.selectById(commentId);
         commentRepository.delete(comment);
+    }
+    @Transactional
+    public void update(Long id, ReqBlogCommentDTO req) {
+        BlogComment comment = commentRepository.selectById(id);
+        comment.updateComment(req.getComment());
     }
 }

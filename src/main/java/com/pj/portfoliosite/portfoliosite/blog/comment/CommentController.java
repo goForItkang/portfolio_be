@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Path;
 import java.util.List;
 
 @RestController
@@ -43,5 +44,15 @@ public class CommentController {
    ){
         commentService.delete(blogsId,commentId);
         return null;
+   }
+   @PatchMapping("/blogs/{id}/comment")
+    public ResponseEntity<DataResponse> updateComment(
+            @PathVariable Long id,
+            @RequestBody ReqBlogCommentDTO req
+   ){
+        DataResponse dataResponse = new DataResponse();
+        dataResponse.setMessage("성공적으로 변경하겠습니다");
+        commentService.update(id,req);
+        return ResponseEntity.ok(dataResponse);
    }
 }
