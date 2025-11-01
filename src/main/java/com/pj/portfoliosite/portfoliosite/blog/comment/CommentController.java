@@ -45,7 +45,7 @@ public class CommentController {
         commentService.delete(blogsId,commentId);
         return null;
    }
-   @PatchMapping("/blogs/{id}/comment")
+   @PatchMapping("/blogs/{id}/comments")
     public ResponseEntity<DataResponse> updateComment(
             @PathVariable Long id,
             @RequestBody ReqBlogCommentDTO req

@@ -67,6 +67,9 @@ public class PortFolioCommentController {
             @PathVariable Long commentId,
             @RequestParam String comment
     ) {
+        log.info("comment : " + comment);
+        log.info("id : " + id);
+        log.info("commentId : " + commentId);
         boolean result = portfolioCommentService.updateComment(id, commentId, comment);
         DataResponse resp = new DataResponse();
         if (result) {
