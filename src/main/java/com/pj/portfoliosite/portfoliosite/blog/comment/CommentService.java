@@ -107,8 +107,8 @@ public class CommentService {
         commentRepository.delete(comment);
     }
     @Transactional
-    public void update(Long id, ReqBlogCommentDTO req) {
-        BlogComment comment = commentRepository.selectById(id);
+    public void update(Long id, Long commentId, ReqBlogCommentDTO req) {
+        BlogComment comment = commentRepository.selectById(commentId);
         comment.updateComment(req.getComment());
     }
 }

@@ -45,15 +45,16 @@ public class CommentController {
         commentService.delete(blogsId,commentId);
         return null;
    }
-   @PatchMapping("/blogs/{id}/comments")
+   @PatchMapping("/blogs/{id}/comments/{commentId}")
     public ResponseEntity<DataResponse> updateComment(
             @PathVariable Long id,
+            @PathVariable Long commentId,
             @RequestBody ReqBlogCommentDTO req
    ){
         DataResponse dataResponse = new DataResponse();
         dataResponse.setMessage("성공적으로 변경했습니다");
         dataResponse.setStatus(200);
-        commentService.update(id,req);
+        commentService.update(id,commentId,req);
         return ResponseEntity.ok(dataResponse);
    }
 }
