@@ -28,6 +28,8 @@ public class EmailUtil {
     private int expirationMinutes;
 
     private final Map<String, VerificationInfo> verificationMap = new ConcurrentHashMap<>();
+    // 비밀번호 재설정 검증 완료 이메일 저장 (2단계 -> 3단계로 전달)
+    private final Map<String, LocalDateTime> verifiedPasswordResetEmails = new ConcurrentHashMap<>();
 
     private static class VerificationInfo {
         final String code;
@@ -327,5 +329,104 @@ public class EmailUtil {
         } else {
             log.warn("삭제할 인증 코드 없음: {}", maskEmail(email));
         }
+    }
+
+    /**
+     * 인증 코드로 이메일 찾기 (새 로직용)
+     * 주어진 인증 코드와 일치하는 이메일을 찾아 반환
+     * 
+     * @param verificationCode 인증 코드
+     * @return 일치하는 이메일, 없으면 null
+     */
+    public String getEmailByVerificationCode(String verificationCode) {
+        for (Map.Entry<String, VerificationInfo> entry : verificationMap.entrySet()) {
+            VerificationInfo info = entry.getValue();
+            
+            // 코드가 일치하고 만료되지 않았으면 이메일 반환
+            if (info.code.equals(verificationCode) && !info.isExpired()) {
+                log.debug("인증 코드로 이메일 찾기 성공: {}", maskEmail(entry.getKey()));
+                return entry.getKey();
+            }
+        }
+        
+        log.warn("인증 코드로 일치하는 이메일을 찾을 수 없음: {}", verificationCode);
+        return null;
+    }
+
+    /**
+     * 비밀번호 재설정 검증 완료 이메일 저장 (2단계에서 호출)
+     * 3단계에서 이메일 없이 비밀번호 변경 시 사용
+     * 
+     * @param email 검증 완료된 이메일
+     */
+    public void saveVerifiedPasswordResetEmail(String email) {
+        LocalDateTime expiration = LocalDateTime.now().plusMinutes(5); // 5분 유효
+        verifiedPasswordResetEmails.put(email, expiration);
+        log.info("비밀번호 재설정 검증 완료 이메일 저장: {}", maskEmail(email));
+    }
+
+    /**
+     * 저장된 비밀번호 재설정 검증 이메일 조회 (3단계에서 호출)
+     * 만료된 항목은 자동으로 정리되고, 유효한 첫 번째 이메일을 반환
+     * 
+     * @return 저장된 이메일, 없거나 만료되면 null
+     */
+    public String getVerifiedPasswordResetEmail() {
+        // 만료된 항목 정리
+        verifiedPasswordResetEmails.entrySet().removeIf(
+            entry -> LocalDateTime.now().isAfter(entry.getValue())
+        );
+        
+        // 유효한 항목이 하나도 없으면 null 반환
+        if (verifiedPasswordResetEmails.isEmpty()) {
+            log.warn("저장된 비밀번호 재설정 이메일 없음 또는 모두 만료됨");
+            return null;
+        }
+        
+        // 첫 번째 유효한 이메일 반환 (일반적으로 하나만 있어야 함)
+        String email = verifiedPasswordResetEmails.keySet().iterator().next();
+        log.info("저장된 비밀번호 재설정 이메일 조회: {}", maskEmail(email));
+        return email;
+    }
+
+    /**
+     * 저장된 비밀번호 재설정 검증 이메일 삭제 (3단계 완료 후 호출)
+     * 지정된 이메일을 삭제하거나, 이메일 미지정 시 모든 항목 삭제
+     * 
+     * @param email 삭제할 이메일 (null이면 모든 항목 삭제)
+     */
+    public void removeVerifiedPasswordResetEmail(String email) {
+        if (email == null) {
+            // 모든 비밀번호 재설정 검증 이메일 삭제
+            int size = verifiedPasswordResetEmails.size();
+            verifiedPasswordResetEmails.clear();
+            log.info("모든 비밀번호 재설정 검증 이메일 삭제 완료 ({}개)", size);
+        } else {
+            // 특정 이메일만 삭제
+            if (verifiedPasswordResetEmails.remove(email) != null) {
+                log.info("비밀번호 재설정 검증 이메일 삭제 완료: {}", maskEmail(email));
+            } else {
+                log.warn("삭제할 비밀번호 재설정 검증 이메일 없음: {}", maskEmail(email));
+            }
+        }
+    }
+
+    /**
+     * 저장된 비밀번호 재설정 검증 이메일 삭제 (3단계 완료 후 호출)
+     * 매개변수 없는 버전 - 모든 항목 삭제
+     */
+    public void removeVerifiedPasswordResetEmail() {
+        removeVerifiedPasswordResetEmail(null);
+    }
+
+    /**
+     * 저장된 비밀번호 재설정 검증 이메일 삭제 (3단계 완료 후 호출)
+     * @deprecated {@link #removeVerifiedPasswordResetEmail()} 사용 권장
+     * 
+     * @param email 삭제할 이메일
+     */
+    @Deprecated
+    public void clearVerifiedPasswordResetEmail(String email) {
+        removeVerifiedPasswordResetEmail(email);
     }
 }

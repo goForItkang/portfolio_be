@@ -43,6 +43,8 @@ public class SecurityConfig {
                                 "/api/user/send-verification-email",
                                 "/api/user/verify-email",
                                 "/api/user/send-password-reset-verification",
+                                "/api/user/verify-password-reset-code",
+                                "/api/user/reset-password",
                                 "/api/user/password-reset-request",
                                 "/api/user/password-reset",
                                 "/api/user/oauth/*/url",
