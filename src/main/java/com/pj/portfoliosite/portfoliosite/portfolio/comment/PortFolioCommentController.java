@@ -65,7 +65,7 @@ public class PortFolioCommentController {
     public ResponseEntity<DataResponse> updateComment(
             @PathVariable Long id,
             @PathVariable Long commentId,
-            @RequestBody String comment
+            String comment
     ) {
         log.info("comment : " + comment);
         log.info("id : " + id);
