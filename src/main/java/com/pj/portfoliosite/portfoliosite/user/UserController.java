@@ -9,8 +9,7 @@ import com.pj.portfoliosite.portfoliosite.global.errocode.UserErrorCode;
 import com.pj.portfoliosite.portfoliosite.portfolio.dto.ReqProfileDTO;
 import com.pj.portfoliosite.portfoliosite.user.dto.ReqLoginDTO;
 import com.pj.portfoliosite.portfoliosite.util.OAuthUtil;
-
-import lombok.Data;
+import com.pj.portfoliosite.portfoliosite.util.PersonalDataUtil; // 추가
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -24,14 +23,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
-import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetRequestDto;
-import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetDto;
 import com.pj.portfoliosite.portfoliosite.user.dto.PasswordChangeDto;
-import com.pj.portfoliosite.portfoliosite.user.dto.VerifyPasswordResetCodeDto;
-import com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetTokenResponseDto;
-import com.pj.portfoliosite.portfoliosite.user.dto.ResetPasswordWithTokenDto;
-import jakarta.validation.Valid;
 import com.pj.portfoliosite.portfoliosite.user.dto.UserDeleteDto;
+import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpSession; // 추가
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -47,13 +42,15 @@ public class UserController {
 
     private final UserService userService;
     private final EmailUtil emailUtil; // 추가
+    private final PersonalDataUtil personalDataUtil; // 추가
 
     @Autowired
     private OAuthUtil oAuthUtil;
 
-    public UserController(UserService userService, EmailUtil emailUtil) {
+    public UserController(UserService userService, EmailUtil emailUtil, PersonalDataUtil personalDataUtil) {
         this.userService = userService;
         this.emailUtil = emailUtil;
+        this.personalDataUtil = personalDataUtil;
     }
 
     /**
@@ -270,55 +267,64 @@ public class UserController {
     }
 
     /**
-     * 비밀번호 재설정 인증 코드 발송 (1단계) - 중복 체크 없음
+     * 비밀번호 재설정 1단계: 인증 코드 발송
+     * POST /api/user/send-password-reset-verification
      */
     @PostMapping("/send-password-reset-verification")
-    @Operation(summary = "비밀번호 재설정 인증 코드 발송", description = "비밀번호 재설정을 위한 인증 이메일 발송 - 중복 체크 제외 (비로그인 가능)")
-    public DataResponse<String> sendPasswordResetVerificationEmail(@RequestBody Map<String, String> request) {
+    @Operation(summary = "비밀번호 재설정 인증 코드 발송", description = "등록된 이메일로 비밀번호 재설정 인증 코드 발송 (비로그인 가능)")
+    public DataResponse<String> sendPasswordResetVerification(@RequestBody Map<String, String> request) {
         try {
-            log.info("=== 비밀번호 재설정 인증 이메일 발송 요청 수신 ===");
+            log.info("=== 비밀번호 재설정 인증 코드 발송 요청 수신 ===");
             String email = request.get("email");
-            log.info("요청 데이터: email={}", email != null ? email.substring(0, Math.min(3, email.length())) + "***" : "null");
             
             if (email == null || email.trim().isEmpty()) {
-                log.warn("비밀번호 재설정 인증 요청 - 이메일 누락");
+                log.warn("이메일 누락");
                 return new DataResponse<>(400, "이메일 주소가 필요합니다.", null);
             }
 
-            log.info("서비스 메서드 호출 시작: sendPasswordResetVerificationEmail");
-            DataResponse<String> result = userService.sendPasswordResetVerificationEmail(email);
+            log.info("서비스 메서드 호출 시작: sendPasswordResetCodeNewLogic");
+            DataResponse<String> result = userService.sendPasswordResetCodeNewLogic(email);
 
             log.info("서비스 응답: status={}, message={}", result.getStatus(), result.getMessage());
 
             return result;
         } catch (Exception e) {
-            log.error("비밀번호 재설정 인증 이메일 발송 컨트롤러 오류: {}", e.getMessage());
-            return new DataResponse<>(500, "비밀번호 재설정 인증 이메일 발송 중 오류가 발생했습니다.", null);
+            log.error("비밀번호 재설정 인증 코드 발송 컨트롤러 오류: {}", e.getMessage());
+            return new DataResponse<>(500, "비밀번호 재설정 인증 코드 발송 중 오류가 발생했습니다.", null);
         }
     }
 
     /**
-     * 비밀번호 재설정 요청 (1단계)
-     */
-    @PostMapping("/password-reset-request")
-    @Operation(summary = "비밀번호 재설정 요청", description = "비밀번호 재설정 인증 코드 발송 (비로그인 가능)")
-    public DataResponse<String> requestPasswordReset(@RequestBody PasswordResetRequestDto request) {
-        try {
-            return userService.sendPasswordResetEmail(request.getEmail());
-        } catch (Exception e) {
-            log.error("비밀번호 재설정 요청 컨트롤러 오류: {}", e.getMessage());
-            return new DataResponse<>(500, "비밀번호 재설정 요청 처리 중 오류가 발생했습니다.", null);
-        }
-    }
-
-    /**
-     * 비밀번호 재설정 인증 코드 검증 (2단계) - 토큰 발급
+     * 비밀번호 재설정 2단계: 인증 코드 검증
+     * POST /api/user/verify-password-reset-code
      */
     @PostMapping("/verify-password-reset-code")
-    @Operation(summary = "비밀번호 재설정 인증 코드 검증", description = "인증 코드를 검증하고 리셋 토큰 발급 (비로그인 가능)")
-    public DataResponse<PasswordResetTokenResponseDto> verifyPasswordResetCode(@Valid @RequestBody VerifyPasswordResetCodeDto request) {
+    @Operation(summary = "비밀번호 재설정 인증 코드 검증", description = "인증 코드를 검증 (비로그인 가능)")
+    public DataResponse<String> verifyPasswordResetCode(@RequestBody Map<String, String> request) {
         try {
-            return userService.verifyPasswordResetCode(request.getEmail(), request.getVerificationCode());
+            log.info("=== 비밀번호 재설정 인증 코드 검증 요청 수신 ===");
+            String verificationCode = request.get("verificationCode");
+            
+            if (verificationCode == null || verificationCode.trim().isEmpty()) {
+                log.warn("인증 코드 누락");
+                return new DataResponse<>(400, "인증 코드가 필요합니다.", null);
+            }
+
+            log.info("서비스 메서드 호출 시작: verifyPasswordResetCodeNewLogic");
+            DataResponse<String> result = userService.verifyPasswordResetCodeNewLogic(verificationCode);
+            
+            // 인증 성공시, 검증된 이메일 저장
+            if (result.getStatus() == 200) {
+                String email = emailUtil.getEmailByVerificationCode(verificationCode);
+                if (email != null) {
+                    emailUtil.saveVerifiedPasswordResetEmail(email);
+                    log.info("검증된 이메일 저장 완료: {}", personalDataUtil.maskEmail(email));
+                }
+            }
+
+            log.info("서비스 응답: status={}, message={}", result.getStatus(), result.getMessage());
+
+            return result;
         } catch (Exception e) {
             log.error("비밀번호 재설정 인증 코드 검증 컨트롤러 오류: {}", e.getMessage());
             return new DataResponse<>(500, "인증 코드 검증 처리 중 오류가 발생했습니다.", null);
@@ -326,13 +332,34 @@ public class UserController {
     }
 
     /**
-     * 비밀번호 재설정 실행 (3단계) - 토큰 기반
+     * 비밀번호 재설정 3단계: 비밀번호 변경 (2단계에서 검증된 이메일 자동 사용)
+     * POST /api/user/reset-password
+     * 요청 본문: { "newPassword": "...", "newPasswordConfirm": "..." }
      */
-    @PostMapping("/password-reset-with-token")
-    @Operation(summary = "비밀번호 재설정 실행 (토큰 기반)", description = "리셋 토큰으로 비밀번호 변경 (비로그인 가능)")
-    public DataResponse<String> resetPasswordWithToken(@Valid @RequestBody ResetPasswordWithTokenDto request) {
+    @PostMapping("/reset-password")
+    @Operation(summary = "비밀번호 재설정 실행", description = "인증 완료 후 비밀번호 변경 (이메일 자동 참조, 비로그인 가능)")
+    public DataResponse<String> resetPassword(@RequestBody Map<String, String> request) {
         try {
-            return userService.resetPasswordWithToken(request.getResetToken(), request.getNewPassword());
+            log.info("=== 비밀번호 재설정 요청 수신 (3단계) ===");
+            String newPassword = request.get("newPassword");
+            String newPasswordConfirm = request.get("newPasswordConfirm");
+            
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                log.warn("새 비밀번호 누락");
+                return new DataResponse<>(400, "새 비밀번호가 필요합니다.", null);
+            }
+            
+            if (newPasswordConfirm == null || newPasswordConfirm.trim().isEmpty()) {
+                log.warn("새 비밀번호 확인 누락");
+                return new DataResponse<>(400, "새 비밀번호 확인이 필요합니다.", null);
+            }
+
+            log.info("서비스 메서드 호출 시작: resetPasswordNewLogic");
+            DataResponse<String> result = userService.resetPasswordNewLogic(newPassword, newPasswordConfirm);
+
+            log.info("서비스 응답: status={}, message={}", result.getStatus(), result.getMessage());
+
+            return result;
         } catch (Exception e) {
             log.error("비밀번호 재설정 컨트롤러 오류: {}", e.getMessage());
             return new DataResponse<>(500, "비밀번호 재설정 처리 중 오류가 발생했습니다.", null);

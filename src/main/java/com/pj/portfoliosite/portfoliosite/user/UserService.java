@@ -177,24 +177,6 @@ public class UserService {
     }
 
     /**
-     * 이메일 인증 발송 (비밀번호 재설정용 - 중복 체크 안함)
-     */
-    public DataResponse<String> sendPasswordResetVerificationEmail(String email) {
-        try {
-            boolean success = emailUtil.sendVerificationEmail(email);
-
-            if (success) {
-                return new DataResponse<>(200, "인증 이메일이 발송되었습니다.", null);
-            } else {
-                return new DataResponse<>(500, "이메일 발송에 실패했습니다.", null);
-            }
-        } catch (Exception e) {
-            log.error("비밀번호 재설정 이메일 인증 발송 실패: {}", e.getMessage());
-            return new DataResponse<>(500, "이메일 발송에 실패했습니다.", null);
-        }
-    }
-
-    /**
      * 이메일 인증 확인
      */
     public DataResponse<String> verifyEmail(String email, String code) {
@@ -364,63 +346,6 @@ public class UserService {
                 "!@#$%^&*()_+-=[]{}|;:,.<>?".indexOf(ch) >= 0);
 
         return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
-    }
-
-    public DataResponse<String> sendPasswordResetEmail(String email) {
-        try {
-            log.info("비밀번호 재설정 이메일 발송 요청: {}", personalDataUtil.maskEmail(email));
-            
-            User user = findUserByEmailSafely(email);
-            if (user == null) {
-                return new DataResponse<>(404, "등록되지 않은 이메일입니다.", null);
-            }
-
-            boolean success = emailUtil.sendPasswordResetEmail(email);
-
-            if (success) {
-                return new DataResponse<>(200, "비밀번호 재설정 코드가 발송되었습니다.", null);
-            } else {
-                return new DataResponse<>(500, "이메일 발송에 실패했습니다.", null);
-            }
-        } catch (Exception e) {
-            log.error("비밀번호 재설정 이메일 발송 실패: {}", e.getMessage(), e);
-            return new DataResponse<>(500, "이메일 발송에 실패했습니다.", null);
-        }
-    }
-
-    public DataResponse<String> resetPassword(String email, String newPassword, String verificationCode) {
-        try {
-            User user = findUserByEmailSafely(email);
-            if (user == null) {
-                return new DataResponse<>(404, "등록되지 않은 이메일입니다.", null);
-            }
-
-            if (!emailUtil.verifyCode(email, verificationCode)) {
-                return new DataResponse<>(400, "잘못된 인증 코드이거나 만료되었습니다.", null);
-            }
-
-            if (!isValidPassword(newPassword)) {
-                return new DataResponse<>(400,
-                        "비밀번호는 8-16자, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.", null);
-            }
-
-            // 현재 비밀번호와 새 비밀번호가 같은지 확인
-            if (passwordEncoder.matches(newPassword, user.getPassword())) {
-                return new DataResponse<>(400, "새 비밀번호는 현재 비밀번호와 달라야 합니다.", null);
-            }
-
-            user.setPassword(passwordEncoder.encode(newPassword));
-            userRepository.save(user);
-
-            emailUtil.removeVerifiedEmail(email);
-
-            log.info("비밀번호 재설정 성공: {}", personalDataUtil.maskEmail(email));
-            return new DataResponse<>(200, "비밀번호가 성공적으로 변경되었습니다.", null);
-
-        } catch (Exception e) {
-            log.error("비밀번호 재설정 실패: {}", e.getMessage());
-            return new DataResponse<>(500, "비밀번호 재설정 처리 중 오류가 발생했습니다.", null);
-        }
     }
 
     @Transactional
@@ -623,74 +548,134 @@ public class UserService {
     }
 
     /**
-     * 비밀번호 재설정 인증 코드 검증 (2단계) - 토큰 발급
+     * 비밀번호 재설정 (새 로직) - 1단계: 이메일로 인증 코드 발송
+     */
+    public DataResponse<String> sendPasswordResetCodeNewLogic(String email) {
+        try {
+            log.info("비밀번호 재설정 인증 코드 발송: {}", personalDataUtil.maskEmail(email));
+            
+            // 등록된 사용자 확인
+            User user = findUserByEmailSafely(email);
+            if (user == null) {
+                return new DataResponse<>(404, "등록되지 않은 이메일입니다.", null);
+            }
+
+            // 인증 코드 발송
+            boolean success = emailUtil.sendVerificationEmail(email);
+
+            if (success) {
+                return new DataResponse<>(200, "인증 코드가 발송되었습니다.", null);
+            } else {
+                return new DataResponse<>(500, "이메일 발송에 실패했습니다.", null);
+            }
+        } catch (Exception e) {
+            log.error("인증 코드 발송 실패: {}", e.getMessage(), e);
+            return new DataResponse<>(500, "이메일 발송에 실패했습니다.", null);
+        }
+    }
+
+    /**
+     * 비밀번호 재설정 (새 로직) - 2단계: 인증 코드 검증 (인증코드만 필요)
      */
     @Transactional
-    public DataResponse<com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetTokenResponseDto> verifyPasswordResetCode(String email, String verificationCode) {
+    public DataResponse<String> verifyPasswordResetCodeNewLogic(String verificationCode) {
         try {
-            log.info("비밀번호 재설정 인증 코드 검증 시작: {}", personalDataUtil.maskEmail(email));
+            log.info("비밀번호 재설정 인증 코드 검증");
 
-            // 저장된 인증 코드 확인
-            String storedCode = emailUtil.getStoredVerificationCode(email);
-            if (storedCode == null || storedCode.isEmpty()) {
-                log.warn("저장된 인증 코드 없음: {}", personalDataUtil.maskEmail(email));
-                return new DataResponse<>(404, "인증 코드가 만료되었습니다. 다시 요청해주세요.", null);
+            // 인증 코드 유효성 확인
+            if (verificationCode == null || verificationCode.trim().isEmpty()) {
+                log.warn("인증 코드 누락");
+                return new DataResponse<>(400, "인증 코드가 필요합니다.", null);
+            }
+
+            // 저장된 인증 코드 중 일치하는 이메일 찾기
+            String email = emailUtil.getEmailByVerificationCode(verificationCode);
+            if (email == null || email.isEmpty()) {
+                log.warn("저장된 인증 코드 없음 또는 일치하는 이메일 없음");
+                return new DataResponse<>(400, "잘못된 인증 코드이거나 만료되었습니다.", null);
             }
 
             // 인증 코드 검증
-            if (!storedCode.equals(verificationCode)) {
+            if (!emailUtil.verifyCode(email, verificationCode)) {
                 log.warn("인증 코드 불일치: {}", personalDataUtil.maskEmail(email));
                 return new DataResponse<>(400, "인증 코드가 일치하지 않습니다.", null);
             }
 
-            // 리셋 토큰 생성 (10분 유효)
-            long resetTokenExpiry = 600; // 10분 (초 단위)
-            String resetToken = jwtTokenProvider.createResetToken(email, resetTokenExpiry);
-
-            log.info("비밀번호 재설정 토큰 생성 완료: {}", personalDataUtil.maskEmail(email));
-
-            return new DataResponse<>(200, "인증 코드가 확인되었습니다.", 
-                new com.pj.portfoliosite.portfoliosite.user.dto.PasswordResetTokenResponseDto(resetToken, resetTokenExpiry));
+            log.info("인증 코드 검증 완료: {}", personalDataUtil.maskEmail(email));
+            return new DataResponse<>(200, "인증 코드가 확인되었습니다. 이메일을 참조하여 비밀번호를 변경하세요.", null);
 
         } catch (Exception e) {
-            log.error("비밀번호 재설정 인증 코드 검증 실패: {}", e.getMessage(), e);
+            log.error("인증 코드 검증 실패: {}", e.getMessage(), e);
             return new DataResponse<>(500, "인증 코드 검증 처리 중 오류가 발생했습니다.", null);
         }
     }
 
     /**
-     * 비밀번호 재설정 실행 (3단계) - 토큰 기반
+     * 비밀번호 재설정 (새 로직) - 3단계: 비밀번호 변경 (저장된 이메일 자동 참조)
+     * 2단계에서 저장된 이메일을 자동으로 사용하며, newPassword와 newPasswordConfirm만 필요
      */
     @Transactional
-    public DataResponse<String> resetPasswordWithToken(String resetToken, String newPassword) {
+    public DataResponse<String> resetPasswordNewLogic(String newPassword, String newPasswordConfirm) {
         try {
-            log.info("비밀번호 재설정 시도: 토큰 기반");
+            log.info("비밀번호 재설정 시도 (3단계)");
 
-            // 리셋 토큰 검증 및 이메일 추출
-            String email = jwtTokenProvider.validateResetToken(resetToken);
-            if (email == null || email.isEmpty()) {
-                log.warn("유효하지 않은 리셋 토큰");
-                return new DataResponse<>(401, "토큰이 유효하지 않거나 만료되었습니다.", null);
+            // 입력값 검증
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                log.warn("새 비밀번호 누락");
+                return new DataResponse<>(400, "새 비밀번호가 필요합니다.", null);
             }
 
-            log.info("토큰에서 추출한 이메일: {}", personalDataUtil.maskEmail(email));
+            if (newPasswordConfirm == null || newPasswordConfirm.trim().isEmpty()) {
+                log.warn("새 비밀번호 확인 누락");
+                return new DataResponse<>(400, "새 비밀번호 확인이 필요합니다.", null);
+            }
 
-            // 사용자 조회
-            User user = findUserByEmailSafely(email);
+            // 2단계에서 검증된 이메일 조회
+            String verifiedEmail = emailUtil.getVerifiedPasswordResetEmail();
+            
+            if (verifiedEmail == null || verifiedEmail.isEmpty()) {
+                log.warn("검증된 이메일 없음 - 비밀번호 재설정 인증 과정을 다시 진행해주세요");
+                return new DataResponse<>(401, "검증되지 않은 요청입니다. 비밀번호 재설정 인증을 다시 진행해주세요.", null);
+            }
+
+            log.info("2단계에서 저장된 이메일 조회: {}", personalDataUtil.maskEmail(verifiedEmail));
+
+            // 이메일 등록 여부 확인
+            User user = findUserByEmailSafely(verifiedEmail);
             if (user == null) {
-                log.error("사용자를 찾을 수 없음: {}", personalDataUtil.maskEmail(email));
-                return new DataResponse<>(404, "사용자를 찾을 수 없습니다.", null);
+                log.error("사용자를 찾을 수 없음: {}", personalDataUtil.maskEmail(verifiedEmail));
+                return new DataResponse<>(404, "등록되지 않은 이메일입니다.", null);
             }
 
-            // 새 비밀번호 암호화 및 저장
-            String encodedPassword = passwordEncoder.encode(newPassword);
-            user.setPassword(encodedPassword);
+            // 새 비밀번호와 확인이 일치하는지 검증
+            if (!newPassword.equals(newPasswordConfirm)) {
+                log.warn("새 비밀번호와 확인이 일치하지 않음");
+                return new DataResponse<>(400, "새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.", null);
+            }
+
+            // 새 비밀번호 유효성 검증
+            if (!isValidPassword(newPassword)) {
+                log.warn("새 비밀번호 유효성 검증 실패");
+                return new DataResponse<>(400,
+                        "비밀번호는 8-16자, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.", null);
+            }
+
+            // 현재 비밀번호와 새 비밀번호가 같은지 확인
+            if (passwordEncoder.matches(newPassword, user.getPassword())) {
+                log.warn("새 비밀번호가 현재 비밀번호와 동일함: {}", personalDataUtil.maskEmail(verifiedEmail));
+                return new DataResponse<>(400, "새 비밀번호는 현재 비밀번호와 달라야 합니다.", null);
+            }
+
+            // 새 비밀번호 저장
+            user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
 
-            // 저장된 인증 코드 삭제
-            emailUtil.clearStoredVerificationCode(email);
+            log.info("비밀번호 변경 저장 완료: {}", personalDataUtil.maskEmail(verifiedEmail));
 
-            log.info("비밀번호 재설정 완료: {}", personalDataUtil.maskEmail(email));
+            // 저장된 검증 이메일 삭제
+            emailUtil.removeVerifiedPasswordResetEmail();
+
+            log.info("비밀번호 재설정 완료: {}", personalDataUtil.maskEmail(verifiedEmail));
             return new DataResponse<>(200, "비밀번호가 성공적으로 변경되었습니다.", null);
 
         } catch (Exception e) {

@@ -2,7 +2,6 @@ package com.pj.portfoliosite.portfoliosite.project;
 
 import com.pj.portfoliosite.portfoliosite.global.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
