@@ -84,14 +84,7 @@ public class ProjectCommentService {
     @Transactional
     public boolean updateComment(Long projectId, Long commentId, String comment) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        String userEmail;
-        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
-            userEmail = authentication.getName();
-        } else {
-            throw new RuntimeException("로그인이 필요합니다.");
-        }
 
         ProjectComment projectComment = projectCommentRepository.selectByProjectIdAndId(projectId,commentId);
         if(projectComment!=null) {
