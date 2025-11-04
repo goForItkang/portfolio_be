@@ -48,9 +48,9 @@ public class ProjectCommentController {
     public ResponseEntity<DataResponse> updateComment(
             @PathVariable Long projectId,
             @PathVariable Long commentId,
-            @RequestParam String comment
+            @RequestBody ReqCommentDTO reqCommentDTO
     ){
-        boolean result = projectCommentService.updateComment(projectId,commentId,comment);
+        boolean result = projectCommentService.updateComment(projectId,commentId, reqCommentDTO.getComment());
         DataResponse dataResponse = new DataResponse();
         if(result) {
             dataResponse.setMessage("정상적으로 수정됨");
