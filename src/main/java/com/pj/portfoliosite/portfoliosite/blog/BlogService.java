@@ -197,6 +197,7 @@ public class BlogService {
     int safeSize = Math.min(Math.max(size, 1), 50);
 
     List<Blog> blogs = blogRepository.selectByCreatAtDesc(safePage,safeSize);
+    log.info("{}",blogs.size());
     Long total = blogRepository.selectCount();
     List<ResBlogDTO> content = blogListToResBlogDTOList(blogs);
 

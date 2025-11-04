@@ -96,7 +96,7 @@ public class BlogRepository {
     public List<Blog> selectByCreatAtDesc(int safePage, int safeSize) {
         return em.createQuery(
                 """
-        select b from Blog b where b.access = 0 order by b.createdAt desc 
+        select b from Blog b where b.access = 1 order by b.createdAt desc 
          """,Blog.class
         ).setFirstResult(safePage * safeSize)
                 .setMaxResults(safeSize)
