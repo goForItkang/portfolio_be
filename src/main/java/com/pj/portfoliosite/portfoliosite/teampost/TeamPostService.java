@@ -10,6 +10,7 @@ import com.pj.portfoliosite.portfoliosite.teampost.like.TeamPostLikeRepository;
 import com.pj.portfoliosite.portfoliosite.teampost.skill.TeamPostSkillService;
 import com.pj.portfoliosite.portfoliosite.user.UserRepository;
 import com.pj.portfoliosite.portfoliosite.util.PersonalDataUtil;
+import com.pj.portfoliosite.portfoliosite.skill.SkillRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ public class TeamPostService {
     private final TeamPostBookMarkRepository teamPostBookMarkRepository;
     private final TeamPostSkillService teamPostSkillService;
     private final PersonalDataUtil personalDataUtil;
+    private final SkillRepository skillRepository;
 
     // 팀원 구하기 저장
     @Transactional
@@ -63,7 +66,36 @@ public class TeamPostService {
                     RecruitRole recruitRole = new RecruitRole();
                     recruitRole.setRole(roleDto.getRole());
                     recruitRole.setCount(roleDto.getCount());
-                    recruitRole.setSkills(roleDto.getSkills());  // 스킬 설정 추가
+                    
+                    // ✅ skillIds를 SkillInfo로 변환하여 JSON 저장
+                    System.out.println("=== DEBUG: RecruitRole Skill Processing ===");
+                    System.out.println("roleDto.getSkillIds(): " + roleDto.getSkillIds());
+                    System.out.println("roleDto.getSkills(): " + roleDto.getSkills());
+                    
+                    if (roleDto.getSkillIds() != null && !roleDto.getSkillIds().isEmpty()) {
+                        System.out.println("Processing skillIds: " + roleDto.getSkillIds());
+                        List<RecruitRole.SkillInfo> skillInfos = new ArrayList<>();
+                        for (Long skillId : roleDto.getSkillIds()) {
+                            Skill skill = skillRepository.findById(skillId)
+                                    .orElseThrow(() -> new RuntimeException("Skill not found: " + skillId));
+                            skillInfos.add(new RecruitRole.SkillInfo(skill.getId(), skill.getName()));
+                        }
+                        recruitRole.setSkills(skillInfos);
+                        System.out.println("Skills set successfully: " + skillInfos);
+                    } else if (roleDto.getSkills() != null && !roleDto.getSkills().isEmpty()) {
+                        System.out.println("Processing skills objects directly: " + roleDto.getSkills());
+                        List<RecruitRole.SkillInfo> skillInfos = new ArrayList<>();
+                        for (RecruitRoleDto.SkillDto skillDto : roleDto.getSkills()) {
+                            if (skillDto.getId() != null && skillDto.getName() != null) {
+                                skillInfos.add(new RecruitRole.SkillInfo(skillDto.getId(), skillDto.getName()));
+                            }
+                        }
+                        recruitRole.setSkills(skillInfos);
+                        System.out.println("Skills set from DTO objects: " + skillInfos);
+                    } else {
+                        System.out.println("No skills found for this role");
+                    }
+                    
                     teamPost.addRecruitRole(recruitRole);
                 }
             }
@@ -158,18 +190,10 @@ public class TeamPostService {
             Long userId = user.getId();
             Long postOwnerId = teamPost.getUser().getId();
             
-            // 디버깅 로그 추가
-            System.out.println("=== Owner Check Debug ===");
-            System.out.println("Current User ID: " + userId);
-            System.out.println("Post Owner ID: " + postOwnerId);
-            System.out.println("Are they equal? " + userId.equals(postOwnerId));
-            
             dto.setLiked(teamPostLikeRepository.existLike(id, userId));
             dto.setBookmarked(teamPostBookMarkRepository.existBookMark(id, userId));
             dto.setOwner(userId.equals(postOwnerId));
         } else {
-            System.out.println("=== Owner Check Debug ===");
-            System.out.println("User is null - not logged in or user not found");
             dto.setLiked(false);
             dto.setBookmarked(false);
             dto.setOwner(false);
@@ -184,12 +208,7 @@ public class TeamPostService {
 
         List<RecruitRoleDto> roleDTOs = new ArrayList<>();
         for (RecruitRole role : teamPost.getRecruitRoles()) {
-            RecruitRoleDto roleDto = new RecruitRoleDto();
-            roleDto.setRole(role.getRole());
-            roleDto.setCount(role.getCount());
-            roleDto.setPeople(role.getPeople());
-            roleDto.setSkills(role.getSkills());  // 스킬 목록 추가
-            roleDTOs.add(roleDto);
+            roleDTOs.add(convertRecruitRoleToDto(role));
         }
         dto.setRecruitRoles(roleDTOs);
 
@@ -303,35 +322,74 @@ public class TeamPostService {
     // 팀원 구하기 수정
     @Transactional
     public void updateTeamPost(Long id, ReqTeamPostDTO reqTeamPostDTO) {
-        TeamPost teamPost = teamPostRepository.findById(id);
-
-        teamPost.setTitle(reqTeamPostDTO.getTitle());
-        teamPost.setContent(reqTeamPostDTO.getContent());
-        teamPost.setRecruitDeadline(reqTeamPostDTO.getRecruitDeadline());
-        teamPost.setContactMethod(reqTeamPostDTO.getContactMethod());
-        teamPost.setSaveStatus(reqTeamPostDTO.isSaveStatus());
-        
-        // 기존 recruitRoles 삭제
-        teamPost.getRecruitRoles().clear();
-        
-        // 새로운 recruitRoles 추가
-        if (reqTeamPostDTO.getRecruitRoles() != null) {
-            for (RecruitRoleDto roleDto : reqTeamPostDTO.getRecruitRoles()) {
-                RecruitRole recruitRole = new RecruitRole();
-                recruitRole.setRole(roleDto.getRole());
-                recruitRole.setCount(roleDto.getCount());
-                recruitRole.setPeople(roleDto.getPeople());
-                recruitRole.setSkills(roleDto.getSkills());  // 스킬 설정 추가
-                teamPost.addRecruitRole(recruitRole);
+        try {
+            TeamPost teamPost = teamPostRepository.findById(id);
+            
+            if (teamPost == null) {
+                throw new RuntimeException("게시물을 찾을 수 없습니다.");
             }
-        }
-        
-        // 스킬 업데이트
-        if (reqTeamPostDTO.getSkills() != null) {
-            teamPostSkillService.updateTeamPostSkills(teamPost, reqTeamPostDTO.getSkills());
-        }
 
-        teamPostRepository.updateTeamPost(teamPost);
+            teamPost.setTitle(reqTeamPostDTO.getTitle());
+            teamPost.setContent(reqTeamPostDTO.getContent());
+            teamPost.setRecruitDeadline(reqTeamPostDTO.getRecruitDeadline());
+            teamPost.setContactMethod(reqTeamPostDTO.getContactMethod());
+            teamPost.setSaveStatus(reqTeamPostDTO.isSaveStatus());
+            
+            // 기존 recruitRoles 삭제
+            teamPost.getRecruitRoles().clear();
+            
+            // 새로운 recruitRoles 추가
+            if (reqTeamPostDTO.getRecruitRoles() != null) {
+                for (RecruitRoleDto roleDto : reqTeamPostDTO.getRecruitRoles()) {
+                    RecruitRole recruitRole = new RecruitRole();
+                    recruitRole.setRole(roleDto.getRole());
+                    recruitRole.setCount(roleDto.getCount());
+                    recruitRole.setPeople(roleDto.getPeople());
+                    
+                    System.out.println("=== DEBUG: RecruitRole Update Skill Processing ===");
+                    System.out.println("roleDto.getSkillIds(): " + roleDto.getSkillIds());
+                    System.out.println("roleDto.getSkills(): " + roleDto.getSkills());
+                    
+                    if (roleDto.getSkillIds() != null && !roleDto.getSkillIds().isEmpty()) {
+                        System.out.println("Processing skillIds: " + roleDto.getSkillIds());
+                        List<RecruitRole.SkillInfo> skillInfos = new ArrayList<>();
+                        for (Long skillId : roleDto.getSkillIds()) {
+                            Skill skill = skillRepository.findById(skillId)
+                                    .orElseThrow(() -> new RuntimeException("Skill not found: " + skillId));
+                            skillInfos.add(new RecruitRole.SkillInfo(skill.getId(), skill.getName()));
+                        }
+                        recruitRole.setSkills(skillInfos);
+                        System.out.println("Skills set successfully: " + skillInfos);
+                    } else if (roleDto.getSkills() != null && !roleDto.getSkills().isEmpty()) {
+                        System.out.println("Processing skills objects directly: " + roleDto.getSkills());
+                        List<RecruitRole.SkillInfo> skillInfos = new ArrayList<>();
+                        for (RecruitRoleDto.SkillDto skillDto : roleDto.getSkills()) {
+                            if (skillDto.getId() != null && skillDto.getName() != null) {
+                                skillInfos.add(new RecruitRole.SkillInfo(skillDto.getId(), skillDto.getName()));
+                            }
+                        }
+                        recruitRole.setSkills(skillInfos);
+                        System.out.println("Skills set from DTO objects: " + skillInfos);
+                    } else {
+                        System.out.println("No skills found for this role");
+                    }
+                    
+                    teamPost.addRecruitRole(recruitRole);
+                }
+            }
+            
+            // 스킬 업데이트
+            if (reqTeamPostDTO.getSkills() != null) {
+                teamPostSkillService.updateTeamPostSkills(teamPost, reqTeamPostDTO.getSkills());
+            }
+
+            teamPostRepository.updateTeamPost(teamPost);
+            
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("게시물 수정 중 오류가 발생했습니다.", e);
+        }
     }
 
     // 팀원 구하기 삭제
@@ -352,17 +410,33 @@ public class TeamPostService {
         dto.setViewCount(teamPost.getViewCount());
         dto.setLikeCount(teamPost.getLikes().size());
 
+        // ✅ convertRecruitRoleToDto() 메서드 사용
         List<RecruitRoleDto> requiredRoles = new ArrayList<>();
         for (RecruitRole role : teamPost.getRecruitRoles()) {
-            RecruitRoleDto roleDto = new RecruitRoleDto();
-            roleDto.setRole(role.getRole());
-            roleDto.setCount(role.getCount());
-            roleDto.setPeople(role.getPeople());
-            roleDto.setSkills(role.getSkills());
-            requiredRoles.add(roleDto);
+            requiredRoles.add(convertRecruitRoleToDto(role));
         }
         dto.setRequiredRoles(requiredRoles);
 
+        return dto;
+    }
+
+    private RecruitRoleDto convertRecruitRoleToDto(RecruitRole role) {
+        RecruitRoleDto dto = new RecruitRoleDto();
+        dto.setId(role.getId());
+        dto.setRole(role.getRole());
+        dto.setCount(role.getCount());
+        dto.setPeople(role.getPeople());
+        
+        if (role.getSkills() != null && !role.getSkills().isEmpty()) {
+            List<RecruitRoleDto.SkillDto> skillDtos = role.getSkills().stream()
+                    .map(skillInfo -> RecruitRoleDto.SkillDto.builder()
+                            .id(skillInfo.getId())
+                            .name(skillInfo.getName())
+                            .build())
+                    .collect(Collectors.toList());
+            dto.setSkills(skillDtos);
+        }
+        
         return dto;
     }
 
@@ -432,48 +506,39 @@ public class TeamPostService {
     }
 
     private User findUserByEmailSafely(String email) {
-        System.out.println("=== findUserByEmailSafely Debug ===");
-        System.out.println("Looking for email: " + email);
-        
         try {
             try {
                 String encryptedEmail = personalDataUtil.encryptPersonalData(email);
-                System.out.println("Encrypted email: " + encryptedEmail);
                 Optional<User> userOpt = userRepository.findByEmail(encryptedEmail);
                 if (userOpt.isPresent()) {
-                    System.out.println("Found user with encrypted email. User ID: " + userOpt.get().getId());
                     return userOpt.get();
                 }
             } catch (Exception e) {
-                System.out.println("암호화된 이메일 검색 실패: " + e.getMessage());
+                // 암호화 시도 실패 시 평문으로 계속 진행
             }
 
             Optional<User> userOpt = userRepository.findByEmail(email);
             if (userOpt.isPresent()) {
-                System.out.println("Found user with plain email. User ID: " + userOpt.get().getId());
                 return userOpt.get();
             }
 
-            System.out.println("전체 사용자 검색 시작...");
+            // 마이그레이션 필요 시 모든 사용자 조회
             List<User> allUsers = userRepository.findAllForMigration();
-            System.out.println("Total users in DB: " + allUsers.size());
             
             for (User user : allUsers) {
                 try {
                     String userEmail = user.getEmail();
                     if (userEmail != null) {
                         if (email.equals(userEmail)) {
-                            System.out.println("Found user with plain match. User ID: " + user.getId());
                             return user;
                         }
                         
                         try {
                             String decryptedEmail = personalDataUtil.decryptPersonalData(userEmail);
                             if (email.equals(decryptedEmail)) {
-                                System.out.println("Found user with decrypted email. User ID: " + user.getId());
                                 return user;
                             }
-                        } catch (Exception decryptError) {
+                        } catch (Exception e) {
                             // 복호화 실패는 무시
                         }
                     }
@@ -482,11 +547,9 @@ public class TeamPostService {
                 }
             }
             
-            System.out.println("사용자를 찾을 수 없음");
             return null;
             
         } catch (Exception e) {
-            System.out.println("오류 발생: " + e.getMessage());
             return null;
         }
     }
