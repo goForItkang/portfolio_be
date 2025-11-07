@@ -2,10 +2,13 @@ package com.pj.portfoliosite.portfoliosite.teampost;
 
 import com.pj.portfoliosite.portfoliosite.global.entity.TeamPost;
 import com.pj.portfoliosite.portfoliosite.global.entity.RecruitRole;
+import com.pj.portfoliosite.portfoliosite.global.entity.User;
 import com.pj.portfoliosite.portfoliosite.global.dto.RecruitRoleDto;
 import com.pj.portfoliosite.portfoliosite.teampost.dto.ResTeamPostDTO;
+import com.pj.portfoliosite.portfoliosite.util.PersonalDataUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,9 +19,12 @@ import java.util.stream.Collectors;
 
 @Repository
 @Transactional
+@RequiredArgsConstructor
 public class TeamPostRepository {
     @PersistenceContext
     private EntityManager entityManager;
+    
+    private final PersonalDataUtil personalDataUtil;
 
     public void insertTeamPost(TeamPost teamPost) {
         try {
@@ -29,14 +35,20 @@ public class TeamPostRepository {
     }
 
     public TeamPost findById(Long id) {
-        return entityManager.createQuery(
-                        "SELECT tp FROM TeamPost tp " +
-                        "LEFT JOIN FETCH tp.user " +
-                        "LEFT JOIN FETCH tp.recruitRoles " +
-                        "WHERE tp.id = :id",
-                        TeamPost.class)
-                .setParameter("id", id)
-                .getSingleResult();
+        try {
+            return entityManager.createQuery(
+                            "SELECT tp FROM TeamPost tp " +
+                            "LEFT JOIN FETCH tp.user " +
+                            "LEFT JOIN FETCH tp.recruitRoles " +
+                            "WHERE tp.id = :id",
+                            TeamPost.class)
+                    .setParameter("id", id)
+                    .getResultStream()
+                    .findFirst()
+                    .orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public List<TeamPost> selectByCreateAtDesc(int page, int size) {
@@ -44,6 +56,7 @@ public class TeamPostRepository {
                         "select tp " +
                                 "from TeamPost tp " +
                                 "left join fetch tp.user u " +
+                                "left join fetch tp.recruitRoles " +
                                 "where tp.saveStatus = false " +
                                 "order by tp.createdAt desc, tp.id desc",
                         TeamPost.class)
@@ -66,7 +79,7 @@ public class TeamPostRepository {
                         "select distinct tp " +
                                 "from TeamPost tp " +
                                 "left join fetch tp.user u " +
-                                "left join tp.recruitRoles rr " +
+                                "left join fetch tp.recruitRoles rr " +
                                 "where tp.saveStatus = false " +
                                 "and rr.role = :category " +
                                 "order by tp.createdAt desc, tp.id desc",
@@ -109,7 +122,9 @@ public class TeamPostRepository {
     // 사용자의 임시저장 게시물 조회
     public List<ResTeamPostDTO> findDraftsByUserId(Long userId) {
         List<TeamPost> drafts = entityManager.createQuery(
-                        "SELECT tp FROM TeamPost tp WHERE tp.user.id = :userId AND tp.saveStatus = true ORDER BY tp.createdAt DESC",
+                        "SELECT tp FROM TeamPost tp " +
+                        "LEFT JOIN FETCH tp.recruitRoles " +
+                        "WHERE tp.user.id = :userId AND tp.saveStatus = true ORDER BY tp.createdAt DESC",
                         TeamPost.class)
                 .setParameter("userId", userId)
                 .getResultList();
@@ -123,6 +138,7 @@ public class TeamPostRepository {
         
         return entityManager.createQuery(
                 "SELECT tp FROM TeamPost tp " +
+                "LEFT JOIN FETCH tp.recruitRoles " +
                 "LEFT JOIN tp.likes l " +
                 "WHERE tp.saveStatus = false " +
                 "AND (l.createdAt >= :oneWeekAgo OR l.createdAt IS NULL) " +
@@ -140,6 +156,7 @@ public class TeamPostRepository {
                         "select tp " +
                                 "from TeamPost tp " +
                                 "left join fetch tp.user u " +
+                                "left join fetch tp.recruitRoles " +
                                 "where tp.saveStatus = false " +
                                 "order by tp.createdAt desc, tp.id desc",
                         TeamPost.class)
@@ -157,14 +174,58 @@ public class TeamPostRepository {
                 .getSingleResult();
     }
 
+    /**
+     * User의 nickname 또는 name을 복호화하여 반환
+     */
+    private String getDecryptedWriterName(User user) {
+        if (user == null) {
+            return null;
+        }
+        
+        try {
+            // nickname 우선 시도
+            String nickname = user.getNickname();
+            if (nickname != null && !nickname.isEmpty()) {
+                try {
+                    String decryptedNickname = personalDataUtil.decryptPersonalData(nickname);
+                    // 복호화가 성공하고 결과가 다르면 복호화된 값 사용
+                    if (!decryptedNickname.equals(nickname)) {
+                        return decryptedNickname;
+                    }
+                    // 복호화 결과가 같으면 이미 평문
+                    return nickname;
+                } catch (Exception e) {
+                    // 복호화 실패 시 평문으로 간주
+                    return nickname;
+                }
+            }
+            
+            // nickname이 없으면 name 사용
+            String name = user.getName();
+            if (name != null && !name.isEmpty()) {
+                try {
+                    String decryptedName = personalDataUtil.decryptPersonalData(name);
+                    if (!decryptedName.equals(name)) {
+                        return decryptedName;
+                    }
+                    return name;
+                } catch (Exception e) {
+                    return name;
+                }
+            }
+            
+            return "Unknown";
+        } catch (Exception e) {
+            return "Unknown";
+        }
+    }
+
     // TeamPost를 ResTeamPostDTO로 변환하는 헬퍼 메서드
     private ResTeamPostDTO convertToDTO(TeamPost teamPost) {
         ResTeamPostDTO dto = new ResTeamPostDTO();
         dto.setId(teamPost.getId());
         dto.setTitle(teamPost.getTitle());
-        dto.setWriterName(teamPost.getUser() != null ? 
-            (teamPost.getUser().getNickname() != null ? teamPost.getUser().getNickname() : teamPost.getUser().getName()) 
-            : null);
+        dto.setWriterName(getDecryptedWriterName(teamPost.getUser()));
         dto.setCreatedAt(teamPost.getCreatedAt());
         dto.setRecruitStatus(teamPost.getRecruitStatus().toString());
         dto.setViewCount(teamPost.getViewCount());
@@ -177,7 +238,18 @@ public class TeamPostRepository {
                 roleDto.setRole(role.getRole());
                 roleDto.setCount(role.getCount());
                 roleDto.setPeople(role.getPeople());
-                roleDto.setSkills(role.getSkills());
+                
+                // SkillInfo를 SkillDto로 변환
+                if (role.getSkills() != null && !role.getSkills().isEmpty()) {
+                    List<RecruitRoleDto.SkillDto> skillDtos = role.getSkills().stream()
+                            .map(skillInfo -> RecruitRoleDto.SkillDto.builder()
+                                    .id(skillInfo.getId())
+                                    .name(skillInfo.getName())
+                                    .build())
+                            .collect(Collectors.toList());
+                    roleDto.setSkills(skillDtos);
+                }
+                
                 requiredRoles.add(roleDto);
             }
         }

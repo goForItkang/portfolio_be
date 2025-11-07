@@ -148,6 +148,7 @@ public class BlogService {
             LocalDate today = LocalDate.now();
             LocalDate weekAgo = today.minusWeeks(1);
             List<Blog> blogs = blogRepository.selectByLikeDesc(today,weekAgo);
+
             //만약 최신 좋아요가 있는 게시물이 4개보다 적은 경우
             if (blogs.size() < 4) {
                 int diff = 4 - blogs.size();

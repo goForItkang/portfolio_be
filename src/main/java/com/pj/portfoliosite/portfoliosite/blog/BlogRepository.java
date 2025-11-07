@@ -80,15 +80,18 @@ public class BlogRepository {
     public List<Blog> selectByLikeDesc(LocalDate today, LocalDate weekAgo) {
         return em.createQuery(
                 """
-        select b from Blog b
-        left join b.blogLikes bl
-        where b.createdAt between :startDate and :andDate
-        group by b 
-        order by count(bl) desc
+        SELECT b
+        FROM Blog b
+        LEFT JOIN b.blogLikes bl
+        WHERE b.createdAt BETWEEN :startDate AND :endDate
+          AND b.access = 1
+        GROUP BY b
+        ORDER BY COUNT(bl) DESC
+        
         
 """,Blog.class
         ).setParameter("startDate", weekAgo.atStartOfDay())
-                .setParameter("andDate", today.atTime(23,59,59))
+                .setParameter("endDate", today.atTime(23,59,59))
                 .getResultList();
     }
 
@@ -122,13 +125,13 @@ select b from Blog b where b.user.email =:email
 
     public List<Blog> findTopByLikeDescExcludeIds(List<Long> existingIds, int diff) {
         String jpql = """
-        select b 
-        from Blog b
-        left join b.blogLikes bl
-        where (:idsEmpty = true or b.id not in :ids)
-        group by b
-        order by count(bl) desc
-        """;
+        SELECT b
+        FROM Blog b
+        LEFT JOIN b.blogLikes bl
+        WHERE (:idsEmpty = true OR b.id NOT IN :ids)
+        GROUP BY b
+        ORDER BY COUNT(bl) DESC
+    """;
 
         return em.createQuery(jpql, Blog.class)
                 .setParameter("idsEmpty", existingIds == null || existingIds.isEmpty())
