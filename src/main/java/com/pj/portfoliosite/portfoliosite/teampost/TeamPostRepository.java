@@ -132,25 +132,42 @@ public class TeamPostRepository {
         return drafts.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    // 일주일간 좋아요를 많이 받은 TeamPost 4개 조회 (메인 페이지용)
+    // 좋아요 많은 TeamPost 4개 조회 (메인 페이지용)
     public List<TeamPost> findTop4ByLikesInLastWeek() {
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
         
-        return entityManager.createQuery(
-                "SELECT tp FROM TeamPost tp " +
-                "LEFT JOIN FETCH tp.recruitRoles " +
+        // 1) 먼저 좋아요 수가 많은 TeamPost ID들을 조회 (GROUP BY 사용)
+        List<Long> topTeamPostIds = entityManager.createQuery(
+                "SELECT tp.id " +
+                "FROM TeamPost tp " +
                 "LEFT JOIN tp.likes l " +
                 "WHERE tp.saveStatus = false " +
                 "AND (l.createdAt >= :oneWeekAgo OR l.createdAt IS NULL) " +
                 "GROUP BY tp.id " +
                 "ORDER BY COUNT(l.id) DESC, tp.createdAt DESC",
-                TeamPost.class)
+                Long.class)
                 .setParameter("oneWeekAgo", oneWeekAgo)
                 .setMaxResults(4)
                 .getResultList();
+        
+        // 2) ID 리스트가 비어있으면 빈 리스트 반환
+        if (topTeamPostIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        // 3) 해당 ID들의 TeamPost를 모든 관계와 함께 조회
+        return entityManager.createQuery(
+                "SELECT tp FROM TeamPost tp " +
+                "LEFT JOIN FETCH tp.user " +
+                "LEFT JOIN FETCH tp.recruitRoles " +
+                "WHERE tp.id IN :ids " +
+                "ORDER BY tp.createdAt DESC",
+                TeamPost.class)
+                .setParameter("ids", topTeamPostIds)
+                .getResultList();
     }
 
-    // 전체 팀포스트 목록 조회 (페이지네이션, 임시저장 제외)
+    // 전체 팀포스트 목록 조회
     public List<TeamPost> selectAllTeamPosts(int page, int size) {
         return entityManager.createQuery(
                         "select tp " +
